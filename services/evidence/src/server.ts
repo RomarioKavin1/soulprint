@@ -10,7 +10,7 @@ import * as ed from "@noble/ed25519";
 import {
   anchorMessage, b64, batchMessage, challengeAckMessage, eq, hex, nearPublicKey, parseNearPublicKey, verifyChain, type FrameMeta,
 } from "@soulprint/proof";
-import { authenticate, AuthError } from "./auth.ts";
+import { authenticate, AuthError, issueSession, sessionKey, verifySession } from "./auth.ts";
 import { BlobStore } from "./blob.ts";
 import type { ChainReader, PieceWithSegments } from "./chain.ts";
 
@@ -96,8 +96,14 @@ export async function buildApp(d: Deps): Promise<App> {
     const r = await db.query("INSERT INTO nonces (nonce, at) VALUES ($1, $2) ON CONFLICT DO NOTHING", [nonce, d.now()]);
     return (r.affectedRows ?? 0) === 1;
   };
-  const who = (req: FastifyRequest) =>
+  const sessions = sessionKey(d.masterKey);
+  const signed = (req: FastifyRequest) =>
     authenticate({ chain: d.chain, recipient: d.recipient, now: d.now, useNonce }, req.headers.authorization, req.method, req.url, (req as any).rawBody ?? "");
+  /** NEP-413 per request, or a session minted by one (Plan 3 review I2). */
+  const who = async (req: FastifyRequest) => {
+    const h = req.headers.authorization;
+    return h?.startsWith("Session ") ? verifySession(sessions, h, d.now()) : signed(req);
+  };
   const maybeWho = async (req: FastifyRequest) => (req.headers.authorization ? who(req) : null);
 
   /**
@@ -613,6 +619,9 @@ export async function buildApp(d: Deps): Promise<App> {
       story: story?.body ?? null,
     };
   });
+
+  /** One wallet signature → a 30-minute session token. A session cannot mint another one. */
+  app.post("/session", async (req) => issueSession(sessions, await signed(req), d.now()));
 
   app.get("/health", async () => ({ ok: true }));
   return app;

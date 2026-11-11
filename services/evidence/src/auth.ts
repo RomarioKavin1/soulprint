@@ -3,6 +3,7 @@
  * Header: `Authorization: NEP413 base64(json{accountId, publicKey, signature, message, nonce, recipient})`
  * where `message` = JSON {method, path, bodySha256, ts}. Nonces are single-use; ts within 5 min.
  */
+import { createHmac, timingSafeEqual } from "node:crypto";
 import * as ed from "@noble/ed25519";
 import { sha256 } from "@noble/hashes/sha256";
 import { Borsh, b64, parseNearPublicKey } from "@soulprint/proof";
@@ -69,4 +70,38 @@ export async function authenticate(d: AuthDeps, header: string | undefined, meth
   if (!(await d.chain.isFullAccessKey(a.accountId, a.publicKey))) throw new AuthError(401, "key_not_full_access");
   if (!(await d.useNonce(nonce))) throw new AuthError(401, "nonce_reused");
   return a.accountId as string;
+}
+
+// ---------------- sessions (Plan 3 review I2) ----------------
+
+/** One NEP-413 signature buys this long without further wallet prompts. */
+export const SESSION_TTL_MS = 30 * 60_000;
+
+export function sessionKey(masterKey: Uint8Array): Buffer {
+  return createHmac("sha256", masterKey).update("soulprint-session-v1").digest();
+}
+
+export function issueSession(key: Buffer, account: string, now: number) {
+  const expiresAt = now + SESSION_TTL_MS;
+  const body = Buffer.from(JSON.stringify({ a: account, e: expiresAt })).toString("base64url");
+  const mac = createHmac("sha256", key).update(body).digest("base64url");
+  return { token: `${body}.${mac}`, account, expiresAt };
+}
+
+/** `Authorization: Session <token>` → account. */
+export function verifySession(key: Buffer, header: string, now: number): string {
+  const [body, mac] = header.slice("Session ".length).split(".");
+  if (!body || !mac) throw new AuthError(401, "bad_auth");
+  const want = createHmac("sha256", key).update(body).digest();
+  const got = Buffer.from(mac, "base64url");
+  if (got.length !== want.length || !timingSafeEqual(got, want)) throw new AuthError(401, "bad_auth");
+  let s: { a?: unknown; e?: unknown };
+  try {
+    s = JSON.parse(Buffer.from(body, "base64url").toString("utf8"));
+  } catch {
+    throw new AuthError(401, "bad_auth");
+  }
+  if (typeof s.a !== "string" || typeof s.e !== "number") throw new AuthError(401, "bad_auth");
+  if (now >= s.e) throw new AuthError(401, "session_expired");
+  return s.a;
 }

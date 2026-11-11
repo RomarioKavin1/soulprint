@@ -39,4 +39,27 @@ describe("NEP-413", () => {
     const h2 = await nep413(artist, "POST", url, body);
     expect((await app.inject({ method: "POST", url, payload: body, headers: { authorization: h2 } })).statusCode).toBe(401);
   });
+
+  it("one signature opens a short session: no wallet prompt per request (Plan 3 review I2)", async () => {
+    const clock = { t: Date.now() };
+    const w = await world({ now: () => clock.t });
+    const url = `/pieces/${PIECE}/messages`;
+    // Sessions are minted only with a NEP-413 signature.
+    const s = await w.app.inject({ method: "POST", url: "/session", payload: {}, headers: { authorization: await nep413(w.client, "POST", "/session", {}) } });
+    expect(s.statusCode).toBe(200);
+    const { token, account, expiresAt } = s.json();
+    expect(account).toBe(w.client.account);
+    expect(expiresAt).toBeGreaterThan(clock.t);
+    const auth = { authorization: `Session ${token}` };
+    expect((await w.app.inject({ method: "POST", url, payload: { text: "hi" }, headers: auth })).statusCode).toBe(200);
+    const list = await w.app.inject({ method: "GET", url, headers: auth });
+    expect(list.json().items.map((m: any) => m.author)).toEqual([w.client.account]);
+    // A session cannot mint another one, a tampered token is refused, and it expires.
+    expect((await w.app.inject({ method: "POST", url: "/session", payload: {}, headers: auth })).statusCode).toBe(401);
+    const forged = token.replace(/^[^.]+/, Buffer.from(JSON.stringify({ a: w.artist.account, e: expiresAt })).toString("base64url"));
+    expect((await w.app.inject({ method: "GET", url, headers: { authorization: `Session ${forged}` } })).statusCode).toBe(401);
+    clock.t = expiresAt + 1;
+    const late = await w.app.inject({ method: "GET", url, headers: auth });
+    expect([late.statusCode, late.json().error]).toEqual([401, "session_expired"]);
+  });
 });
