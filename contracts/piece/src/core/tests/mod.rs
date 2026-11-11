@@ -8,6 +8,7 @@ mod t3_skeleton;
 mod t4_status;
 mod t5_commission;
 mod t6_dispute;
+mod t7_accounting;
 
 pub const SEC: u64 = 1_000_000_000;
 pub const DAY: u64 = 86_400 * SEC;

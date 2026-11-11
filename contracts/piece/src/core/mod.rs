@@ -229,6 +229,7 @@ pub enum Error {
     AlreadyConsented,
     InvalidDeadline,
     NotStandaloneEligible,
+    NotEnoughGas,
 }
 
 impl core::fmt::Display for Error {
