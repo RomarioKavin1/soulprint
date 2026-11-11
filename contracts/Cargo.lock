@@ -2080,6 +2080,7 @@ dependencies = [
 name = "mock-ft"
 version = "0.1.0"
 dependencies = [
+ "near-contract-standards",
  "near-sdk",
  "serde",
 ]
@@ -2198,6 +2199,15 @@ dependencies = [
  "json_comments",
  "thiserror 2.0.21",
  "tracing",
+]
+
+[[package]]
+name = "near-contract-standards"
+version = "5.30.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5172408539a27bda9a5bb611e1dcdb0825ee26296bf37ccec9299c7f90357834"
+dependencies = [
+ "near-sdk",
 ]
 
 [[package]]
@@ -4201,6 +4211,7 @@ dependencies = [
  "rand 0.8.8",
  "serde",
  "serde_json",
+ "sha2 0.10.9",
  "tokio",
  "wasmparser",
 ]

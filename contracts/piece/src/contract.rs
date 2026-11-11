@@ -31,6 +31,11 @@ enum FtAction {
     Reject,
 }
 
+/// Worst-case state growth of a `buy`: a new credit entry (≤ 64-byte account + slot + framing)
+/// plus an owner id up to 62 bytes longer than the seller's, less nothing (listing removal is
+/// not counted).
+pub const BUY_RESERVE_BYTES: u128 = 200;
+
 fn fail(e: Error) -> ! {
     env::panic_str(e.as_str())
 }
@@ -108,12 +113,20 @@ impl Piece {
 
     /// Mutating entry with a NEAR context. `value_call` = the attached deposit is the payment itself.
     fn run(&mut self, value_call: bool, f: impl FnOnce(&mut PieceCore, &Ctx) -> Result<Effects, Error>) {
+        self.run_keeping(value_call, 0, f)
+    }
+
+    /// As `run`, but the piece must keep `keep` yoctoNEAR of headroom after the call (paid from
+    /// the attached deposit if needed). Every dispatched `ft_transfer` also takes 1 yocto from
+    /// the piece's balance (NEP-141), so that is kept too.
+    fn run_keeping(&mut self, value_call: bool, keep: u128, f: impl FnOnce(&mut PieceCore, &Ctx) -> Result<Effects, Error>) {
         let ctx = near_ctx();
         let fx = f(&mut self.core, &ctx).unwrap_or_else(|e| fail(e));
-        let headroom = self.check_storage();
+        let ft_outflow = fx.iter().filter(|e| matches!(e, Effect::TransferFt { .. })).count() as u128;
+        let spare = self.check_storage().checked_sub(keep + ft_outflow).unwrap_or_else(|| env::panic_str("ERR_STORAGE"));
         // A13: anything above 1 yocto not needed for storage is refunded.
         if !value_call && ctx.attached > 1 {
-            let refund = (ctx.attached - 1).min(headroom);
+            let refund = (ctx.attached - 1).min(spare);
             if refund > 0 {
                 Self::send_near(&ctx.predecessor, refund);
             }
@@ -294,7 +307,10 @@ impl Piece {
 
     #[payable]
     pub fn list(&mut self, price: U128, reserved_for: Option<AccountId>) {
-        self.run(false, |c, ctx| c.list(ctx, price.0, reserved_for));
+        // A buy (NEAR or FT) carries no storage deposit but may grow state: the seller's new
+        // credit entry and a longer owner id. The lister pays for those bytes up front.
+        let keep = env::storage_byte_cost().as_yoctonear() * BUY_RESERVE_BYTES;
+        self.run_keeping(false, keep, |c, ctx| c.list(ctx, price.0, reserved_for));
     }
     #[payable]
     pub fn delist(&mut self) {
