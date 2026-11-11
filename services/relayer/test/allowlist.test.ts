@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { actions, buildDelegateAction, decodeSignedDelegate, encodeSignedDelegate, KeyPair, SignedDelegate, Signature } from "near-api-js";
+import { createHash } from "node:crypto";
+import { actions, buildDelegateAction, decodeSignedDelegate, encodeDelegateAction, encodeSignedDelegate, KeyPair, SignedDelegate, Signature } from "near-api-js";
 import { checkDelegate, DailyCap, NEAR_CAP, STORAGE_DEPOSIT_CAP } from "../src/allowlist.ts";
 import { buildRelayer } from "../src/server.ts";
 
 const C = "soulprint.test.near";
 const policy = { collection: C, currencyToken: "usdc.test.near" };
-const pk = KeyPair.fromRandom("ed25519").getPublicKey();
+const kp = KeyPair.fromRandom("ed25519");
+const pk = kp.getPublicKey();
+const sha256 = (b: Uint8Array) => new Uint8Array(createHash("sha256").update(b).digest());
 
 function delegate(receiverId: string, method: string, args: object = {}, deposit = 0n, senderId = "client.test.near") {
   const da = buildDelegateAction({
@@ -13,7 +16,8 @@ function delegate(receiverId: string, method: string, args: object = {}, deposit
     actions: [actions.functionCall(method, new TextEncoder().encode(JSON.stringify(args)), 30_000_000_000_000n, deposit)],
   });
   // Round-trip through Borsh: this is what the server sees.
-  return decodeSignedDelegate(encodeSignedDelegate(new SignedDelegate({ delegateAction: da, signature: new Signature({ keyType: 0, data: new Uint8Array(64) }) })));
+  const sig = kp.sign(sha256(encodeDelegateAction(da))).signature;
+  return decodeSignedDelegate(encodeSignedDelegate(new SignedDelegate({ delegateAction: da, signature: new Signature({ keyType: 0, data: sig }) })));
 }
 
 describe("relayer allowlist", () => {
@@ -51,12 +55,13 @@ describe("relayer allowlist", () => {
   });
   it("relays_valid_anchor: a valid delegate is submitted once, unchanged", async () => {
     const sent: SignedDelegate[] = [];
-    const app = await buildRelayer({ policy, cap: new DailyCap(50), now: Date.now, submit: async (sd) => { sent.push(sd); return { txHash: "h" }; } });
+    const chain = { hasKey: async (a: string) => a === "client.test.near", parties: async (p: string) => (p === `p1.${C}` ? ["client.test.near"] : null) };
+    const app = await buildRelayer({ policy, chain, cap: new DailyCap(50), budget: new DailyCap(1_000_000), now: Date.now, submit: async (sd) => { sent.push(sd); return { txHash: "h", ok: true }; } });
     const sd = delegate(`p1.${C}`, "anchor", { key: "k", head: "h", count: 3, sig: "s" });
     const body = { signedDelegate: Buffer.from(encodeSignedDelegate(sd)).toString("base64") };
     const r = await app.inject({ method: "POST", url: "/relay", payload: body });
     expect(r.statusCode).toBe(200);
-    expect(r.json()).toEqual({ txHash: "h" });
+    expect(r.json()).toEqual({ txHash: "h", ok: true });
     expect(sent).toHaveLength(1);
     expect(Buffer.from(encodeSignedDelegate(sent[0]!))).toEqual(Buffer.from(encodeSignedDelegate(sd)));
     const bad = await app.inject({ method: "POST", url: "/relay", payload: { signedDelegate: Buffer.from(encodeSignedDelegate(delegate("evil.near", "x"))).toString("base64") } });

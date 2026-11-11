@@ -13,3 +13,4 @@ apps/web/playwright-report/
 apps/web/next-env.d.ts
 *.tsbuildinfo
 config/networks.json
+services/*/data/
