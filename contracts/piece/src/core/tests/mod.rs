@@ -6,6 +6,7 @@ use near_sdk::AccountId;
 
 mod t3_skeleton;
 mod t4_status;
+mod t5_commission;
 
 pub const SEC: u64 = 1_000_000_000;
 pub const DAY: u64 = 86_400 * SEC;
@@ -112,3 +113,36 @@ pub fn new_piece(cur: &CurrencyConfig) -> PieceCore {
 pub fn has_event(fx: &Effects, name: &str) -> bool {
     fx.iter().any(|e| matches!(e, Effect::Event(ev) if ev.name() == name))
 }
+
+pub const FUND_AT: u64 = T0 + SEC;
+
+pub fn fund_ctx(cur: &CurrencyConfig, who: &AccountId, amount: u128, now: u64) -> Ctx {
+    match cur.currency {
+        Currency::Near => cx(who, amount, now),
+        Currency::Ft(_) => fx_ft(who, amount, now),
+    }
+}
+
+/// Funded by the named client at FUND_AT.
+pub fn funded(cur: &CurrencyConfig) -> PieceCore {
+    let mut p = new_piece(cur);
+    let h = p.terms_hash.unwrap();
+    p.fund(&fund_ctx(cur, &client(), price_for(cur), FUND_AT), h, None).unwrap();
+    p
+}
+
+pub const DELIVER_AT: u64 = T0 + 10 * DAY;
+
+pub fn delivered_piece(cur: &CurrencyConfig) -> PieceCore {
+    let mut p = funded(cur);
+    p.deliver(&cx(&artist(), 1, DELIVER_AT), Bytes32([0xf1; 32]), Bytes32([0xe1; 32])).unwrap();
+    p
+}
+
+pub fn settled_piece(cur: &CurrencyConfig) -> PieceCore {
+    let mut p = delivered_piece(cur);
+    p.accept(&cx(&client(), 1, DELIVER_AT + DAY)).unwrap();
+    p
+}
+
+pub const SETTLED_AT: u64 = DELIVER_AT + DAY;

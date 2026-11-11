@@ -491,3 +491,24 @@ impl PieceCore {
 
 #[cfg(test)]
 mod tests;
+
+impl PieceCore {
+    /// Run `f` on a copy and commit only on success: a rejected call changes nothing,
+    /// including any transition `materialise` would have made (A42).
+    pub(crate) fn tx(&mut self, now: u64, f: impl FnOnce(&mut Self, &mut Effects) -> Res<()>) -> Res {
+        let mut next = self.clone();
+        let mut fx = next.materialise(now);
+        f(&mut next, &mut fx)?;
+        *self = next;
+        Ok(fx)
+    }
+
+    /// Grant is active only once Settled (refunds void it; A21 splits < 50% end Refunded).
+    pub fn grant_active(&self) -> bool {
+        self.status == Status::Settled
+    }
+
+    pub(crate) fn is_party(&self, who: &AccountId) -> bool {
+        who == &self.artist || who == &self.owner
+    }
+}
