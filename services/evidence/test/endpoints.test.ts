@@ -97,6 +97,26 @@ describe("endpoint auth", () => {
     expect((await call(w, w.stranger, "GET", `/pieces/${PIECE}/progress?images=0`)).statusCode).toBe(403);
   });
 
+  it("reference images can be listed and opened by artist and client (Plan 3 review I5)", async () => {
+    const w = await seeded();
+    const data = new Uint8Array([0xff, 0xd8, 1, 2, 3, 0xff, 0xd9]);
+    const up = await call(w, w.client, "POST", `/pieces/${PIECE}/files`, { kind: "reference", name: "pose.jpg", data: b64.encode(data) });
+    expect(up.statusCode).toBe(200);
+    const list = `/pieces/${PIECE}/files?kind=reference`;
+    for (const who of [w.artist, w.client]) {
+      const items = (await call(w, who, "GET", list)).json().items;
+      expect(items).toEqual([expect.objectContaining({ id: up.json().id, name: "pose.jpg", author: w.client.account })]);
+      const one = `/pieces/${PIECE}/files/${up.json().id}`;
+      const r = await call(w, who, "GET", one);
+      expect(r.statusCode).toBe(200);
+      expect(new Uint8Array(r.rawPayload)).toEqual(data);
+    }
+    expect((await call(w, w.stranger, "GET", list)).statusCode).toBe(403);
+    expect((await call(w, w.stranger, "GET", `/pieces/${PIECE}/files/${up.json().id}`)).statusCode).toBe(403);
+    // Only references are served here; the holder files go through the vault.
+    expect((await call(w, w.artist, "GET", `/pieces/${PIECE}/files?kind=final`)).statusCode).toBe(400);
+  });
+
   it("final anchor: artist forces the latest head on chain before deliver", async () => {
     const w = await seeded();
     const url = `/pieces/${PIECE}/anchor/final`;

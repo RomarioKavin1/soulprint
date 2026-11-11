@@ -1,7 +1,7 @@
 "use client";
 import { useCallback } from "react";
 import { useNear } from "@/components/NearProvider";
-import { evidenceFetch } from "./auth.ts";
+import { evidenceBytes, evidenceFetch } from "./auth.ts";
 
 export const EVIDENCE_BASE = "/evidence";
 
@@ -13,6 +13,12 @@ export function useEvidence() {
       evidenceFetch<T>(EVIDENCE_BASE, config.evidenceRecipient, opts.anonymous ? null : signer, method, path, body),
     [signer, config.evidenceRecipient],
   );
+}
+
+/** Authenticated byte download from the evidence service (reference images). */
+export function useEvidenceBytes() {
+  const { signer, config } = useNear();
+  return useCallback((path: string) => evidenceBytes(EVIDENCE_BASE, config.evidenceRecipient, signer, path), [signer, config.evidenceRecipient]);
 }
 
 export function bytesToB64(b: Uint8Array) {

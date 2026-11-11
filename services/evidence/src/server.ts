@@ -326,6 +326,26 @@ export async function buildApp(d: Deps): Promise<App> {
     return { id: r.rows[0]!.id, sha256: b64.encode(hash) };
   });
 
+  // Plan 3 review I5: references are read back by the artist and the commissioning client.
+  const READABLE_FILES = new Set(["reference"]);
+  app.get<{ Params: { id: string }; Querystring: { kind?: string } }>("/pieces/:id/files", async (req) => {
+    const p = await piece(req.params.id);
+    const kind = String(req.query.kind ?? "");
+    if (!READABLE_FILES.has(kind)) throw new HttpError(400, "bad_kind");
+    requireRole(p, await who(req), ["artist", "owner"]);
+    const rows = (await db.query<any>("SELECT id, name, sha256, author, at FROM files WHERE piece_id = $1 AND kind = $2 ORDER BY id", [p.pieceId, kind])).rows;
+    return { items: rows.map((r) => ({ id: r.id, name: r.name, sha256: b64.encode(r.sha256), author: r.author, at: Number(r.at) })) };
+  });
+  app.get<{ Params: { id: string; fid: string } }>("/pieces/:id/files/:fid", async (req, reply: FastifyReply) => {
+    const p = await piece(req.params.id);
+    requireRole(p, await who(req), ["artist", "owner"]);
+    const row = (await db.query<any>("SELECT kind, name, blob_key FROM files WHERE piece_id = $1 AND id = $2", [p.pieceId, Number(req.params.fid) || 0])).rows[0];
+    if (!row || !READABLE_FILES.has(row.kind)) throw new HttpError(404, "unknown_file");
+    const data = await blobs.get(p.pieceId, row.blob_key);
+    if (!data) throw new HttpError(410, "gone");
+    return reply.header("content-type", "application/octet-stream").header("cache-control", "private, max-age=3600").send(Buffer.from(data));
+  });
+
   const NOTES: Record<string, { write: ("artist" | "owner")[]; read: ("artist" | "owner")[] }> = {
     story: { write: ["artist"], read: ["artist", "owner"] },
     brief: { write: ["artist", "owner"], read: ["artist", "owner"] },

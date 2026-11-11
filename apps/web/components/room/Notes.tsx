@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ErrorNote, Section, useAction, usePoll, when } from "@/components/ui";
-import { useEvidence, bytesToB64 } from "@/lib/evidence";
+import { useEvidence, useEvidenceBytes, bytesToB64 } from "@/lib/evidence";
 import { useNear } from "@/components/NearProvider";
 
 /** Brief, references and messages live in the evidence service (private, not on-chain). */
@@ -14,6 +14,15 @@ export function Notes({ pieceId, artist }: { pieceId: string; artist: string }) 
   const msgs = usePoll(() => evidence<{ items: { author: string; text: string; at: number }[] }>("GET", `/pieces/${pieceId}/messages`), 5000, [pieceId, accountId]);
   const brief = usePoll(() => evidence<{ items: { author: string; text: string; at: number }[] }>("GET", `/pieces/${pieceId}/brief`), 15000, [pieceId, accountId]);
   const latestBrief = brief.data?.items.at(-1);
+  // Plan 3 review I5: references can be opened by both sides.
+  const bytes = useEvidenceBytes();
+  const refs = usePoll(() => evidence<{ items: { id: number; name: string; author: string }[] }>("GET", `/pieces/${pieceId}/files?kind=reference`), 30000, [pieceId, accountId]);
+  async function openRef(id: number, name: string) {
+    const data = await bytes(`/pieces/${pieceId}/files/${id}`);
+    const url = URL.createObjectURL(new Blob([data.slice().buffer], { type: /\.png$/i.test(name) ? "image/png" : "image/jpeg" }));
+    window.open(url, "_blank", "noopener");
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
 
   return (
     <Section title="Brief and messages">
@@ -24,6 +33,20 @@ export function Notes({ pieceId, artist }: { pieceId: string; artist: string }) 
         </div>
       ) : (
         <p className="mb-4 text-sm text-ink-2">No brief yet. Describe what you want — subject, size, style, references.</p>
+      )}
+      {(refs.data?.items.length ?? 0) > 0 && (
+        <div className="mb-4">
+          <p className="label">References</p>
+          <ul className="mt-1 flex flex-wrap gap-2 text-sm">
+            {refs.data!.items.map((r) => (
+              <li key={r.id}>
+                <button className="btn-ghost py-1" onClick={() => run("Opening", () => openRef(r.id, r.name))}>
+                  {r.name} · {r.author === artist ? "artist" : "client"}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       <ul className="max-h-80 space-y-3 overflow-y-auto">
         {(msgs.data?.items ?? []).map((m, i) => (
@@ -60,6 +83,7 @@ export function Notes({ pieceId, artist }: { pieceId: string; artist: string }) 
                   await evidence("POST", `/pieces/${pieceId}/files`, { kind: "reference", name: f.name, data: bytesToB64(data) });
                   await evidence("POST", `/pieces/${pieceId}/messages`, { text: `Added a reference: ${f.name}` });
                   await msgs.reload();
+                  await refs.reload();
                 });
               }}
             />

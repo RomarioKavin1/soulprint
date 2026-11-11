@@ -44,3 +44,12 @@ export async function evidenceFetch<T = any>(
   if (!r.ok) throw new EvidenceError(r.status, json?.error ?? `http_${r.status}`, json);
   return json as T;
 }
+
+/** GET raw bytes with NEP-413 auth (reference images; Plan 3 review I5). */
+export async function evidenceBytes(base: string, recipient: string, signer: Signer | null, path: string): Promise<Uint8Array> {
+  const headers: Record<string, string> = {};
+  if (signer) headers.authorization = await authHeader(signer, "GET", path, "", recipient);
+  const r = await fetch(base + path, { headers });
+  if (!r.ok) throw new EvidenceError(r.status, `http_${r.status}`);
+  return new Uint8Array(await r.arrayBuffer());
+}
