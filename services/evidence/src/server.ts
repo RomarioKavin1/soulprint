@@ -13,6 +13,8 @@ import {
 import { authenticate, AuthError } from "./auth.ts";
 import { BlobStore } from "./blob.ts";
 import type { ChainReader, PieceWithSegments } from "./chain.ts";
+
+type Piece = PieceWithSegments & { client: string | null };
 import { openDb, type Db } from "./db.ts";
 import type { Sender } from "./sender.ts";
 import { evaluateChallenge, newCode, nonceHashOf, TesseractOcr, type Ocr } from "./challenge.ts";
@@ -98,14 +100,28 @@ export async function buildApp(d: Deps): Promise<App> {
     authenticate({ chain: d.chain, recipient: d.recipient, now: d.now, useNonce }, req.headers.authorization, req.method, req.url, (req as any).rawBody ?? "");
   const maybeWho = async (req: FastifyRequest) => (req.headers.authorization ? who(req) : null);
 
-  const piece = async (id: string): Promise<PieceWithSegments> => {
+  /**
+   * Plan 2 review I7: on a commission the private side (brief, messages, client-visible frames,
+   * the private report) belongs to the artist and the commissioning client. The client is pinned
+   * the first time the service sees the piece while the commission is live; later owners (resale)
+   * do not inherit it. Standalone pieces have no commission client: the current owner stands in.
+   */
+  const LIVE = ["InProgress", "Delivered", "Disputed"];
+  const piece = async (id: string): Promise<Piece> => {
     const p = await d.chain.piece(id);
     if (!p) throw new HttpError(404, "unknown_piece");
-    return p;
+    if (p.mode !== "Commission") return { ...p, client: p.owner };
+    let client = (await db.query<{ account: string }>("SELECT account FROM piece_clients WHERE piece_id = $1", [p.pieceId])).rows[0]?.account ?? null;
+    if (!client && LIVE.includes(p.status) && p.owner !== p.artist) {
+      await db.query("INSERT INTO piece_clients (piece_id, account) VALUES ($1, $2) ON CONFLICT DO NOTHING", [p.pieceId, p.owner]);
+      client = p.owner;
+    }
+    return { ...p, client };
   };
-  const role = (p: PieceWithSegments, account: string | null) =>
-    account === p.artist ? "artist" : account === p.owner ? "owner" : "other";
-  const requireRole = (p: PieceWithSegments, account: string, allowed: ("artist" | "owner")[]) => {
+  /** "owner" here means the client side of the commission (see `piece`). */
+  const role = (p: Piece, account: string | null) =>
+    account === p.artist ? "artist" : account !== null && account === p.client ? "owner" : "other";
+  const requireRole = (p: Piece, account: string, allowed: ("artist" | "owner")[]) => {
     if (!allowed.includes(role(p, account) as "artist")) throw new HttpError(403, "forbidden");
   };
   const segmentFor = (p: PieceWithSegments, keyStr: string) => {

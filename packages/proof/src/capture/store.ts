@@ -65,11 +65,12 @@ export class IdbFrameStore {
     await done(t);
   }
 
-  async frames(pieceId: string, key: Uint8Array): Promise<StoredFrame[]> {
+  /** Frames from index `from` on, at most `limit` (review I5: never the whole history per tick). */
+  async frames(pieceId: string, key: Uint8Array, from = 0, limit?: number): Promise<StoredFrame[]> {
     const keyHex = hex.encode(key);
     const t = (await this.db).transaction("frames", "readonly");
-    const range = IDBKeyRange.bound([pieceId, keyHex, 0], [pieceId, keyHex, Number.MAX_SAFE_INTEGER]);
-    return (await req(t.objectStore("frames").getAll(range))) as StoredFrame[];
+    const range = IDBKeyRange.bound([pieceId, keyHex, from], [pieceId, keyHex, Number.MAX_SAFE_INTEGER]);
+    return (await req(t.objectStore("frames").getAll(range, limit))) as StoredFrame[];
   }
 
   async update(pieceId: string, key: Uint8Array, indices: number[], f: (s: StoredFrame) => void): Promise<StoredFrame[]> {

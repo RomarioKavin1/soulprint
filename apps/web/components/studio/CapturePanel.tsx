@@ -73,7 +73,7 @@ export function CapturePanel({ pieceId, segments, open, onChange }: { pieceId: s
   async function start(kind: "screen" | "camera") {
     await run("Starting", async () => {
       const src = kind === "screen" ? await screenSource() : await cameraSource();
-      await session.current!.start(src, { intervalMs: fast ? 5_000 : INTERVAL_MS[kind] });
+      await session.current!.start(src, { intervalMs: fast ? 5_000 : INTERVAL_MS[kind], pauseWhenHidden: kind === "camera" });
     });
   }
 

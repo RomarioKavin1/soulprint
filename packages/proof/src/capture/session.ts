@@ -99,6 +99,8 @@ export class CaptureSession {
   private paused = false;
   private wake: { release(): Promise<void> } | null = null;
   private readonly onVisibility = () => void this.visibilityChanged();
+  /** Lowest index not yet uploaded. */
+  private nextUpload = 0;
 
   private constructor(private o: Required<Pick<SessionOptions, "clock" | "batchSize">> & SessionOptions) {
     this.head = genesis(o.pieceId, o.signer.publicKey);
@@ -109,9 +111,11 @@ export class CaptureSession {
     const h = await o.store.head(o.pieceId, o.signer.publicKey);
     s.count = h.count;
     if (h.head) s.head = h.head;
+    // Uploads go in index order, so uploaded frames are a prefix; images of uploaded frames are freed.
     const frames = await o.store.frames(o.pieceId, o.signer.publicKey);
     s.uploaded = frames.filter((f) => f.uploaded).length;
     s.pending = frames.length - s.uploaded;
+    s.nextUpload = frames.find((f) => !f.uploaded)?.index ?? s.count;
     return s;
   }
 
@@ -119,12 +123,16 @@ export class CaptureSession {
     this.source = source;
   }
 
-  /** Timed capture; pauses while the page is hidden and holds a screen wake lock while visible. */
-  async start(source: FrameSource, opts: { intervalMs: number }) {
+  /**
+   * Timed capture holding a screen wake lock while visible. `pauseWhenHidden` (camera capture on a
+   * phone left unattended) pauses while the page is hidden; screen capture keeps running because
+   * the artist works in another window (Plan 2 review I4).
+   */
+  async start(source: FrameSource, opts: { intervalMs: number; pauseWhenHidden?: boolean }) {
     this.attach(source);
     this.intervalMs = opts.intervalMs;
     this.started = true;
-    this.o.doc?.addEventListener("visibilitychange", this.onVisibility);
+    if (opts.pauseWhenHidden) this.o.doc?.addEventListener("visibilitychange", this.onVisibility);
     await this.resume();
   }
 
@@ -168,10 +176,11 @@ export class CaptureSession {
   flush(): Promise<void> {
     return this.serial(async () => {
       const { pieceId, signer, uploader, store, batchSize } = this.o;
-      const pending = (await store.frames(pieceId, signer.publicKey)).filter((f) => !f.uploaded);
       try {
-        for (let i = 0; i < pending.length; i += batchSize) {
-          const chunk = pending.slice(i, i + batchSize);
+        for (;;) {
+          // Review I5: read only the next batch from the first pending frame, not the whole history.
+          const chunk = (await store.frames(pieceId, signer.publicKey, this.nextUpload, batchSize)).filter((f) => !f.uploaded);
+          if (!chunk.length) break;
           const from = chunk[0]!.index, to = chunk.at(-1)!.index, head = chunk.at(-1)!.link;
           const batch: UploadBatch = {
             pieceId, key: signer.publicKey, fromIndex: from, toIndex: to,
@@ -180,7 +189,9 @@ export class CaptureSession {
             frames: chunk.map(({ index, sessionId, deviceTs, jpegHash, link, jpeg, width, height }) => ({ index, sessionId, deviceTs, jpegHash, link, jpeg, width, height })),
           };
           await uploader.upload(batch);
-          await store.update(pieceId, signer.publicKey, chunk.map((f) => f.index), (f) => { f.uploaded = true; });
+          // The server has the image now; keep only hash and link locally (review I5).
+          await store.update(pieceId, signer.publicKey, chunk.map((f) => f.index), (f) => { f.uploaded = true; f.jpeg = null; });
+          this.nextUpload = to + 1;
           this.pending -= chunk.length;
           this.uploaded += chunk.length;
         }

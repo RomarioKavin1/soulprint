@@ -124,6 +124,27 @@ describe("CaptureSession", () => {
     expect(up.batches.flatMap((b) => b.frames.map((f) => f.index))).toEqual([0, 1, 2, 3]);
   });
 
+  it("uploaded_images_are_freed_and_flush_reads_only_pending (Plan 2 review I5)", async () => {
+    const store = freshStore(), up = new FakeUploader();
+    const s = await open(store, up);
+    s.attach(new FakeSource());
+    for (let i = 0; i < 5; i++) { now += 1000; await s.captureNow(); }
+    await s.flush();
+    const kept = await store.frames(PIECE, signer.publicKey);
+    expect(kept.map((f) => [f.uploaded, f.jpeg])).toEqual(kept.map(() => [true, null]));
+    expect(kept.every((f) => f.jpegHash.length === 32 && f.link.length === 32)).toBe(true);
+    // Later flushes read from the first pending frame on, not the whole history.
+    const reads: number[] = [];
+    const orig = store.frames.bind(store);
+    store.frames = (p, k, from = 0, limit) => (reads.push(from), orig(p, k, from, limit));
+    now += 1000; await s.captureNow();
+    await s.flush();
+    expect(reads.length).toBeGreaterThan(0);
+    expect(Math.min(...reads)).toBe(5);
+    // Reopening keeps the counts.
+    expect((await open(store, up)).status()).toMatchObject({ pending: 0, uploaded: 6 });
+  });
+
   it("clock_set_backwards_rejected_within_session", async () => {
     const store = freshStore(), up = new FakeUploader();
     const s = await open(store, up);
@@ -152,7 +173,7 @@ describe("CaptureSession", () => {
     const lock = { released: 0, requested: 0 };
     const wakeLock = { request: async () => { lock.requested++; return { release: async () => { lock.released++; } }; } };
     const s = await open(store, up, { doc, timers, wakeLock });
-    await s.start(new FakeSource(), { intervalMs: 60_000 });
+    await s.start(new FakeSource(), { intervalMs: 60_000, pauseWhenHidden: true });
     expect(lock.requested).toBe(1);
     expect(ticks).not.toBeNull();
     doc.set("hidden");
@@ -164,5 +185,18 @@ describe("CaptureSession", () => {
     await s.stop();
     expect(ticks).toBeNull();
     expect(lock.released).toBeGreaterThanOrEqual(1);
+  });
+
+  it("screen_capture_keeps_running_while_the_tab_is_hidden (Plan 2 review I4)", async () => {
+    // The artist shares a window and switches to their art tool: the page is hidden, capture goes on.
+    const store = freshStore(), up = new FakeUploader(), doc = new FakeDoc();
+    let ticks: (() => void) | null = null;
+    const timers = { setInterval: (f: () => void) => { ticks = f; return 1; }, clearInterval: () => { ticks = null; } };
+    const s = await open(store, up, { doc, timers });
+    await s.start(new FakeSource(), { intervalMs: 60_000 });
+    doc.set("hidden");
+    expect(ticks).not.toBeNull();
+    expect(s.status().paused).toBe(false);
+    await s.stop();
   });
 });

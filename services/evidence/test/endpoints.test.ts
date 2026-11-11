@@ -82,6 +82,21 @@ describe("endpoint auth", () => {
     }
   });
 
+  it("the commission conversation stays with artist and client after a resale (Plan 2 review I7)", async () => {
+    const w = await seeded();
+    for (const kind of ["brief", "messages"]) expect((await call(w, w.client, "POST", `/pieces/${PIECE}/${kind}`, { text: "private" })).statusCode).toBe(200);
+    // Settled, then sold: the stranger is now the on-chain owner.
+    Object.assign(w.chain.pieces.get(PIECE)!, { status: "Settled", owner: w.stranger.account });
+    for (const kind of ["brief", "messages"]) {
+      const url = `/pieces/${PIECE}/${kind}`;
+      expect((await call(w, w.stranger, "GET", url)).statusCode).toBe(403);
+      expect((await call(w, w.stranger, "POST", url, { text: "hi" })).statusCode).toBe(403);
+      expect((await call(w, w.client, "GET", url)).statusCode).toBe(200);
+    }
+    // Client-only process frames stay with the client too.
+    expect((await call(w, w.stranger, "GET", `/pieces/${PIECE}/progress?images=0`)).statusCode).toBe(403);
+  });
+
   it("final anchor: artist forces the latest head on chain before deliver", async () => {
     const w = await seeded();
     const url = `/pieces/${PIECE}/anchor/final`;
