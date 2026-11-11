@@ -9,6 +9,7 @@ mod t4_status;
 mod t5_commission;
 mod t6_dispute;
 mod t7_accounting;
+mod t8_resale;
 
 pub const SEC: u64 = 1_000_000_000;
 pub const DAY: u64 = 86_400 * SEC;
@@ -155,5 +156,14 @@ pub const REJECT_AT: u64 = DELIVER_AT + DAY;
 pub fn disputed_piece() -> PieceCore {
     let mut p = delivered_piece(&cur_ft());
     p.reject(&fx_ft(&client(), BOND, REJECT_AT)).unwrap();
+    p
+}
+
+pub const LIST_PRICE: u128 = 500_000_000;
+
+/// Settled and listed by the client (nonce 1).
+pub fn listed_piece() -> PieceCore {
+    let mut p = settled_piece(&cur_ft());
+    p.list(&cx(&client(), 1, SETTLED_AT + 1), LIST_PRICE, None).unwrap();
     p
 }
