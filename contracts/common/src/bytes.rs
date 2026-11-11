@@ -13,6 +13,12 @@ macro_rules! fixed_bytes {
             pub const ZERO: Self = Self([0u8; $n]);
         }
 
+        impl Default for $name {
+            fn default() -> Self {
+                Self::ZERO
+            }
+        }
+
         impl core::fmt::Debug for $name {
             fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                 write!(f, "{}(", stringify!($name))?;
