@@ -45,6 +45,7 @@ const MESSAGES: Record<string, string> = {
   ERR_RESERVED: "This sale is reserved for someone else.",
   anchor_pending: "Your latest frames are being anchored. This takes a few seconds — try again shortly.",
   final_file_missing: "Upload the final file first.",
+  not_an_image: "That file could not be read as an image. Upload the finished artwork as JPEG or PNG.",
   not_delivered: "The report can only be signed after delivery.",
   auth_expired: "Your sign-in proof expired. Try again.",
 };

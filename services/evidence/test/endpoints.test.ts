@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { b64 } from "@soulprint/proof";
 import { sha256 } from "@noble/hashes/sha256";
-import { nep413, PIECE, world } from "./helpers.ts";
+import { nep413, PIECE, world , tinyImage } from "./helpers.ts";
 
 async function seeded() {
   const w = await world();
@@ -52,7 +52,7 @@ describe("endpoint auth", () => {
 
   it("files: artist uploads final/source; returns final_file_hash", async () => {
     const w = await seeded();
-    const data = new Uint8Array([9, 9, 9, 9]);
+    const data = await tinyImage(3);
     const url = `/pieces/${PIECE}/files`;
     expect((await call(w, w.client, "POST", url, { kind: "final", name: "f.png", data: b64.encode(data) })).statusCode).toBe(403);
     const r = await call(w, w.artist, "POST", url, { kind: "final", name: "f.png", data: b64.encode(data) });

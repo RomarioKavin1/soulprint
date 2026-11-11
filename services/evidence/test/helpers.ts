@@ -121,3 +121,10 @@ export async function world(over: Partial<Deps> = {}) {
   });
   return { app, chain, sender, artist, client, stranger, dev };
 }
+
+/** A small real image (the service decodes final files). */
+export async function tinyImage(seed = 1): Promise<Uint8Array> {
+  const sharp = (await import("sharp")).default;
+  const px = Buffer.alloc(8 * 8 * 3, seed * 37);
+  return new Uint8Array(await sharp(px, { raw: { width: 8, height: 8, channels: 3 } }).png().toBuffer());
+}

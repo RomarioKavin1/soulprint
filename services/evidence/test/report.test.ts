@@ -190,3 +190,13 @@ describe("public proof (Plan 3 Task 4)", () => {
     expect((await w.app.inject({ method: "GET", url: `/pieces/${PIECE}/frames/${key}/1` })).statusCode).toBe(403);
   });
 });
+
+describe("final file upload", () => {
+  it("refuses a final file that is not a readable image (instead of failing later in the report)", async () => {
+    const w = await recorded();
+    const bad = await w.call(w.artist, "POST", `/pieces/${PIECE}/files`, { kind: "final", name: "x.png", data: b64.encode(new Uint8Array([0x89, 0x50, 0x4e, 0x47, 1, 2, 3])) });
+    expect(bad.statusCode).toBe(400);
+    expect(bad.json().error).toBe("not_an_image");
+    expect((await w.call(w.artist, "POST", `/pieces/${PIECE}/files`, { kind: "final", name: "f.jpg", data: b64.encode(w.final) })).statusCode).toBe(200);
+  });
+});

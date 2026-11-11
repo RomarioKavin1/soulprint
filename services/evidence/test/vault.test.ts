@@ -1,18 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { b64 } from "@soulprint/proof";
-import { nep413, PIECE, user, world } from "./helpers.ts";
+import { nep413, PIECE, tinyImage, user, world } from "./helpers.ts";
 
 async function setup() {
   let now = Date.now();
   const w = await world({ now: () => now });
   const call = async (who: any, method: "GET" | "POST", url: string, body?: unknown) =>
     w.app.inject({ method, url, payload: body as any, headers: who ? { authorization: await nep413(who, method, url, body) } : {} });
-  await call(w.artist, "POST", `/pieces/${PIECE}/files`, { kind: "final", name: "final.png", data: b64.encode(new Uint8Array([1, 2, 3, 4])) });
+  const img = await tinyImage();
+  await call(w.artist, "POST", `/pieces/${PIECE}/files`, { kind: "final", name: "final.png", data: b64.encode(img) });
   const p = w.chain.pieces.get(PIECE)!;
   p.status = "Settled";
   p.rotationSeq = 1;
   w.chain.index.set("1", w.client.account);
-  return { ...w, call, p, tick: (ms: number) => (now += ms) };
+  return { ...w, call, p, img, tick: (ms: number) => (now += ms) };
 }
 const open = (w: Awaited<ReturnType<typeof setup>>, who: any) => w.call(who, "POST", `/pieces/${PIECE}/vault`, {});
 
@@ -26,7 +27,7 @@ describe("holder vault", () => {
     expect(r.json().expiresIn).toBe(300);
     const d = await w.app.inject({ method: "GET", url: f.url });
     expect(d.statusCode).toBe(200);
-    expect([...d.rawPayload]).toEqual([1, 2, 3, 4]);
+    expect([...d.rawPayload]).toEqual([...w.img]);
     w.tick(301_000);
     expect((await w.app.inject({ method: "GET", url: f.url })).json().error).toBe("link_expired");
     expect((await w.app.inject({ method: "GET", url: f.url.replace(/sig=[^&]+/, "sig=AAAA") })).statusCode).toBe(403);

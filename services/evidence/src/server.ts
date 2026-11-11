@@ -1,5 +1,6 @@
 /** Evidence service HTTP API (Plan 2 Task 3). */
 import { join } from "node:path";
+import sharp from "sharp";
 import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from "fastify";
 import { sha256 } from "@noble/hashes/sha256";
 import { hmac } from "@noble/hashes/hmac";
@@ -85,6 +86,7 @@ export async function buildApp(d: Deps): Promise<App> {
     if (e instanceof AuthError) return reply.code(e.status).send({ error: e.code });
     if (e.statusCode && e.statusCode < 500) return reply.code(e.statusCode).send({ error: e.code ?? "bad_request", message: e.message });
     app.log.error(e);
+    console.error(`[evidence] ${_req.method} ${_req.url} failed:`, e?.stack ?? e);
     return reply.code(500).send({ error: "internal" });
   });
 
@@ -289,6 +291,14 @@ export async function buildApp(d: Deps): Promise<App> {
     if (!allowed) throw new HttpError(400, "bad_kind");
     requireRole(p, account, allowed);
     const data = b64.decode(String(body(req).data ?? ""));
+    if (kind === "final") {
+      // The report compares the final file with the last frames; it must decode the same way.
+      try {
+        await sharp(data).raw().toBuffer();
+      } catch {
+        throw new HttpError(400, "not_an_image");
+      }
+    }
     const hash = sha256(data);
     const name = String(body(req).name ?? kind).slice(0, 200);
     const blob = await blobs.put(p.pieceId, `${kind}-${hex.encode(hash)}`, data);
