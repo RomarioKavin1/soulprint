@@ -10,6 +10,7 @@ import { ReviewGrid } from "./ReviewGrid";
 import { ChallengesPanel } from "./ChallengesPanel";
 import { DeliverPanel } from "./DeliverPanel";
 import { PublishPanel } from "./PublishPanel";
+import { AttestPanel } from "./AttestPanel";
 
 const RECORDING = new Set(["Offered", "InProgress", "Delivered", "Disputed"]);
 
@@ -77,6 +78,7 @@ export function Workspace({ pieceId }: { pieceId: string }) {
       {canRecord && <CapturePanel pieceId={pieceId} segments={proof.segments} open={canRecord} onChange={reload} />}
       {canRecord && <ChallengesPanel pieceId={pieceId} proof={proof} onChange={reload} />}
       <DeliverPanel piece={piece} onChange={reload} />
+      <AttestPanel piece={piece} proof={proof} onChange={reload} />
       <ReviewGrid pieceId={pieceId} />
       <PublishPanel piece={piece} />
     </div>

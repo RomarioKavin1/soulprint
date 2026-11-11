@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNear } from "@/components/NearProvider";
 import { ErrorNote, Section, useAction } from "@/components/ui";
 import { EvidenceError } from "@/lib/auth";
-import { bytesToB64, useEvidence } from "@/lib/evidence";
+import { attestWithRetry, bytesToB64, useEvidence } from "@/lib/evidence";
 import { act, type PieceInfo } from "@/lib/piece";
 import { LEVEL_TEXT } from "@/lib/wording";
 
@@ -42,7 +42,8 @@ export function DeliverPanel({ piece, onChange }: { piece: PieceInfo; onChange: 
     await run("Delivering", async () => {
       const args = { final_file_hash: report.finalFileHash, report_hash: report.reportHash };
       await act(signer!, piece.piece_id, commission ? "deliver" : "settle_standalone", args);
-      await evidence("POST", `/pieces/${piece.piece_id}/attest`).catch(() => undefined); // retried by the page if it fails
+      onChange();
+      await attestWithRetry((m, p) => evidence(m, p), piece.piece_id).catch(() => undefined); // AttestPanel offers a retry
       setReport(null);
       setFile(null);
       onChange();

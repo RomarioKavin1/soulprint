@@ -144,3 +144,49 @@ describe("report", () => {
     writeFileSync(new URL("ts-report-e2.json", dir), JSON.stringify(fixture, null, 2) + "\n");
   });
 });
+
+describe("public proof (Plan 3 Task 4)", () => {
+  async function reported() {
+    const w = await recorded();
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/files`, { kind: "final", name: "final.jpg", data: b64.encode(w.final) });
+    anchorAll(w);
+    const r = await w.call(w.artist, "POST", `/pieces/${PIECE}/report`, { source: "camera" });
+    expect(r.statusCode).toBe(200);
+    return { ...w, report: r.json() };
+  }
+
+  it("private_until_published: nothing is public until the artist publishes; unpublish hides it again", async () => {
+    const w = await recorded();
+    const pub = () => w.app.inject({ method: "GET", url: `/pieces/${PIECE}/public` });
+    expect((await pub()).statusCode).toBe(404);
+    expect((await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: true })).json().error).toBe("no_report");
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/files`, { kind: "final", name: "final.jpg", data: b64.encode(w.final) });
+    anchorAll(w);
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/report`, { source: "camera" });
+    expect((await pub()).statusCode).toBe(404);
+    expect((await w.call(w.client, "POST", `/pieces/${PIECE}/publish`, { published: true })).statusCode).toBe(403);
+    expect((await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: true })).statusCode).toBe(200);
+    expect((await pub()).statusCode).toBe(200);
+    expect((await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: false })).statusCode).toBe(200);
+    expect((await pub()).statusCode).toBe(404);
+  });
+
+  it("public payload: report recomputable, only public frames, story, no price", async () => {
+    const w = await reported();
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/visibility`, { indices: [0, 5, 10], level: "public" });
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/visibility`, { indices: [1], level: "client" });
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/story`, { text: "Oil study, three sittings." });
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: true });
+    const r = (await w.app.inject({ method: "GET", url: `/pieces/${PIECE}/public` })).json();
+    expect(b64.encode(sha256(new TextEncoder().encode(jcs(r.public))))).toBe(r.reportHash);
+    expect(r.reportHash).toBe(w.report.reportHash);
+    expect(r.public.capture.source).toBe("camera");
+    expect(r.frames.map((f: any) => f.index)).toEqual([0, 5, 10]);
+    expect(r.story).toBe("Oil study, three sittings.");
+    expect(JSON.stringify(r)).not.toMatch(/price/i);
+    // A public frame's image is served without sign-in; a client-only one is not.
+    const key = r.frames[0].key;
+    expect((await w.app.inject({ method: "GET", url: `/pieces/${PIECE}/frames/${key}/5` })).statusCode).toBe(200);
+    expect((await w.app.inject({ method: "GET", url: `/pieces/${PIECE}/frames/${key}/1` })).statusCode).toBe(403);
+  });
+});

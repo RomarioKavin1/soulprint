@@ -422,7 +422,7 @@ export async function buildApp(d: Deps): Promise<App> {
         key: nearPublicKey(seg.key), anchoredHead: b64.encode(seg.head), anchoredCount: seg.count, frames: m.frames,
         sessions: m.sessions, spanDays: Math.round(m.spanDays * 10) / 10, activeBand: band(m.activeMs),
         coverage: Math.round(m.coverage * 1000) / 1000, largestJump: Math.round(m.largestJump * 1000) / 1000,
-        finalMatch: m.finalMatch, timeNote: "device-reported, bounded by on-chain anchors",
+        finalMatch: m.finalMatch, source, timeNote: "device-reported, bounded by on-chain anchors",
       } : null,
       challenges: challenges.map(({ issuer: _i, ...c }) => c),
       segmentsDigest: b64.encode(segmentsDigest(segments)),
@@ -459,6 +459,31 @@ export async function buildApp(d: Deps): Promise<App> {
       capture, segments: p.segments.map((s) => ({ key: s.key, head: s.head, count: s.count })), issuedAt: BigInt(d.now()) * 1_000_000n,
     });
     return d.sender.attest({ collection: d.collection, argsJson: signed.argsJson(tokenIdOf(p.pieceId), d.verifier.keyId) });
+  });
+
+  // ---------------- public proof page (Plan 3 Task 4) ----------------
+
+  app.post<{ Params: { id: string } }>("/pieces/:id/publish", async (req) => {
+    const p = await piece(req.params.id);
+    requireRole(p, await who(req), ["artist"]);
+    const r = await db.query("UPDATE reports SET published = $1 WHERE piece_id = $2 RETURNING piece_id", [body(req).published === true, p.pieceId]);
+    if (!r.rows.length) throw new HttpError(409, "no_report");
+    return { published: body(req).published === true };
+  });
+
+  /** Unauthenticated: the published report, the public frames (metadata) and the story. Never the price. */
+  app.get<{ Params: { id: string } }>("/pieces/:id/public", async (req) => {
+    const p = await piece(req.params.id);
+    const r = (await db.query<any>("SELECT public_json, report_hash, published FROM reports WHERE piece_id = $1", [p.pieceId])).rows[0];
+    if (!r?.published) throw new HttpError(404, "not_published");
+    const frames = (await db.query<any>("SELECT key_hex, idx, device_ts, width, height FROM frames WHERE piece_id = $1 AND visibility = 'public' AND NOT discarded ORDER BY key_hex, idx", [p.pieceId])).rows;
+    const story = (await db.query<any>("SELECT body FROM notes WHERE piece_id = $1 AND kind = 'story' ORDER BY id DESC LIMIT 1", [p.pieceId])).rows[0];
+    return {
+      public: JSON.parse(r.public_json),
+      reportHash: b64.encode(r.report_hash),
+      frames: frames.map((f) => ({ key: nearPublicKey(hex.decode(f.key_hex)), index: f.idx, deviceTs: Number(f.device_ts), width: f.width, height: f.height })),
+      story: story?.body ?? null,
+    };
   });
 
   app.get("/health", async () => ({ ok: true }));
