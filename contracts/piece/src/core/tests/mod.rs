@@ -5,6 +5,7 @@ use common::*;
 use near_sdk::AccountId;
 
 mod t3_skeleton;
+mod t4_status;
 
 pub const SEC: u64 = 1_000_000_000;
 pub const DAY: u64 = 86_400 * SEC;
