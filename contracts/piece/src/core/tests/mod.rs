@@ -11,6 +11,7 @@ mod t6_dispute;
 mod t7_accounting;
 mod t8_resale;
 mod t9_proof;
+mod t10_ownership;
 
 pub const SEC: u64 = 1_000_000_000;
 pub const DAY: u64 = 86_400 * SEC;
