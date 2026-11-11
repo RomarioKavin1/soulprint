@@ -33,10 +33,15 @@ pids+=($!)
 until curl -sf http://127.0.0.1:8788/health >/dev/null; do sleep 1; kill -0 "${pids[2]}" || { cat "$LOG/indexer.log"; exit 1; }; done
 echo "indexer on :8788"
 
+(cd "$ROOT/services/relayer" && exec pnpm exec tsx src/main.ts --sandbox) > "$LOG/relayer.log" 2>&1 &
+pids+=($!)
+until curl -sf http://127.0.0.1:8789/health >/dev/null; do sleep 1; kill -0 "${pids[3]}" || { cat "$LOG/relayer.log"; exit 1; }; done
+echo "relayer on :8789"
+
 if [ "${NO_WEB:-}" = "" ]; then
   (cd "$ROOT/apps/web" && SOULPRINT_NETWORK=sandbox SOULPRINT_CONFIG="$ROOT/config/networks.json" exec pnpm dev) > "$LOG/web.log" 2>&1 &
   pids+=($!)
-  until curl -sf http://127.0.0.1:3000 >/dev/null; do sleep 1; kill -0 "${pids[3]}" || { cat "$LOG/web.log"; exit 1; }; done
+  until curl -sf http://127.0.0.1:3000 >/dev/null; do sleep 1; kill -0 "${pids[4]}" || { cat "$LOG/web.log"; exit 1; }; done
   echo "web on http://127.0.0.1:3000"
 fi
 echo "STACK READY"
