@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { IdbFrameStore } from "@soulprint/proof/capture";
 import { useNear } from "@/components/NearProvider";
 import { ErrorNote, Section, useAction } from "@/components/ui";
 import { EvidenceError } from "@/lib/auth";
@@ -15,6 +16,16 @@ export function DeliverPanel({ piece, onChange }: { piece: PieceInfo; onChange: 
   const [source, setSource] = useState<"screen" | "camera">("screen");
   const [report, setReport] = useState<{ level: number; reportHash: string; finalFileHash: string } | null>(null);
   const { busy, error, run } = useAction();
+  // Plan 3 review I4: frames still on this device would be missing from the record (and refused after delivery).
+  const [unsent, setUnsent] = useState(0);
+  useEffect(() => {
+    const store = new IdbFrameStore();
+    let live = true;
+    const check = () => store.pendingCount(piece.piece_id).then((n) => live && setUnsent(n)).catch(() => undefined);
+    void check();
+    const t = setInterval(check, 5_000);
+    return () => { live = false; clearInterval(t); };
+  }, [piece.piece_id]);
   const commission = piece.mode === "Commission";
   const canDeliver = commission ? piece.status === "InProgress" : piece.status !== "Settled";
 
@@ -66,8 +77,13 @@ export function DeliverPanel({ piece, onChange }: { piece: PieceInfo; onChange: 
           </select>
         </label>
       </div>
+      {unsent > 0 && (
+        <p role="status" className="mt-4 rounded-lg border border-amber/40 bg-amber/10 px-3 py-2 text-sm">
+          {unsent} frame{unsent === 1 ? "" : "s"} recorded on this device {unsent === 1 ? "has" : "have"} not reached the record yet. Use “Retry upload” above, then check the record.
+        </p>
+      )}
       {!report ? (
-        <button className="btn-primary mt-4" disabled={!!busy || !file} onClick={build}>
+        <button className="btn-primary mt-4" disabled={!!busy || !file || unsent > 0} onClick={build}>
           {busy ?? "Check the record"}
         </button>
       ) : (
@@ -75,7 +91,7 @@ export function DeliverPanel({ piece, onChange }: { piece: PieceInfo; onChange: 
           <p className="label">What the proof page will say</p>
           <p className="mt-2 font-display text-lg">{LEVEL_TEXT[report.level as 0 | 2 | 3]?.summary}</p>
           <p className="mt-1 text-sm text-ink-2">{LEVEL_TEXT[report.level as 0 | 2 | 3]?.detail}</p>
-          <button className="btn-seal mt-4" disabled={!!busy} onClick={deliver}>
+          <button className="btn-seal mt-4" disabled={!!busy || unsent > 0} onClick={deliver}>
             {busy ?? (commission ? "Deliver to the client" : "Finish and seal the record")}
           </button>
         </div>

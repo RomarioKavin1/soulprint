@@ -116,7 +116,14 @@ export class CaptureSession {
     s.uploaded = frames.filter((f) => f.uploaded).length;
     s.pending = frames.length - s.uploaded;
     s.nextUpload = frames.find((f) => !f.uploaded)?.index ?? s.count;
+    // Plan 3 review I4: frames left from an earlier visit are retried at once; a failure shows as lastError.
+    if (s.pending > 0) void s.flush().catch(() => undefined);
     return s;
+  }
+
+  /** Resolves once queued work (capture, uploads) has finished. */
+  idle(): Promise<void> {
+    return this.serial(async () => undefined);
   }
 
   attach(source: FrameSource) {

@@ -73,6 +73,14 @@ export class IdbFrameStore {
     return (await req(t.objectStore("frames").getAll(range, limit))) as StoredFrame[];
   }
 
+  /** Frames of this piece (any capture key) still waiting to upload from this device (Plan 3 review I4). */
+  async pendingCount(pieceId: string): Promise<number> {
+    const t = (await this.db).transaction("frames", "readonly");
+    const range = IDBKeyRange.bound([pieceId, "", 0], [pieceId, "\uffff", Number.MAX_SAFE_INTEGER]);
+    const all = (await req(t.objectStore("frames").getAll(range))) as StoredFrame[];
+    return all.filter((f) => !f.uploaded).length;
+  }
+
   async update(pieceId: string, key: Uint8Array, indices: number[], f: (s: StoredFrame) => void): Promise<StoredFrame[]> {
     const keyHex = hex.encode(key);
     const t = (await this.db).transaction("frames", "readwrite");

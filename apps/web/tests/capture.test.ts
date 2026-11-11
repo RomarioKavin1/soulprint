@@ -58,11 +58,43 @@ describe("capture upload", () => {
     await expect(s.flush()).rejects.toThrow(/No connection/);
     const v = captureStatusView(s.status());
     expect(v.showRetry).toBe(true);
-    expect(v.problem).toMatch(/2 frames not uploaded yet/);
+    expect(v.problem).toMatch(/2 frames on this device not uploaded yet/);
     offline = false;
     await s.flush();
     const after = captureStatusView(s.status());
     expect(after.showRetry).toBe(false);
     expect(after.progress).toBe("2 of 2 frames saved to the record");
+  });
+
+  it("capture_upload_retry_visible after reopen: frames left on the device are retried and shown (Plan 3 review I4)", async () => {
+    const w = await setup();
+    let offline = true;
+    const flaky: typeof fetch = (input, init) => (offline ? Promise.reject(new TypeError("fetch failed")) : fetch(input, init));
+    const store = new IdbFrameStore();
+    const a = await CaptureSession.open({ pieceId: PIECE, signer: w.dev.signer, store, uploader: new HttpUploader(w.base, w.dev.signer, flaky) });
+    a.attach(new Src());
+    await a.captureNow();
+    await a.captureNow();
+    await expect(a.flush()).rejects.toThrow();
+    // The tab is closed and reopened later, still offline: the problem and the retry are visible at once.
+    const b = await CaptureSession.open({ pieceId: PIECE, signer: w.dev.signer, store, uploader: new HttpUploader(w.base, w.dev.signer, flaky) });
+    await b.flush().catch(() => undefined);
+    const v = captureStatusView(b.status());
+    expect(v.problem).toMatch(/2 frames/);
+    expect(v.showRetry).toBe(true);
+    // The deliver step can see that this device still holds frames.
+    expect(await store.pendingCount(PIECE)).toBe(2);
+    // Back online: reopening uploads them without the artist starting a new recording.
+    offline = false;
+    const c = await CaptureSession.open({ pieceId: PIECE, signer: w.dev.signer, store, uploader: new HttpUploader(w.base, w.dev.signer, flaky) });
+    await c.idle();
+    expect(c.status()).toMatchObject({ pending: 0, uploaded: 2 });
+    expect(await store.pendingCount(PIECE)).toBe(0);
+  });
+
+  it("frames waiting on the device are shown even without an error yet (Plan 3 review I4)", () => {
+    const v = captureStatusView({ capturing: false, paused: false, pending: 3, uploaded: 5, lastError: null, count: 8 });
+    expect(v.problem).toMatch(/3 frames/);
+    expect(v.showRetry).toBe(true);
   });
 });

@@ -61,7 +61,11 @@ export function captureStatusView(s: { capturing: boolean; paused: boolean; pend
   return {
     headline: s.paused ? "Paused while this tab is hidden" : s.capturing ? "Recording" : s.count ? "Stopped" : "Not started",
     progress: `${s.uploaded} of ${s.count} frames saved to the record`,
-    problem: s.lastError && waiting ? `${s.pending} frame${s.pending === 1 ? "" : "s"} not uploaded yet: ${s.lastError}` : null,
-    showRetry: Boolean(s.lastError && waiting),
+    // Plan 3 review I4: frames waiting on this device are shown whenever capture is not running
+    // (e.g. after a reopen), not only after an error in this visit.
+    problem: waiting && (s.lastError || !s.capturing)
+      ? `${s.pending} frame${s.pending === 1 ? "" : "s"} on this device not uploaded yet${s.lastError ? `: ${s.lastError}` : ""}`
+      : null,
+    showRetry: waiting && Boolean(s.lastError || !s.capturing),
   };
 }
