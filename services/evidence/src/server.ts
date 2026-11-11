@@ -155,23 +155,24 @@ export async function buildApp(d: Deps): Promise<App> {
       "SELECT idx, link FROM frames WHERE piece_id = $1 AND key_hex = $2 AND idx BETWEEN $3 AND $4", [p.pieceId, keyHex, from, to]);
     for (const k of known.rows) if (!eq(k.link, metas[k.idx - from]!.link)) throw new HttpError(409, "conflict", { index: k.idx });
     const fresh = metas.filter((m) => m.index >= count);
+    const reused = new Set<number>();
     for (const m of fresh) {
       const other = await db.query("SELECT 1 FROM frames WHERE jpeg_hash = $1 AND piece_id <> $2 LIMIT 1", [m.jpegHash, p.pieceId]);
-      if (other.rows.length) throw new HttpError(409, "frame_reused", { index: m.index });
+      if (other.rows.length) reused.add(m.index);
     }
     for (const m of fresh) {
       const blob = m.jpeg ? await blobs.put(p.pieceId, `${keyHex}-${m.index}.jpg`, m.jpeg) : null;
       await db.query(
-        `INSERT INTO frames (piece_id, key_hex, idx, session_id, device_ts, jpeg_hash, link, width, height, blob_key, discarded, received_at)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) ON CONFLICT DO NOTHING`,
-        [p.pieceId, keyHex, m.index, String(m.raw.sessionId ?? ""), m.deviceTs, m.jpegHash, m.link, m.raw.width | 0, m.raw.height | 0, blob, !m.jpeg, d.now()],
+        `INSERT INTO frames (piece_id, key_hex, idx, session_id, device_ts, jpeg_hash, link, width, height, blob_key, discarded, received_at, reused)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) ON CONFLICT DO NOTHING`,
+        [p.pieceId, keyHex, m.index, String(m.raw.sessionId ?? ""), m.deviceTs, m.jpegHash, m.link, m.raw.width | 0, m.raw.height | 0, blob, !m.jpeg, d.now(), reused.has(m.index)],
       );
     }
     await db.query("INSERT INTO anchor_sigs (piece_id, key_hex, count, head, sig) VALUES ($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING",
       [p.pieceId, keyHex, to + 1, head, anchorSig]);
     const newCount = Math.max(count, to + 1);
     const anchored = await maybeAnchor(p.pieceId, seg.key, newCount, false);
-    return { stored: fresh.length, count: newCount, anchored };
+    return { stored: fresh.length, count: newCount, anchored, reused: [...reused] };
   });
 
   /** Submit the newest signed head if the cadence (or `force`) says so. Never fails the caller. */
@@ -242,7 +243,7 @@ export async function buildApp(d: Deps): Promise<App> {
   const frameJson = async (pieceId: string, r: any, withImage: boolean) => ({
     key: nearPublicKey(hex.decode(r.key_hex)), index: r.idx, sessionId: r.session_id, deviceTs: Number(r.device_ts),
     jpegHash: b64.encode(r.jpeg_hash), link: b64.encode(r.link), width: r.width, height: r.height,
-    visibility: r.visibility, discarded: r.discarded,
+    visibility: r.visibility, discarded: r.discarded, reused: r.reused,
     jpeg: withImage && r.blob_key ? b64.encode((await blobs.get(pieceId, r.blob_key)) ?? new Uint8Array()) : null,
   });
 
@@ -386,11 +387,11 @@ export async function buildApp(d: Deps): Promise<App> {
   async function* frameStream(pieceId: string, keyHex: string) {
     let from = 0;
     for (;;) {
-      const rows = (await db.query<any>("SELECT idx, device_ts, width, height, blob_key FROM frames WHERE piece_id = $1 AND key_hex = $2 AND idx >= $3 ORDER BY idx LIMIT 50", [pieceId, keyHex, from])).rows;
+      const rows = (await db.query<any>("SELECT idx, device_ts, width, height, blob_key, reused FROM frames WHERE piece_id = $1 AND key_hex = $2 AND idx >= $3 ORDER BY idx LIMIT 50", [pieceId, keyHex, from])).rows;
       if (!rows.length) return;
       for (const r of rows) {
         from = r.idx + 1;
-        if (!r.blob_key) continue; // discarded: hash in the chain, no image
+        if (!r.blob_key || r.reused) continue; // discarded (hash only) or reused from another piece
         const jpeg = await blobs.get(pieceId, r.blob_key);
         if (jpeg) yield { jpeg, deviceTs: Number(r.device_ts), width: r.width, height: r.height };
       }
@@ -413,6 +414,7 @@ export async function buildApp(d: Deps): Promise<App> {
     }
     const anchored = !!(primary && seg && seg.count === Number(primary.n) && seg.count > 0);
     const source = body(req).source === "camera" ? "camera" : "screen";
+    const reusedFrames = primary ? Number((await db.query<{ n: number }>("SELECT count(*)::int AS n FROM frames WHERE piece_id = $1 AND key_hex = $2 AND reused", [p.pieceId, primary.key_hex])).rows[0]!.n) : 0;
     const m = primary ? await computeMetrics(frameStream(p.pieceId, primary.key_hex), { finalFile: finalBytes, source }) : null;
     const rows = (await db.query<any>("SELECT * FROM challenges WHERE piece_id = $1", [p.pieceId])).rows;
     const challenges = [];
@@ -432,7 +434,7 @@ export async function buildApp(d: Deps): Promise<App> {
       version: "soulprint-report-v1", pieceId: p.pieceId, network: d.network, level, thresholds: THRESHOLDS.id, verifier: "server-not-TEE",
       finalFileHash: b64.encode(final.sha256),
       capture: m && seg ? {
-        key: nearPublicKey(seg.key), anchoredHead: b64.encode(seg.head), anchoredCount: seg.count, frames: m.frames,
+        key: nearPublicKey(seg.key), anchoredHead: b64.encode(seg.head), anchoredCount: seg.count, frames: m.frames, reusedFrames,
         sessions: m.sessions, spanDays: Math.round(m.spanDays * 10) / 10, activeBand: band(m.activeMs),
         coverage: Math.round(m.coverage * 1000) / 1000, largestJump: Math.round(m.largestJump * 1000) / 1000,
         finalMatch: m.finalMatch, source, timeNote: "device-reported, bounded by on-chain anchors",

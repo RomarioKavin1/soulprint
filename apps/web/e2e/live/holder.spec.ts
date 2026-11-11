@@ -11,7 +11,7 @@ test("vault, resale and income: old_holder_vault_denied_after_transfer, buy pinn
   test.setTimeout(120_000);
   const { pieceId, t } = await newCommission(25_000_000n, { grant: { kind: "CommercialNonExclusive", attribution: true, transferable: true } });
   await fund(pieceId, t);
-  const body = JSON.stringify({ kind: "final", name: "final.png", data: b64.encode(new Uint8Array([9, 9, 9])) });
+  const body = JSON.stringify({ kind: "final", name: "final.png", data: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==", "base64").toString("base64") });
   const path = `/pieces/${pieceId}/files`;
   const up = await fetch(EV + path, { method: "POST", headers: { "content-type": "application/json", authorization: await authHeader(as("artist"), "POST", path, body, "soulprint-evidence") }, body });
   expect(up.status).toBe(200);

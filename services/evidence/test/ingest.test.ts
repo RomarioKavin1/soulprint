@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { b64 } from "@soulprint/proof";
-import { Device, PIECE, PIECE2, world } from "./helpers.ts";
+import { Device, nep413, PIECE, PIECE2, tinyImage, world } from "./helpers.ts";
 
 const post = (app: any, pieceId: string, body: unknown) => app.inject({ method: "POST", url: `/pieces/${pieceId}/frames`, payload: body });
 
@@ -43,8 +43,8 @@ describe("frame ingest (A27)", () => {
     expect((await post(app, PIECE, img)).json().error).toBe("image_hash_mismatch");
   });
 
-  it("rejects_frame_reused_from_other_piece", async () => {
-    const { app, chain, dev } = await world();
+  it("frame_reused_from_other_piece_counts_for_nothing (kept so capture can continue)", async () => {
+    const { app, chain, dev, artist } = await world();
     dev.capture(2);
     expect((await post(app, PIECE, await dev.batch(0, 1))).statusCode).toBe(200);
     // Same images, re-chained for another piece by the same artist.
@@ -52,8 +52,18 @@ describe("frame ingest (A27)", () => {
     chain.pieces.set(PIECE2, { ...chain.pieces.get(PIECE)!, pieceId: PIECE2, keys: [thief.signer.publicKey] });
     thief.capture(2);
     const r = await post(app, PIECE2, await thief.batch(0, 1));
-    expect(r.statusCode).toBe(409);
-    expect(r.json().error).toBe("frame_reused");
+    expect(r.statusCode).toBe(200);
+    expect(r.json().reused).toEqual([0, 1]);
+    const url = `/pieces/${PIECE2}/progress`;
+    const frames = (await app.inject({ method: "GET", url, headers: { authorization: await nep413(artist, "GET", url, undefined) } })).json().frames;
+    expect(frames.map((f: any) => f.reused)).toEqual([true, true]);
+    // The report for the second piece gets no evidence from them.
+    const call = async (method: "POST", u: string, body: unknown) => app.inject({ method, url: u, payload: body as any, headers: { authorization: await nep413(artist, method, u, body) } });
+    await call("POST", `/pieces/${PIECE2}/files`, { kind: "final", name: "f.png", data: b64.encode(await tinyImage()) });
+    chain.pieces.get(PIECE2)!.anchored = new Map([[Buffer.from(thief.signer.publicKey).toString("hex"), { head: thief.frames.at(-1)!.link, count: 2 }]]);
+    const rep = (await call("POST", `/pieces/${PIECE2}/report`, {})).json();
+    expect(rep.public.capture).toMatchObject({ frames: 0, reusedFrames: 2 });
+    expect(rep.level).toBe(0);
   });
 
   it("duplicate_and_partial_batches_idempotent", async () => {
