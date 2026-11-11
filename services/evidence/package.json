@@ -6,10 +6,11 @@
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "start": "node --experimental-strip-types src/main.ts"
+    "start": "tsx src/main.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^3"
   },
