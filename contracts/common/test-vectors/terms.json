@@ -1,0 +1,70 @@
+{
+  "vectors": [
+    {
+      "terms": {
+        "price": "100000000",
+        "currency": {
+          "Ft": "usdc.test.near"
+        },
+        "milestones": [
+          {
+            "bps": 3000
+          },
+          {
+            "bps": 7000
+          }
+        ],
+        "deadline_ns": "1802592000000000000",
+        "grace_ns": "172800000000000",
+        "review_window_ns": "604800000000000",
+        "revision_period_ns": "259200000000000",
+        "revision_rounds": 2,
+        "arbitrator": "arb.test.near",
+        "fallback_arbitrator": "fallback.test.near",
+        "timeout_artist_bps": 7500,
+        "reject_bond_bps": 500,
+        "royalty_bps": 500,
+        "grant": {
+          "kind": "CommercialNonExclusive",
+          "attribution": true,
+          "transferable": true
+        },
+        "licence_text_hash": "BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=",
+        "client": "client.test.near"
+      },
+      "hash": "cW1D7b/Iy9f3mOrzOiXNgtnm8Gea16whyiqmS1awuOE="
+    },
+    {
+      "terms": {
+        "price": "100000000",
+        "currency": "Near",
+        "milestones": [
+          {
+            "bps": 3000
+          },
+          {
+            "bps": 7000
+          }
+        ],
+        "deadline_ns": "1802592000000000000",
+        "grace_ns": "172800000000000",
+        "review_window_ns": "604800000000000",
+        "revision_period_ns": "259200000000000",
+        "revision_rounds": 2,
+        "arbitrator": "arb.test.near",
+        "fallback_arbitrator": "fallback.test.near",
+        "timeout_artist_bps": 7500,
+        "reject_bond_bps": 500,
+        "royalty_bps": 500,
+        "grant": {
+          "kind": "CommercialNonExclusive",
+          "attribution": true,
+          "transferable": true
+        },
+        "licence_text_hash": "BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=",
+        "client": null
+      },
+      "hash": "IGzO5tx/AsxF32HMGI8RDrtwFBSSzM7GH2ssZzgPt4w="
+    }
+  ]
+}

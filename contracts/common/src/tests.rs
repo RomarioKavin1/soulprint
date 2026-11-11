@@ -404,3 +404,16 @@ fn review_and_revision_windows_are_capped() {
     t.revision_period_ns = max.into();
     assert_eq!(check(&t), Ok(()));
 }
+
+/// Cross-language vector for the web offer builder: JSON terms and `sha256(borsh(terms))`.
+#[test]
+fn terms_hash_test_vector() {
+    let mut open = sample_terms();
+    open.client = None;
+    open.currency = Currency::Near;
+    let rows: Vec<serde_json::Value> = [sample_terms(), open]
+        .iter()
+        .map(|t| serde_json::json!({ "terms": t, "hash": t.hash() }))
+        .collect();
+    write_vector("terms.json", serde_json::json!({ "vectors": rows }));
+}

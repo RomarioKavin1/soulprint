@@ -28,6 +28,24 @@ export class Borsh {
     this.parts.push(new Uint8Array([n]));
     return this;
   }
+  u16(n: number): this {
+    if (!Number.isInteger(n) || n < 0 || n > 0xffff) throw new Error(`u16 out of range: ${n}`);
+    this.parts.push(new Uint8Array([n & 0xff, n >> 8]));
+    return this;
+  }
+  bool(v: boolean): this {
+    return this.u8(v ? 1 : 0);
+  }
+  u128(n: bigint | number | string): this {
+    const v = BigInt(n);
+    if (v < 0n || v >= 1n << 128n) throw new Error(`u128 out of range: ${n}`);
+    const b = new Uint8Array(16);
+    const dv = new DataView(b.buffer);
+    dv.setBigUint64(0, v & 0xffff_ffff_ffff_ffffn, true);
+    dv.setBigUint64(8, v >> 64n, true);
+    this.parts.push(b);
+    return this;
+  }
   u32(n: number): this {
     if (!Number.isInteger(n) || n < 0 || n > 0xffff_ffff) throw new Error(`u32 out of range: ${n}`);
     const b = new Uint8Array(4);

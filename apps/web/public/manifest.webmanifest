@@ -1,0 +1,9 @@
+{
+  "name": "Soulprint Capture",
+  "short_name": "Soulprint",
+  "start_url": "/studio",
+  "display": "standalone",
+  "background_color": "#f6f2ea",
+  "theme_color": "#1d1a16",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
