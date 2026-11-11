@@ -309,7 +309,10 @@ fn step(w: &mut World, op: &Op, actor: &AccountId) -> Result<(), TestCaseError> 
             let owner = w.p.owner.clone();
             w.p.rotate_owner(&w.ctx(actor, 0), owner, all[*t].clone(), *call)
         }
-        Op::ResolveTransfer(revert) => w.p.resolve_transfer(&w.ctx(actor, 0), *revert),
+        Op::ResolveTransfer(revert) => {
+            let seq = w.p.transfer_pending.as_ref().map(|t| t.seq);
+            w.p.resolve_transfer(&w.ctx(actor, 0), *revert, seq)
+        }
         Op::ExpirePending => w.p.expire_pending(&w.ctx(actor, 0)),
         Op::Outcome(i, ok) => {
             if w.flight.is_empty() {

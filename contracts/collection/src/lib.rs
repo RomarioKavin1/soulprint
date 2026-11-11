@@ -341,7 +341,7 @@ impl Collection {
     #[private]
     pub fn on_transfer_call_rotated(&mut self, token_id: String, previous_owner_id: AccountId, receiver_id: AccountId, msg: String) -> Promise {
         only_self();
-        Self::read_owner_view().unwrap_or_else(|| env::panic_str("ERR_PIECE_REFUSED"));
+        let view = Self::read_owner_view().unwrap_or_else(|| env::panic_str("ERR_PIECE_REFUSED"));
         let me = env::current_account_id();
         Promise::new(receiver_id.clone())
             .function_call(
@@ -357,7 +357,7 @@ impl Collection {
             .then(
                 Self::ext(me)
                     .with_static_gas(gas::NFT_RESOLVE_TRANSFER)
-                    .nft_resolve_transfer(previous_owner_id, receiver_id, token_id, None),
+                    .nft_resolve_transfer(previous_owner_id, receiver_id, token_id, None, Some(view.seq)),
             )
     }
 
@@ -370,6 +370,7 @@ impl Collection {
         receiver_id: AccountId,
         token_id: String,
         approved_account_ids: Option<HashMap<AccountId, u64>>,
+        pending_seq: Option<U64>,
     ) -> bool {
         only_self();
         let _ = (owner_id, receiver_id, approved_account_ids);
@@ -381,7 +382,8 @@ impl Collection {
         Promise::new(piece)
             .function_call(
                 "resolve_transfer",
-                serde_json::to_vec(&json!({ "revert": !keep })).unwrap(),
+                // Bound to this transfer: a late resolve cannot act on a newer one (review minor).
+                serde_json::to_vec(&json!({ "revert": !keep, "seq": pending_seq })).unwrap(),
                 NearToken::from_yoctonear(0),
                 gas::RESOLVE_TRANSFER,
             )

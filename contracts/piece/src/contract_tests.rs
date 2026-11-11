@@ -281,3 +281,24 @@ fn view_fixtures_written() {
     assert_eq!(v["accounting"]["holder_pool"], "50000");
     assert_eq!(v["listing"]["nonce"], "1");
 }
+
+/// Plan 1 review minor 4: a successful transfer whose result is longer than 64 bytes is still a
+/// success; treating it as a failure would restore a credit that was paid (double pay).
+#[test]
+fn long_success_result_is_success_not_a_restore() {
+    let mut p = near_piece();
+    let h = p.piece_info().terms_hash.unwrap();
+    call(&client(), 10u128.pow(24), T0 + 1);
+    p.fund(h, None);
+    call(&artist(), 1, T0 + 2);
+    p.deliver(Bytes32([1; 32]), Bytes32([1; 32]));
+    call(&client(), 1, T0 + 3);
+    p.accept();
+    call(&artist(), 0, T0 + 4);
+    p.claim();
+    set(&piece_id(), 0, T0 + 5, 10u128.pow(25), vec![PromiseResult::Successful(vec![b'x'; 200])]);
+    p.on_transfer_result(crate::core::SlotId::Credit(artist()), U128(10u128.pow(24)));
+    let a = p.accounting();
+    let c = a.credits.iter().find(|c| c.account == artist());
+    assert!(c.is_none_or(|c| (c.available, c.in_flight) == (U128(0), U128(0))), "paid, not restored: {:?}", c.map(|c| (c.available, c.in_flight)));
+}

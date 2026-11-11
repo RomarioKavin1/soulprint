@@ -388,7 +388,7 @@ pub struct PieceCore {
     pub attestation: Attestation,
     pub addenda: Vec<Addendum>,
     pub pending_addendum: Option<Addendum>,
-    /// Settled through escrow and accepted (or review lapse / ≥50% split). Basis of the badge (A29).
+    /// Settled through escrow by acceptance or review lapse (never by a dispute outcome). Basis of the badge (A29).
     pub commissioned: bool,
     pub created_at: u64,
 }

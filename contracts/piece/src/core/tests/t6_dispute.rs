@@ -220,3 +220,22 @@ fn implicit_and_eth_accounts_supported() {
         assert_eq!(p.credits[&who].available, PRICE + BOND);
     }
 }
+
+/// Plan 3 review minor 2: a refused delivery never earns "Commissioned and accepted", whatever
+/// the split; acceptance does.
+#[test]
+fn no_badge_after_a_dispute_whatever_the_split() {
+    for bps in [5000u16, 6000, 10_000] {
+        let mut p = disputed_piece();
+        p.resolve(&cx(&arb(), 1, NEG_END), bps).unwrap();
+        assert_eq!(p.status, Status::Settled);
+        assert!(!p.badge(), "arbitrator award {bps}");
+        let mut q = disputed_piece();
+        q.propose_split(&cx(&artist(), 1, REJECT_AT + 1), bps).unwrap();
+        let n = q.split.as_ref().unwrap().nonce;
+        q.accept_split(&cx(&client(), 1, REJECT_AT + 2), bps, n).unwrap();
+        assert!(!q.badge(), "agreed split {bps}");
+    }
+    let accepted = settled_piece(&cur_ft());
+    assert!(accepted.badge());
+}

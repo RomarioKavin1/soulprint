@@ -84,7 +84,7 @@ fn transfer_call_revert_cannot_be_blocked() {
     // Whatever the receiver tried, the revert lands.
     let _ = p.withdraw(&cx(&buyer(), 1, NOW + 1));
     let _ = p.list(&cx(&buyer(), 1, NOW + 1), LIST_PRICE, None);
-    let fx = p.resolve_transfer(&coll(NOW + 2), true).unwrap();
+    let fx = p.resolve_transfer(&coll(NOW + 2), true, None).unwrap();
     assert_eq!(p.owner, client());
     assert_eq!(p.rotation_seq, 3);
     assert!(p.transfer_pending.is_none());
@@ -96,7 +96,7 @@ fn transfer_call_revert_cannot_be_blocked() {
 #[test]
 fn transfer_call_accepted_keeps_receiver() {
     let mut p = pending_piece();
-    p.resolve_transfer(&coll(NOW + 2), false).unwrap();
+    p.resolve_transfer(&coll(NOW + 2), false, None).unwrap();
     assert_eq!(p.owner, buyer());
     assert_eq!(p.rotation_seq, 2);
     assert!(p.transfer_pending.is_none());
@@ -106,7 +106,7 @@ fn transfer_call_accepted_keeps_receiver() {
 #[test]
 fn resolve_transfer_only_collection() {
     let mut p = pending_piece();
-    assert_eq!(p.resolve_transfer(&cx(&buyer(), 0, NOW + 2), false), Err(Error::NotCollection));
+    assert_eq!(p.resolve_transfer(&cx(&buyer(), 0, NOW + 2), false, None), Err(Error::NotCollection));
 }
 
 #[test]
@@ -125,10 +125,10 @@ fn late_resolve_after_expiry_is_noop() {
     let mut p = pending_piece();
     p.expire_pending(&cx(&stranger(), 0, NOW + EXPIRY)).unwrap();
     let before = p.clone();
-    let fx = p.resolve_transfer(&coll(NOW + EXPIRY + 1), false).unwrap();
+    let fx = p.resolve_transfer(&coll(NOW + EXPIRY + 1), false, None).unwrap();
     assert!(fx.is_empty());
     assert_eq!(p, before);
-    p.resolve_transfer(&coll(NOW + EXPIRY + 1), true).unwrap();
+    p.resolve_transfer(&coll(NOW + EXPIRY + 1), true, None).unwrap();
     assert_eq!(p, before);
 }
 
@@ -148,4 +148,23 @@ fn old_holder_loses_owner_actions_after_transfer() {
     p.rotate_owner(&coll(NOW), client(), buyer(), false).unwrap();
     assert_eq!(p.withdraw(&cx(&client(), 1, NOW + 1)), Err(Error::NotOwner));
     assert_eq!(p.list(&cx(&client(), 1, NOW + 1), LIST_PRICE, None), Err(Error::NotOwner));
+}
+
+/// Plan 1 review minor 1: a resolve that belongs to an earlier transfer (its pending expired and a
+/// new transfer_call started) must not act on the new one.
+#[test]
+fn late_resolve_from_an_earlier_transfer_does_not_touch_the_new_one() {
+    let mut p = pending_piece();
+    let old_seq = p.transfer_pending.as_ref().unwrap().seq;
+    p.expire_pending(&cx(&stranger(), 0, NOW + EXPIRY)).unwrap();
+    p.rotate_owner(&coll(NOW + EXPIRY + 1), client(), buyer2(), true).unwrap();
+    let new_seq = p.transfer_pending.as_ref().unwrap().seq;
+    assert_ne!(old_seq, new_seq);
+    let before = p.clone();
+    let fx = p.resolve_transfer(&coll(NOW + EXPIRY + 2), true, Some(old_seq)).unwrap();
+    assert!(fx.is_empty());
+    assert_eq!(p, before, "the old resolve left the new transfer alone");
+    p.resolve_transfer(&coll(NOW + EXPIRY + 3), false, Some(new_seq)).unwrap();
+    assert_eq!(p.owner, buyer2());
+    assert!(p.transfer_pending.is_none());
 }

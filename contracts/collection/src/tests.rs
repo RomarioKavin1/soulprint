@@ -123,7 +123,7 @@ fn collection_callbacks_are_private() {
     call(&artist(), 0, T0);
     assert!(panics(|| c.on_piece_created("1".into(), artist(), artist(), U128(1), created())).contains("private"));
     assert!(panics(|| c.on_rotate_resolved("1".into())).contains("private"));
-    assert!(panics(|| c.nft_resolve_transfer(artist(), acc("b.near"), "1".into(), None)).contains("private"));
+    assert!(panics(|| c.nft_resolve_transfer(artist(), acc("b.near"), "1".into(), None, None)).contains("private"));
     assert!(panics(|| c.on_sync("1".into())).contains("private"));
     assert!(panics(|| c.on_resolved("1".into())).contains("private"));
 }
@@ -192,7 +192,7 @@ fn nft_resolve_transfer_bounded_read() {
         (PromiseResult::Failed, false),
     ] {
         set(&me(), 0, T0, vec![res]);
-        assert_eq!(c.nft_resolve_transfer(artist(), acc("b.near"), "1".into(), None), kept);
+        assert_eq!(c.nft_resolve_transfer(artist(), acc("b.near"), "1".into(), None, None), kept);
     }
 }
 

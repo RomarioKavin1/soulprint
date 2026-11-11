@@ -40,9 +40,14 @@ impl PieceCore {
 
     /// Collection callback after `nft_on_transfer`. Never fails for the collection (A16); with no
     /// pending entry (expired already) it is a no-op (A1). Exempt from listing/dispute blocks.
-    pub fn resolve_transfer(&mut self, ctx: &Ctx, revert: bool) -> Res {
+    /// `seq` = the pending transfer this resolve belongs to (from `rotate_owner`'s result); a resolve
+    /// for an earlier transfer is ignored (review minor). `None` = legacy caller, no binding.
+    pub fn resolve_transfer(&mut self, ctx: &Ctx, revert: bool, seq: Option<u64>) -> Res {
         self.require_collection(ctx)?;
         let mut fx = vec![];
+        if seq.is_some_and(|s| self.transfer_pending.as_ref().is_some_and(|p| p.seq != s)) {
+            return Ok(fx);
+        }
         let Some(pending) = self.transfer_pending.take() else { return Ok(fx) };
         if revert {
             self.revert_pending(&mut fx, pending, OwnerChangeCause::Revert, false);

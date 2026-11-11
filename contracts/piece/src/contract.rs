@@ -326,7 +326,9 @@ impl Piece {
     /// Callback for a dispatched transfer (A16): no balance checks, no storage growth, no panics.
     #[private]
     pub fn on_transfer_result(&mut self, slot: SlotId, amount: U128) {
-        let ok = env::promise_result_checked(0, 64).is_ok();
+        // Only a failed promise is a failure: a success whose result is longer than we read is
+        // still a payment made (review minor: treating it as failed would pay twice).
+        let ok = !matches!(env::promise_result_checked(0, 64), Err(near_sdk::PromiseError::Failed));
         let fx = self.core.on_transfer_result(slot, amount.0, ok);
         for e in fx {
             if let Effect::Event(ev) = e {
@@ -390,8 +392,8 @@ impl Piece {
         self.run(Pay::Free, |c, ctx| c.rotate_owner(ctx, sender, receiver, call));
         self.core.owner_view(env::block_timestamp())
     }
-    pub fn resolve_transfer(&mut self, revert: bool) -> OwnerView {
-        self.run(Pay::Free, |c, ctx| c.resolve_transfer(ctx, revert));
+    pub fn resolve_transfer(&mut self, revert: bool, seq: Option<U64>) -> OwnerView {
+        self.run(Pay::Free, |c, ctx| c.resolve_transfer(ctx, revert, seq.map(|s| s.0)));
         self.core.owner_view(env::block_timestamp())
     }
     pub fn expire_pending(&mut self) {
