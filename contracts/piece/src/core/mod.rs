@@ -230,6 +230,7 @@ pub enum Error {
     InvalidDeadline,
     NotStandaloneEligible,
     NotEnoughGas,
+    DuplicateKey,
 }
 
 impl core::fmt::Display for Error {

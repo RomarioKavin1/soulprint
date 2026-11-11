@@ -8,7 +8,7 @@ mod messages;
 mod terms;
 mod time;
 
-pub use bytes::{Bytes32, Bytes64};
+pub use bytes::{ed25519_pk, ed25519_raw, Bytes32, Bytes64};
 pub use events::{IssuerClass, OwnerChangeCause, ResolveOutcome, SoulprintEvent, EVENT_STANDARD, EVENT_VERSION};
 pub use messages::{
     chain_link, genesis, segments_digest, sha256, AnchorMessage, BatchMessage, ChallengeAckMessage, ReportMessage,

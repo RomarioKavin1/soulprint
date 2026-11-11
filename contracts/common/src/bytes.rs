@@ -51,3 +51,17 @@ macro_rules! fixed_bytes {
 
 fixed_bytes!(Bytes32, 32);
 fixed_bytes!(Bytes64, 64);
+
+/// ed25519 raw key → NEAR `PublicKey` (`ed25519:<base58>` in JSON).
+pub fn ed25519_pk(raw: &Bytes32) -> near_sdk::PublicKey {
+    near_sdk::PublicKey::from_parts(near_sdk::CurveType::ED25519, raw.0.to_vec()).expect("32 bytes")
+}
+
+/// NEAR `PublicKey` → raw ed25519 bytes; `None` for other curves.
+pub fn ed25519_raw(pk: &near_sdk::PublicKey) -> Option<Bytes32> {
+    if pk.curve_type() != near_sdk::CurveType::ED25519 {
+        return None;
+    }
+    let b = pk.as_bytes();
+    Some(Bytes32(b[1..33].try_into().ok()?))
+}

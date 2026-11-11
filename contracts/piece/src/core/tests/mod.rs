@@ -10,6 +10,7 @@ mod t5_commission;
 mod t6_dispute;
 mod t7_accounting;
 mod t8_resale;
+mod t9_proof;
 
 pub const SEC: u64 = 1_000_000_000;
 pub const DAY: u64 = 86_400 * SEC;
@@ -166,4 +167,14 @@ pub fn listed_piece() -> PieceCore {
     let mut p = settled_piece(&cur_ft());
     p.list(&cx(&client(), 1, SETTLED_AT + 1), LIST_PRICE, None).unwrap();
     p
+}
+
+pub fn sign(sk: &ed25519_dalek::SigningKey, msg: &[u8]) -> Bytes64 {
+    use ed25519_dalek::Signer;
+    Bytes64(sk.sign(msg).to_bytes())
+}
+
+/// Advance a key's chain by `n` frames from `prev` and return (head, signature over the anchor).
+pub fn anchor_sig(sk: &ed25519_dalek::SigningKey, head: Bytes32, count: u32) -> Bytes64 {
+    sign(sk, &AnchorMessage::new(piece_id(), head, count).signing_bytes())
 }

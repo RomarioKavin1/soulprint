@@ -350,3 +350,13 @@ fn abi_fixtures_roundtrip() {
     });
     std::fs::write(dir.join("types.json"), serde_json::to_string_pretty(&types).unwrap() + "\n").unwrap();
 }
+
+#[test]
+fn ed25519_key_roundtrip() {
+    let raw = Bytes32([9; 32]);
+    let pk = ed25519_pk(&raw);
+    assert!(pk.to_string().starts_with("ed25519:"));
+    assert_eq!(ed25519_raw(&pk), Some(raw));
+    let secp: near_sdk::PublicKey = "secp256k1:qMoRgcoXai4mBPsdbHi1wfyxF9TdbPCF4qSDQTRP3TfescSRoUdSx6nmeQoN3aiwGzwMyGXAb1gUjBTv5AY8DXj".parse().unwrap();
+    assert_eq!(ed25519_raw(&secp), None);
+}
