@@ -19,3 +19,36 @@ export async function view(rpc: string, contract: string, method: string, args: 
   if (j.error || j.result?.error) throw new Error(JSON.stringify(j.error ?? j.result.error));
   return JSON.parse(Buffer.from(j.result.result).toString("utf8"));
 }
+
+import { KeySigner } from "../../lib/near.ts";
+import { defaultOffer, offerToTerms, type TermsJson } from "../../lib/terms.ts";
+import { createPiece } from "../../lib/piece.ts";
+import { fundCall } from "../../lib/commission.ts";
+import { ChainView } from "../../lib/near.ts";
+
+export function as(role: string) {
+  const L = live()!;
+  const a = L.c.accounts[role];
+  return new KeySigner(a.account_id, a.secret_key, L.rpc);
+}
+
+/** A USDC commission from the demo artist to the demo client, created directly on chain. */
+export async function newCommission(price = 25_000_000n, over: Partial<TermsJson> = {}) {
+  const L = live()!;
+  const o = { ...defaultOffer({ now: Date.now(), currency: { Ft: L.c.currency_token }, decimals: 6 }), price, arbitrator: L.arbitrator, fallbackArbitrator: L.c.accounts.fallback_arbitrator.account_id, client: L.client };
+  const t = { ...offerToTerms(o), ...over };
+  const chain = new ChainView(L.rpc);
+  const { pieceId } = await createPiece(chain, as("artist"), L.collection, { Commission: t }, "ed25519:3tJ8GQ9dUuLhHMq4ApmDWaD4fwZ5QBm3QpBk1xqWcEaA");
+  return { pieceId, t };
+}
+
+export async function fund(pieceId: string, t: TermsJson) {
+  const L = live()!;
+  const c = fundCall({ piece_id: pieceId, currency: t.currency, price: t.price } as any, t, L.c.currency_token);
+  return as("client").call(c.contract, c.method, c.args, { deposit: c.deposit, tgas: c.tgas });
+}
+
+export async function deliver(pieceId: string) {
+  const h = Buffer.alloc(32, 0xf1).toString("base64");
+  return as("artist").call(pieceId, "deliver", { final_file_hash: h, report_hash: h }, { deposit: 10n ** 22n, tgas: 100n });
+}

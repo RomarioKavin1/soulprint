@@ -8,4 +8,6 @@ export const CREATOR_CLIENT_ROUTES: string[] = [
   "/studio/p1.soulprint.test.near?as=artist.test.near",
   "/capture/p1.soulprint.test.near",
   "/c/p1.soulprint.test.near",
+  "/c/p2.soulprint.test.near?as=client.test.near",
+  "/c/p3.soulprint.test.near?as=client.test.near",
 ];

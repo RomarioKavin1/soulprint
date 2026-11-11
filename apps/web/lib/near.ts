@@ -35,16 +35,23 @@ export class ChainError extends Error {
 
 /** First `ERR_*` code in a failed outcome, or the raw message. */
 export function chainErrorCode(e: unknown): string {
-  const s = typeof e === "string" ? e : JSON.stringify(e, Object.getOwnPropertyNames(e ?? {})) ?? String(e);
+  let s: string;
+  if (typeof e === "string") s = e;
+  else if (e instanceof Error) s = `${e.message} ${JSON.stringify((e as any).cause ?? "")} ${JSON.stringify(e)}`;
+  else s = JSON.stringify(e) ?? String(e);
   return /ERR_[A-Z_a-z]+/.exec(s)?.[0] ?? /Smart contract panicked: ([^"\\]+)/.exec(s)?.[1] ?? "ERR_UNKNOWN";
 }
 
-function outcome(r: any): CallOutcome {
+export function outcome(r: any): CallOutcome {
   const receipts: any[] = r?.receipts_outcome ?? [];
   const failed = [r?.status, ...receipts.map((x) => x?.outcome?.status)].find((s) => s && typeof s === "object" && "Failure" in s);
   const txHash = String(r?.transaction?.hash ?? r?.transaction_outcome?.id ?? "");
   if (failed) throw new ChainError(chainErrorCode(failed), txHash);
-  const logs = receipts.flatMap((x) => x?.outcome?.logs ?? []);
+  const logs: string[] = receipts.flatMap((x) => x?.outcome?.logs ?? []);
+  // A refused FT action (fund/buy/reject/pay_income via ft_transfer_call) does not fail: the piece
+  // logs its error code and the tokens are returned. Treat that as the error it is.
+  const refused = logs.find((l) => /^ERR_[A-Z_a-z]+$/.test(l));
+  if (refused) throw new ChainError(refused, txHash);
   let value: unknown = undefined;
   const sv = r?.status?.SuccessValue;
   if (typeof sv === "string" && sv.length) {
