@@ -25,3 +25,11 @@ Typed code rendered on a textured background: tesseract.js 7 reads `K7XQ4M` at c
 ~1.2 s (first call, includes model load). Handwritten / phone-of-tablet reliability needs 20 + 20
 real frames; until measured, UI copy should suggest typing the code as a text layer when possible.
 A miss is always reported as "inconclusive", never "failed".
+
+## Plan 3 Task 1 spike — email / passkey login via NEAR Connect (testnet)
+
+Status: **pending** — needs an interactive browser session with real wallets on testnet (Romario).
+What is built: `ConnectSigner` uses NEAR Connect's wallet selector (`connector.connect()`), `signMessage` for
+NEP-413 and `signAndSendTransaction` for calls. Sandbox and E2E use `KeySigner` (demo keys from config).
+To check: which listed wallets offer email or passkey onboarding on testnet (candidates: HOT, Meteor, Intear,
+MyNearWallet), and whether each returns a NEP-413 `signMessage` the evidence service accepts (full-access key).

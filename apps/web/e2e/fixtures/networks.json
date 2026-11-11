@@ -1,0 +1,48 @@
+{
+  "sandbox": {
+    "network_id": "sandbox",
+    "rpc_url": "http://127.0.0.1:1",
+    "collection": "soulprint.test.near",
+    "currency_token": "usdc.test.near",
+    "currency_decimals": 6,
+    "capture_test_key": "2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a",
+    "accounts": {
+      "governance": {
+        "account_id": "governance.test.near",
+        "secret_key": "ed25519:3D4YudUahN1nawWogh8pAKSj92sUNMdbZGjn7kERKzYoTy8tnFQuwoGUC51DowKqorvkr2pytJSnwuSbsNVfqygr"
+      },
+      "relayer": {
+        "account_id": "relayer.test.near",
+        "secret_key": "ed25519:3D4YudUahN1nawWogh8pAKSj92sUNMdbZGjn7kERKzYoTy8tnFQuwoGUC51DowKqorvkr2pytJSnwuSbsNVfqygr"
+      },
+      "artist": {
+        "account_id": "artist.test.near",
+        "secret_key": "ed25519:3D4YudUahN1nawWogh8pAKSj92sUNMdbZGjn7kERKzYoTy8tnFQuwoGUC51DowKqorvkr2pytJSnwuSbsNVfqygr"
+      },
+      "client": {
+        "account_id": "client.test.near",
+        "secret_key": "ed25519:3D4YudUahN1nawWogh8pAKSj92sUNMdbZGjn7kERKzYoTy8tnFQuwoGUC51DowKqorvkr2pytJSnwuSbsNVfqygr"
+      },
+      "buyer": {
+        "account_id": "buyer.test.near",
+        "secret_key": "ed25519:3D4YudUahN1nawWogh8pAKSj92sUNMdbZGjn7kERKzYoTy8tnFQuwoGUC51DowKqorvkr2pytJSnwuSbsNVfqygr"
+      },
+      "buyer2": {
+        "account_id": "buyer2.test.near",
+        "secret_key": "ed25519:3D4YudUahN1nawWogh8pAKSj92sUNMdbZGjn7kERKzYoTy8tnFQuwoGUC51DowKqorvkr2pytJSnwuSbsNVfqygr"
+      },
+      "shop": {
+        "account_id": "shop.test.near",
+        "secret_key": "ed25519:3D4YudUahN1nawWogh8pAKSj92sUNMdbZGjn7kERKzYoTy8tnFQuwoGUC51DowKqorvkr2pytJSnwuSbsNVfqygr"
+      },
+      "arbitrator": {
+        "account_id": "arbitrator.test.near",
+        "secret_key": "ed25519:3D4YudUahN1nawWogh8pAKSj92sUNMdbZGjn7kERKzYoTy8tnFQuwoGUC51DowKqorvkr2pytJSnwuSbsNVfqygr"
+      },
+      "fallback_arbitrator": {
+        "account_id": "fallback_arbitrator.test.near",
+        "secret_key": "ed25519:3D4YudUahN1nawWogh8pAKSj92sUNMdbZGjn7kERKzYoTy8tnFQuwoGUC51DowKqorvkr2pytJSnwuSbsNVfqygr"
+      }
+    }
+  }
+}
