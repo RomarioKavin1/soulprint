@@ -37,12 +37,13 @@ test("proof page: private until published, then the facts, badge and a matching 
   expect((await ev("artist", "POST", `/pieces/${pieceId}/files`, { kind: "final", name: "final.jpg", data: b64.encode(final) })).status).toBe(200);
   let report: any;
   await expect.poll(async () => ((report = await ev("artist", "POST", `/pieces/${pieceId}/report`, { source: "camera" })).status), { timeout: 60_000, intervals: [2000] }).toBe(200);
-  expect(report.json.level).toBe(2);
+  // Uploaded in one go: the service clock (Plan 2 review C2) refuses to credit hours of device time.
+  expect(report.json.level).toBe(0);
   await as("artist").call(pieceId, "deliver", { final_file_hash: report.json.finalFileHash, report_hash: report.json.reportHash }, { deposit: 10n ** 22n, tgas: 100n });
   // The service reads the chain at `final` finality, a few blocks behind: retry like the studio does.
   await expect.poll(async () => (await ev("artist", "POST", `/pieces/${pieceId}/attest`)).status, { timeout: 30_000, intervals: [1500] }).toBe(200);
   await as("client").call(pieceId, "accept", {}, { deposit: 10n ** 22n, tgas: 100n });
-  await expect.poll(async () => (await view(L!.rpc, pieceId, "proof_page", { from: 0, limit: 1 })).attestation.evidence_level, { timeout: 20_000 }).toBe(2);
+  await expect.poll(async () => (await view(L!.rpc, pieceId, "proof_page", { from: 0, limit: 1 })).attestation.report_hash, { timeout: 20_000 }).toBe(report.json.reportHash);
 
   await page.goto(`/p/${pieceId}`);
   await expect(page.getByTestId("proof-private")).toBeVisible();
@@ -51,8 +52,7 @@ test("proof page: private until published, then the facts, badge and a matching 
   await ev("artist", "POST", `/pieces/${pieceId}/story`, { text: "A study in three sittings." });
   expect((await ev("artist", "POST", `/pieces/${pieceId}/publish`, { published: true })).status).toBe(200);
   await page.reload();
-  await expect(page.getByTestId("evidence-sentence")).toContainText("Recorded while made:");
-  await expect(page.getByTestId("evidence-sentence")).toContainText("built up on camera");
+  await expect(page.getByTestId("evidence-sentence")).toHaveText("Declared by the artist.");
   await expect(page.getByTestId("badge")).toHaveText("Commissioned and accepted");
   await expect(page.getByTestId("recompute")).toContainText("✓ Recomputed in your browser");
   await expect(page.getByRole("img", { name: /Frame/ })).toBeVisible();

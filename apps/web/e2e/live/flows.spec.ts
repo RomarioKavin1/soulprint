@@ -92,8 +92,12 @@ test("dispute_each_stage: refuse → negotiation → arbitrator decides in the r
   const arb = await person(browser, "arbitrator");
   await arb.p.goto(`/c/${pieceId}?as=${arb.id}`);
   await expect(arb.p.getByRole("button", { name: "Decide" })).toBeVisible({ timeout: 60_000 }); // after the negotiation window
+  await arb.p.getByLabel("Award to the artist").fill("");
+  await expect(arb.p.getByRole("button", { name: "Decide" })).toBeDisabled(); // an empty field is not 0%
   await arb.p.getByLabel("Award to the artist").fill("60");
   await arb.p.getByRole("button", { name: "Decide" }).click();
+  await expect(arb.p.getByTestId("confirm")).toContainText("15 USDC to the artist and 10 USDC to the client");
+  await arb.p.getByTestId("confirm-yes").click();
   await expect(arb.p.getByTestId("room-status")).toHaveText("Complete", { timeout: 30_000 });
   const acc = await view(L!.rpc, pieceId, "accounting");
   const credit = (who: string) => BigInt(acc.credits.find((c: any) => c.account === who)?.available ?? "0");

@@ -29,6 +29,12 @@ export function displayLevel(
   return { level, note: null };
 }
 
+/** The grant is only in force once the commission completes (`grant_active` on chain). */
+function rightsPrefix(p: Pick<PieceInfo, "grant_active" | "status">) {
+  if (p.grant_active) return "";
+  return ["Refunded", "Cancelled"].includes(p.status) ? "Never took effect: " : "Not in force yet: ";
+}
+
 /** Public facts about the piece. Deliberately has no price (Plan 3 Global Constraints). */
 export function proofModel({ piece }: { piece: PieceInfo }) {
   return {
@@ -38,7 +44,7 @@ export function proofModel({ piece }: { piece: PieceInfo }) {
     owner: piece.owner,
     mode: piece.mode,
     badge: showBadge(piece),
-    rights: `${GRANT_TEXT[piece.grant.kind].title}${piece.grant.attribution ? ", with credit to the artist" : ""}. ${GRANT_TEXT[piece.grant.kind].plain}`,
+    rights: `${rightsPrefix(piece)}${GRANT_TEXT[piece.grant.kind].title}${piece.grant.attribution ? ", with credit to the artist" : ""}. ${GRANT_TEXT[piece.grant.kind].plain}`,
     royalty: `${piece.royalty_bps / 100}% of every resale goes to the artist.`,
   };
 }

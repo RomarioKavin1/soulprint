@@ -42,3 +42,13 @@ describe("proof page", () => {
     expect(JSON.stringify(m)).not.toMatch(/123456789|price/i);
   });
 });
+
+describe("proof page rights (Plan 3 review, minor 3 re-graded)", () => {
+  const base = { mode: "Commission", commissioned_badge: false, grant: { kind: "CommercialNonExclusive", attribution: true, transferable: true }, royalty_bps: 500, artist: "a", owner: "b", piece_id: "p1.x", token_id: "1" } as any;
+  it("rights are stated as in force only when the grant is active", () => {
+    expect(proofModel({ piece: { ...base, status: "Settled", grant_active: true } }).rights).toMatch(/^Commercial, non-exclusive/);
+    expect(proofModel({ piece: { ...base, status: "InProgress", grant_active: false } }).rights).toMatch(/^Not in force yet: /);
+    expect(proofModel({ piece: { ...base, status: "Refunded", grant_active: false } }).rights).toMatch(/^Never took effect: /);
+    expect(proofModel({ piece: { ...base, status: "Cancelled", grant_active: false } }).rights).toMatch(/^Never took effect: /);
+  });
+});

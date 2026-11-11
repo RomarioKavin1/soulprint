@@ -32,6 +32,10 @@ export function Room({ pieceId }: { pieceId: string }) {
   const [error, setError] = useState<unknown>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [splitPct, setSplitPct] = useState(50);
+  // Arbitrator award: empty or out of range is not a decision (Plan 3 review, minor 1 re-graded).
+  const [award, setAward] = useState("");
+  const awardNum = award.trim() === "" ? NaN : Number(award);
+  const awardBps = Number.isFinite(awardNum) && awardNum >= 0 && awardNum <= 100 ? Math.round(awardNum * 100) : null;
 
   if (loadError && !data) return <p className="pt-10 text-seal-2">This piece could not be found on the network.</p>;
   if (!data) return <p className="pt-10 text-ink-3">Loading…</p>;
@@ -177,16 +181,25 @@ export function Room({ pieceId }: { pieceId: string }) {
                 Agree: {piece.split.artist_bps / 100}% to the artist, the rest back to the client
               </button>
             )}
-            {actions.includes("resolve") && (
-              <span className="flex items-center gap-2">
-                <span className="text-sm">As arbitrator, award</span>
-                <input className="field w-20" type="number" min={0} max={100} value={splitPct} onChange={(e) => setSplitPct(Number(e.target.value))} aria-label="Award to the artist" />
-                <span className="text-sm">% to the artist</span>
-                <button className="btn-seal" disabled={!!busy} onClick={() => step("Deciding", () => act(signer!, pieceId, "resolve", { artist_bps: splitPct * 100 }))}>
-                  Decide
-                </button>
-              </span>
-            )}
+            {actions.includes("resolve") &&
+              (confirm === "resolve" && awardBps !== null ? (
+                <Confirm
+                  text={`You award ${money((BigInt(acc.escrow) * BigInt(awardBps)) / 10000n, piece.currency, d)} to the artist and ${money(BigInt(acc.escrow) - (BigInt(acc.escrow) * BigInt(awardBps)) / 10000n, piece.currency, d)} to the client. This decision is final.`}
+                  yes="Decide"
+                  busy={busy}
+                  onYes={() => step("Deciding", () => act(signer!, pieceId, "resolve", { artist_bps: awardBps }))}
+                  onNo={() => setConfirm(null)}
+                />
+              ) : (
+                <span className="flex items-center gap-2">
+                  <span className="text-sm">As arbitrator, award</span>
+                  <input className="field w-20" type="number" min={0} max={100} value={award} onChange={(e) => setAward(e.target.value)} aria-label="Award to the artist" />
+                  <span className="text-sm">% to the artist</span>
+                  <button className="btn-seal" disabled={!!busy || awardBps === null} onClick={() => setConfirm("resolve")}>
+                    Decide
+                  </button>
+                </span>
+              ))}
             {actions.includes("timeout_resolve") && (
               <button className="btn-ghost" disabled={!!busy} onClick={() => step("Closing", () => signer!.call(pieceId, "timeout_resolve", {}, { deposit: STORAGE_DEPOSIT, tgas: 100n }))}>
                 Close the dispute with the agreed fallback split ({t.timeout_artist_bps / 100}% to the artist)
