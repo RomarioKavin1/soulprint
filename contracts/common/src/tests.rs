@@ -5,6 +5,8 @@ fn acc(s: &str) -> AccountId {
     s.parse().unwrap()
 }
 
+type Mutation = Box<dyn Fn(&mut Terms)>;
+
 const DAY: u64 = 86_400_000_000_000;
 const NOW: u64 = 1_800_000_000_000_000_000;
 
@@ -54,7 +56,7 @@ fn defaults_match_spec() {
 #[test]
 fn terms_validate_bounds() {
     assert_eq!(check(&sample_terms()), Ok(()));
-    let cases: Vec<(Box<dyn Fn(&mut Terms)>, TermsError)> = vec![
+    let cases: Vec<(Mutation, TermsError)> = vec![
         (Box::new(|t| t.milestones.clear()), TermsError::MilestoneCount),
         (Box::new(|t| t.milestones = vec![Milestone { bps: 2000 }; 6]), TermsError::MilestoneCount),
         (Box::new(|t| t.milestones = vec![Milestone { bps: 5000 }, Milestone { bps: 4000 }]), TermsError::MilestoneSum),
@@ -86,7 +88,7 @@ fn terms_validate_bounds() {
 #[test]
 fn terms_hash_changes_on_any_field() {
     let base = sample_terms().hash();
-    let muts: Vec<Box<dyn Fn(&mut Terms)>> = vec![
+    let muts: Vec<Mutation> = vec![
         Box::new(|t| t.price = 100_000_001u128.into()),
         Box::new(|t| t.currency = Currency::Near),
         Box::new(|t| t.milestones[0].bps = 3001),

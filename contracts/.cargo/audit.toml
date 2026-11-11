@@ -1,0 +1,9 @@
+# Advisories reached only through near-sdk's native test VM (near-vm-runner via the
+# `unit-testing` / `non-contract-usage` features) or near-workspaces tooling. None of
+# the first two is linked into the on-chain wasm (checked: cargo tree --target wasm32-unknown-unknown).
+[advisories]
+ignore = [
+  "RUSTSEC-2026-0387", # crypto-bigint 0.5.5 timing (p256 in near-vm-runner, host-side tests only)
+  "RUSTSEC-2024-0449", # unsafe-libyaml unmaintained (tooling)
+  "RUSTSEC-2022-0054", # wee_alloc unmaintained: near-sdk default wasm allocator (feature "wee_alloc"); kept, as in every near-sdk contract
+]
