@@ -41,3 +41,16 @@ describe("lag with skipped heights", () => {
     expect((await app.inject({ method: "GET", url: "/lag" })).json()).toMatchObject({ indexedHeight: 150, behindMs: 2_000, updating: false });
   });
 });
+
+describe("owner pieces (review minor 14)", () => {
+  it("lists pieces an account owns, by the latest owner_changed", async () => {
+    const db = await openDb();
+    const owned = (owner: string, seq: string) => `EVENT_JSON:${JSON.stringify({ standard: "soulprint", version: "1.0.0", event: "owner_changed", data: [{ piece_id: P, old_owner: "x", new_owner: owner, seq, cause: "sale" }] })}`;
+    await ingestBlock(db, cfg, { height: 100, timestampMs: 1, receipts: [{ executor: C, success: true, logs: [created] }] });
+    await ingestBlock(db, cfg, { height: 101, timestampMs: 2, receipts: [{ executor: P, success: true, logs: [owned("client.near", "1")] }] });
+    await ingestBlock(db, cfg, { height: 102, timestampMs: 3, receipts: [{ executor: P, success: true, logs: [owned("buyer.near", "2")] }] });
+    const app = await buildApi({ db, head: async () => ({ height: 102, timestampMs: 3 }) });
+    expect((await app.inject({ method: "GET", url: "/owners/buyer.near/pieces" })).json().pieces).toEqual([{ pieceId: P, tokenId: "1", owner: "buyer.near", mode: "commission", artist: "artist.near" }]);
+    expect((await app.inject({ method: "GET", url: "/owners/client.near/pieces" })).json().pieces).toEqual([]);
+  });
+});

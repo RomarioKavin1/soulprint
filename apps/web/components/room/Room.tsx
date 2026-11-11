@@ -7,7 +7,9 @@ import { ErrorNote, Section, Stat, usePoll, when } from "@/components/ui";
 import { Earnings } from "@/components/Earnings";
 import { History } from "@/components/History";
 import { accounting, act, pieceInfo, terms as termsView, STATUS_TEXT, STORAGE_DEPOSIT, type PieceInfo } from "@/lib/piece";
-import { actionsFor, explainRace, fundCall, rejectCall, rejectConfirmText, type Action, type Call } from "@/lib/commission";
+import { actionsFor, explainRace, extendDeadlineNs, fundCall, rejectCall, rejectConfirmText, tokenOf, type Action, type Call } from "@/lib/commission";
+import { GRANT_TEXT, licenceHash, type GrantKind } from "@/lib/terms";
+import { b64 } from "@soulprint/proof";
 import { money } from "@/lib/money";
 import { useEvidence } from "@/lib/evidence";
 import { TermsCard } from "./TermsCard";
@@ -21,7 +23,7 @@ export function Room({ pieceId }: { pieceId: string }) {
     async () => {
       const [piece, t, acc] = await Promise.all([pieceInfo(chain, pieceId), termsView(chain, pieceId), accounting(chain, pieceId)]);
       const balance =
-        accountId && t && t.currency !== "Near" ? BigInt(await chain.view<string>(config.currencyToken, "ft_balance_of", { account_id: accountId })) : null;
+        accountId && t && tokenOf(t.currency) ? BigInt(await chain.view<string>(tokenOf(t.currency)!, "ft_balance_of", { account_id: accountId })) : null;
       return { piece, t, acc, balance };
     },
     4000,
@@ -32,6 +34,9 @@ export function Room({ pieceId }: { pieceId: string }) {
   const [error, setError] = useState<unknown>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [splitPct, setSplitPct] = useState(50);
+  const [newDate, setNewDate] = useState("");
+  const [addKind, setAddKind] = useState<GrantKind>("CommercialNonExclusive");
+  const [addText, setAddText] = useState("");
   // Arbitrator award: empty or out of range is not a decision (Plan 3 review, minor 1 re-graded).
   const [award, setAward] = useState("");
   const awardNum = award.trim() === "" ? NaN : Number(award);
@@ -105,12 +110,12 @@ export function Room({ pieceId }: { pieceId: string }) {
           <div className="flex flex-wrap gap-3">
             {actions.includes("fund") && (
               <>
-                {short && config.network !== "mainnet" && piece.currency !== "Near" && (
+                {short && config.network !== "mainnet" && tokenOf(piece.currency) === config.currencyToken && (
                   <button className="btn-ghost" disabled={!!busy} onClick={() => step("Getting test USDC", () => signer!.call(config.currencyToken, "faucet", { amount: (1000n * 10n ** BigInt(d)).toString() }, { tgas: 30n }))}>
                     Get test USDC
                   </button>
                 )}
-                <button className="btn-seal" data-testid="fund" disabled={!!busy || short} onClick={() => step("Paying", () => send(fundCall(piece, t, config.currencyToken)))}>
+                <button className="btn-seal" data-testid="fund" disabled={!!busy || short} onClick={() => step("Paying", () => send(fundCall(piece, t, tokenOf(piece.currency) ?? "")))}>
                   Pay {money(price, piece.currency, d)} into the piece
                 </button>
                 {balance !== null && <span className="self-center text-sm text-ink-3">You have {money(balance, piece.currency, d)}</span>}
@@ -131,7 +136,7 @@ export function Room({ pieceId }: { pieceId: string }) {
             )}
             {actions.includes("reject") &&
               (confirm === "reject" ? (
-                <Confirm text={rejectConfirmText(piece, t, d)} yes="Refuse and send the deposit" busy={busy} danger onYes={() => step("Refusing", () => send(rejectCall(piece, t, config.currencyToken)))} onNo={() => setConfirm(null)} />
+                <Confirm text={rejectConfirmText(piece, t, d)} yes="Refuse and send the deposit" busy={busy} danger onYes={() => step("Refusing", () => send(rejectCall(piece, t, tokenOf(piece.currency) ?? "")))} onNo={() => setConfirm(null)} />
               ) : (
                 <button className="btn-ghost text-seal-2" data-testid="reject" disabled={!!busy} onClick={() => setConfirm("reject")}>
                   Refuse the delivery
@@ -203,6 +208,38 @@ export function Room({ pieceId }: { pieceId: string }) {
             {actions.includes("timeout_resolve") && (
               <button className="btn-ghost" disabled={!!busy} onClick={() => step("Closing", () => signer!.call(pieceId, "timeout_resolve", {}, { deposit: STORAGE_DEPOSIT, tgas: 100n }))}>
                 Close the dispute with the agreed fallback split ({t.timeout_artist_bps / 100}% to the artist)
+              </button>
+            )}
+            {actions.includes("cancel_offer") &&
+              (confirm === "cancel_offer" ? (
+                <Confirm text="Cancel this offer? Nobody has paid yet; the piece closes and cannot be paid for." yes="Cancel the offer" busy={busy} danger onYes={() => step("Cancelling", () => act(signer!, pieceId, "cancel"))} onNo={() => setConfirm(null)} />
+              ) : (
+                <button className="btn-ghost text-ink-3" disabled={!!busy} onClick={() => setConfirm("cancel_offer")}>
+                  Cancel this offer
+                </button>
+              ))}
+            {actions.includes("extend") && (
+              <span className="flex items-center gap-2">
+                <input className="field w-44" type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} aria-label="New deadline" />
+                <button className="btn-ghost" disabled={!newDate || !!busy} onClick={() => step("Proposing", async () => { await act(signer!, pieceId, "consent_extend", { new_deadline: extendDeadlineNs(newDate).toString() }); setNotice("Saved. The deadline moves once the other side picks the same date."); })}>
+                  Agree a new deadline
+                </button>
+              </span>
+            )}
+            {actions.includes("propose_addendum") && (
+              <span className="flex w-full flex-wrap items-center gap-2">
+                <select className="field w-auto" value={addKind} onChange={(e) => setAddKind(e.target.value as GrantKind)} aria-label="Wider rights">
+                  {(Object.keys(GRANT_TEXT) as GrantKind[]).map((k) => <option key={k} value={k}>{GRANT_TEXT[k].title}</option>)}
+                </select>
+                <input className="field w-64" placeholder="What changes (optional)" value={addText} onChange={(e) => setAddText(e.target.value)} aria-label="Rights note" />
+                <button className="btn-ghost" disabled={!!busy} onClick={() => step("Proposing", () => { const grant = { ...piece.grant, kind: addKind }; return act(signer!, pieceId, "propose_addendum", { grant, text_hash: b64.encode(licenceHash(addText, grant)) }); })}>
+                  Offer wider rights
+                </button>
+              </span>
+            )}
+            {actions.includes("accept_addendum") && !!piece.pending_addendum && (
+              <button className="btn-seal" disabled={!!busy} onClick={() => step("Accepting", () => act(signer!, pieceId, "accept_addendum", { expected_hash: (piece.pending_addendum as any).text_hash }))}>
+                Accept wider rights: {GRANT_TEXT[(piece.pending_addendum as any).grant.kind as GrantKind].title}
               </button>
             )}
             {actions.includes("mutual_cancel") && (

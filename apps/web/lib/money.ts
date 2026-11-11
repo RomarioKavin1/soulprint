@@ -8,5 +8,6 @@ export function decimalsOf(c: Currency, ftDecimals: number) {
   return c === "Near" ? 24 : ftDecimals;
 }
 export function money(v: string | bigint, c: Currency, ftDecimals: number) {
-  return `${fromUnits(v, decimalsOf(c, ftDecimals), c === "Near" ? 3 : 2)} ${currencyName(c)}`;
+  // Full precision, trailing zeros trimmed: a deposit of 1.255 USDC is shown as 1.255 (review minor 8).
+  return `${fromUnits(v, decimalsOf(c, ftDecimals))} ${currencyName(c)}`;
 }

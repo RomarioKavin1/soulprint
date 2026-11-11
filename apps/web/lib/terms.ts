@@ -191,7 +191,7 @@ export function toUnits(s: string, decimals: number): bigint {
   if (!/^\d*$/.test(i) || !/^\d*$/.test(f)) return 0n;
   return BigInt(i || "0") * 10n ** BigInt(decimals) + BigInt((f + "0".repeat(decimals)).slice(0, decimals) || "0");
 }
-export function fromUnits(v: bigint | string, decimals: number, maxFrac = 2): string {
+export function fromUnits(v: bigint | string, decimals: number, maxFrac = decimals): string {
   const n = BigInt(v);
   const d = 10n ** BigInt(decimals);
   const frac = (n % d).toString().padStart(decimals, "0").slice(0, maxFrac).replace(/0+$/, "");

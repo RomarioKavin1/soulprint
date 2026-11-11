@@ -91,14 +91,33 @@ export async function terms(chain: ChainView, pieceId: string) {
   return chain.view<TermsJson | null>(pieceId, "terms");
 }
 
-/** Every piece where `who` is the artist or the owner (scans the collection; fine at demo scale). */
-export async function piecesFor(chain: ChainView, collection: string, who: string): Promise<PieceInfo[]> {
+type Fetch = (url: string) => Promise<{ ok: boolean; json(): Promise<any> }>;
+const browserFetch: Fetch = (u) => fetch(u);
+
+/**
+ * Every piece where `who` is the artist or the owner. The indexer says which pieces to look at;
+ * each one is then read from its own account (the chain stays the truth). Without the indexer,
+ * scan the collection (review minor 14).
+ */
+export async function piecesFor(chain: ChainView, collection: string, who: string, indexer: Fetch = browserFetch): Promise<PieceInfo[]> {
+  let ids: string[] | null = null;
+  try {
+    const [a, o] = await Promise.all([indexer(`/indexer/artists/${who}/pieces`), indexer(`/indexer/owners/${who}/pieces`)]);
+    if (a.ok && o.ok) ids = [...new Set([...(await a.json()).pieces, ...(await o.json()).pieces].map((p: { pieceId: string }) => p.pieceId))];
+  } catch {
+    ids = null;
+  }
   const out: PieceInfo[] = [];
-  for (let from = 0; ; from += 50) {
-    const tokens = await chain.view<{ token_id: string; owner_id: string }[]>(collection, "nft_tokens", { from_index: String(from), limit: 50 });
-    const infos = await Promise.all(tokens.map((t) => pieceInfo(chain, pieceAccount(t.token_id, collection)).catch(() => null)));
+  if (ids) {
+    const infos = await Promise.all(ids.map((id) => pieceInfo(chain, id).catch(() => null)));
     for (const i of infos) if (i && (i.artist === who || i.owner === who)) out.push(i);
-    if (tokens.length < 50) break;
+  } else {
+    for (let from = 0; ; from += 50) {
+      const tokens = await chain.view<{ token_id: string; owner_id: string }[]>(collection, "nft_tokens", { from_index: String(from), limit: 50 });
+      const infos = await Promise.all(tokens.map((t) => pieceInfo(chain, pieceAccount(t.token_id, collection)).catch(() => null)));
+      for (const i of infos) if (i && (i.artist === who || i.owner === who)) out.push(i);
+      if (tokens.length < 50) break;
+    }
   }
   return out.sort((a, b) => Number(BigInt(b.created_at) - BigInt(a.created_at)));
 }

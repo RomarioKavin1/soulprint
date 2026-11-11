@@ -39,6 +39,7 @@ export function chainErrorCode(e: unknown): string {
   if (typeof e === "string") s = e;
   else if (e instanceof Error) s = `${e.message} ${JSON.stringify((e as any).cause ?? "")} ${JSON.stringify(e)}`;
   else s = JSON.stringify(e) ?? String(e);
+  if (/NotEnoughBalance|LackBalanceForState|NotEnoughAllowance|insufficient balance/i.test(s)) return "ERR_NO_NEAR";
   return /ERR_[A-Z_a-z]+/.exec(s)?.[0] ?? /Smart contract panicked: ([^"\\]+)/.exec(s)?.[1] ?? "ERR_UNKNOWN";
 }
 

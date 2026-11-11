@@ -5,6 +5,7 @@ import { Stat, usePoll, when } from "@/components/ui";
 import { Earnings } from "@/components/Earnings";
 import { STATUS_TEXT, accounting, pieceInfo, proofPage } from "@/lib/piece";
 import { money } from "@/lib/money";
+import { canRecord } from "@/lib/commission";
 import { CapturePanel } from "./CapturePanel";
 import { ReviewGrid } from "./ReviewGrid";
 import { ChallengesPanel } from "./ChallengesPanel";
@@ -12,7 +13,6 @@ import { DeliverPanel } from "./DeliverPanel";
 import { PublishPanel } from "./PublishPanel";
 import { AttestPanel } from "./AttestPanel";
 
-const RECORDING = new Set(["Offered", "InProgress", "Delivered", "Disputed"]);
 
 export function Workspace({ pieceId }: { pieceId: string }) {
   const { chain, accountId, config } = useNear();
@@ -37,7 +37,7 @@ export function Workspace({ pieceId }: { pieceId: string }) {
       </div>
     );
   const link = typeof window !== "undefined" ? `${location.origin}/c/${pieceId}` : `/c/${pieceId}`;
-  const canRecord = RECORDING.has(piece.status) || (piece.mode === "Standalone" && piece.status !== "Settled");
+  const recording = canRecord(piece);
   return (
     <div className="space-y-6 pt-8">
       <div>
@@ -75,8 +75,8 @@ export function Workspace({ pieceId }: { pieceId: string }) {
       {piece.status === "Disputed" && <div className="card border-seal/40">The client refused this delivery. The arbitrators will decide; you can also agree a split with the client.</div>}
 
       <Earnings pieceId={pieceId} acc={acc} onChange={reload} />
-      {canRecord && <CapturePanel pieceId={pieceId} segments={proof.segments} open={canRecord} onChange={reload} />}
-      {canRecord && <ChallengesPanel pieceId={pieceId} proof={proof} onChange={reload} />}
+      {recording && <CapturePanel pieceId={pieceId} segments={proof.segments} open={recording} onChange={reload} />}
+      {recording && <ChallengesPanel pieceId={pieceId} proof={proof} onChange={reload} />}
       <DeliverPanel piece={piece} onChange={reload} />
       <AttestPanel piece={piece} proof={proof} onChange={reload} />
       <ReviewGrid pieceId={pieceId} />

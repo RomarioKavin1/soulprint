@@ -1,6 +1,6 @@
 "use client";
 import { Section, usePoll } from "@/components/ui";
-import { describeEvent, lagNotice } from "@/lib/history";
+import { describeEvent, historyNotice, lagNotice } from "@/lib/history";
 import type { Currency } from "@/lib/terms";
 
 interface H { events: { height: number; at: number; event: string; data: any }[]; lag: { updating: boolean; behindMs: number } }
@@ -11,7 +11,7 @@ export function History({ pieceId, currency, decimals }: { pieceId: string; curr
   const { data, error } = usePoll(() => fetch(`/indexer/pieces/${pieceId}/history`).then((r) => (r.ok ? (r.json() as Promise<H>) : Promise.reject(new Error("indexer")))), 6000, [pieceId]);
   if (error && !data) return null; // history is optional; the piece itself is the truth
   if (!data) return null;
-  const notice = lagNotice(data.lag);
+  const notice = historyNotice({ hasData: true, refreshFailed: !!error }) ?? lagNotice(data.lag);
   const shown = data.events.filter((e) => !QUIET.has(e.event));
   return (
     <Section title="History">

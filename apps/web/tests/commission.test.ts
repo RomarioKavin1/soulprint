@@ -59,7 +59,7 @@ describe("commission room", () => {
     expect(actionsFor(info(), ftTerms, client, NOW)).toEqual(["fund"]);
     expect(actionsFor(info(), ftTerms, "someone.else.near", NOW)).toEqual([]); // named client only
     expect(actionsFor(info(), { ...ftTerms, client: null }, "someone.else.near", NOW)).toEqual(["fund"]);
-    expect(actionsFor(info(), ftTerms, "artist.test.near", NOW)).toEqual([]);
+    expect(actionsFor(info(), ftTerms, "artist.test.near", NOW)).toEqual(["cancel_offer"]); // review minor 13
     const open = info({ status: "Delivered", owner: client, review_ends_at: ns(NOW + DAY_MS) });
     expect(actionsFor(open, ftTerms, client, NOW)).toEqual(expect.arrayContaining(["accept", "request_changes", "reject"]));
     const lapsed = info({ status: "Delivered", owner: client, review_ends_at: ns(NOW - 1) });

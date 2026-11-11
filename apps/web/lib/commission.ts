@@ -11,7 +11,24 @@ import { money } from "./money.ts";
 
 export type Action =
   | "fund" | "release_milestone" | "challenge" | "request_changes" | "accept" | "reject" | "settle" | "refund"
-  | "propose_split" | "accept_split" | "mutual_cancel" | "resolve" | "timeout_resolve";
+  | "propose_split" | "accept_split" | "mutual_cancel" | "resolve" | "timeout_resolve"
+  | "cancel_offer" | "extend" | "propose_addendum" | "accept_addendum";
+
+/** The piece's own payment token (review minor 4), or null for NEAR. */
+export function tokenOf(c: PieceInfo["currency"]): string | null {
+  return c === "Near" ? null : c.Ft;
+}
+
+/** Where the evidence service accepts frames (its OPEN_STATUSES; review minor 7). */
+export function canRecord(p: Pick<PieceInfo, "status">) {
+  return p.status === "Offered" || p.status === "InProgress";
+}
+
+/** consent_extend needs both parties to send the same value: a date maps to its last second, UTC. */
+export function extendDeadlineNs(isoDate: string): bigint {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  return BigInt(Date.UTC(y!, m! - 1, d!, 23, 59, 59)) * 1_000_000n;
+}
 
 export interface Call { contract: string; method: string; args: Record<string, unknown>; deposit: bigint; tgas: bigint }
 
@@ -26,6 +43,7 @@ export function actionsFor(p: PieceInfo, t: TermsJson | null, me: string | null,
   switch (p.status) {
     case "Offered":
       if (!isArtist && (t.client === null || t.client === me)) a.push("fund");
+      if (isArtist) a.push("cancel_offer");
       break;
     case "InProgress":
       if (isOwner) {
@@ -34,6 +52,7 @@ export function actionsFor(p: PieceInfo, t: TermsJson | null, me: string | null,
         a.push("mutual_cancel");
       }
       if (isArtist) a.push("mutual_cancel");
+      if (isOwner || isArtist) a.push("extend");
       break;
     case "Delivered":
       if (isOwner && reviewOpen) {
@@ -51,6 +70,10 @@ export function actionsFor(p: PieceInfo, t: TermsJson | null, me: string | null,
         if (p.split && p.split.by !== me) a.push("accept_split");
       }
       break;
+  }
+  if (["InProgress", "Delivered", "Settled"].includes(p.status)) {
+    if (isArtist) a.push("propose_addendum");
+    if (isOwner && p.pending_addendum) a.push("accept_addendum");
   }
   if (p.refund_eligible && isOwner) a.push("refund");
   return [...new Set(a)];

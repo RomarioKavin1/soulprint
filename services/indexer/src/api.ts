@@ -32,6 +32,12 @@ export async function buildApi(d: ApiDeps) {
     )).rows;
     return { pieces: rows.map((r) => ({ pieceId: r.piece_id, tokenId: r.token_id, owner: r.owner, mode: r.mode })), lag: await lag() };
   });
+  app.get<{ Params: { id: string } }>("/owners/:id/pieces", async (req) => {
+    const rows = (await d.db.query<any>(
+      "SELECT p.piece_id, p.token_id, p.mode, p.artist, h.owner FROM holders h JOIN pieces p USING (piece_id) WHERE h.owner = $1 ORDER BY p.created_height DESC", [req.params.id],
+    )).rows;
+    return { pieces: rows.map((r) => ({ pieceId: r.piece_id, tokenId: r.token_id, owner: r.owner, mode: r.mode, artist: r.artist })), lag: await lag() };
+  });
   app.get("/health", async () => ({ ok: true }));
   return app;
 }

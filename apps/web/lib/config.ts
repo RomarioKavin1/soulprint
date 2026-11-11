@@ -6,6 +6,7 @@
 import "server-only";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { publicDemoAccounts } from "./demo.ts";
 
 export type NetworkId = "sandbox" | "testnet" | "mainnet";
 
@@ -42,7 +43,7 @@ export function loadConfig(): PublicConfig | null {
   if (!c) return null;
   const demoAccounts: DemoAccount[] =
     network === "sandbox"
-      ? Object.entries(c.accounts ?? {}).map(([role, a]: [string, any]) => ({ role, accountId: a.account_id, secretKey: a.secret_key }))
+      ? publicDemoAccounts(Object.entries(c.accounts ?? {}).map(([role, a]: [string, any]) => ({ role, accountId: a.account_id, secretKey: a.secret_key })))
       : [];
   return {
     network,

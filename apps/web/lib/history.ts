@@ -2,10 +2,16 @@
 import { money } from "./money.ts";
 import type { Currency } from "./terms.ts";
 
-export function lagNotice(lag: { updating: boolean; behindMs: number }): string | null {
+export function lagNotice(lag: { updating: boolean; behindMs: number; indexedHeight?: number }): string | null {
+  if (lag.indexedHeight === 0) return "Updating — history is still being loaded. Balances on the piece itself are always current.";
   if (!lag.updating) return null;
   const m = Math.max(1, Math.round(lag.behindMs / 60_000));
   return `Updating — the last ${m} minute${m === 1 ? "" : "s"} of activity may not show yet. Balances on the piece itself are always current.`;
+}
+
+/** Review minor 9: a failed refresh after a good load is said, not hidden behind old figures. */
+export function historyNotice(s: { hasData: boolean; refreshFailed: boolean }): string | null {
+  return s.hasData && s.refreshFailed ? "History could not be refreshed; showing what was last loaded. Balances on the piece itself are always current." : null;
 }
 
 export function describeEvent(e: { event: string; data: any }, currency: Currency | "Ft", decimals: number): string {
