@@ -6,7 +6,10 @@ const config: NextConfig = {
   // The browser reaches the evidence service same-origin (no CORS); it sees `/pieces/...` paths,
   // which is what NEP-413 auth binds to.
   async rewrites() {
-    return [{ source: "/evidence/:path*", destination: `${process.env.EVIDENCE_URL ?? "http://127.0.0.1:8787"}/:path*` }];
+    return [
+      { source: "/evidence/:path*", destination: `${process.env.EVIDENCE_URL ?? "http://127.0.0.1:8787"}/:path*` },
+      { source: "/indexer/:path*", destination: `${process.env.INDEXER_URL ?? "http://127.0.0.1:8788"}/:path*` },
+    ];
   },
   webpack: (c) => {
     // Workspace packages import siblings with explicit `.ts` extensions.

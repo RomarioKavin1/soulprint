@@ -27,10 +27,16 @@ pids+=($!)
 until curl -sf http://127.0.0.1:8787/health >/dev/null; do sleep 1; kill -0 "${pids[1]}" || { cat "$LOG/evidence.log"; exit 1; }; done
 echo "evidence service on :8787"
 
+# The sandbox keeps only recent blocks, so the indexer must follow from the start.
+(cd "$ROOT/services/indexer" && exec pnpm exec tsx src/main.ts --sandbox) > "$LOG/indexer.log" 2>&1 &
+pids+=($!)
+until curl -sf http://127.0.0.1:8788/health >/dev/null; do sleep 1; kill -0 "${pids[2]}" || { cat "$LOG/indexer.log"; exit 1; }; done
+echo "indexer on :8788"
+
 if [ "${NO_WEB:-}" = "" ]; then
   (cd "$ROOT/apps/web" && SOULPRINT_NETWORK=sandbox SOULPRINT_CONFIG="$ROOT/config/networks.json" exec pnpm dev) > "$LOG/web.log" 2>&1 &
   pids+=($!)
-  until curl -sf http://127.0.0.1:3000 >/dev/null; do sleep 1; kill -0 "${pids[2]}" || { cat "$LOG/web.log"; exit 1; }; done
+  until curl -sf http://127.0.0.1:3000 >/dev/null; do sleep 1; kill -0 "${pids[3]}" || { cat "$LOG/web.log"; exit 1; }; done
   echo "web on http://127.0.0.1:3000"
 fi
 echo "STACK READY"

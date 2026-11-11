@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNear } from "@/components/NearProvider";
 import { ErrorNote, Section, Stat, useAction, usePoll } from "@/components/ui";
 import { Earnings } from "@/components/Earnings";
+import { History } from "@/components/History";
 import { EvidenceError } from "@/lib/auth";
 import { EVIDENCE_BASE, useEvidence } from "@/lib/evidence";
 import { accounting, act, pieceInfo } from "@/lib/piece";
@@ -40,7 +41,7 @@ export function Vault({ pieceId }: { pieceId: string }) {
   return (
     <div className="space-y-6 pt-8">
       <div>
-        <p className="label">Your piece · {piece.piece_id}</p>
+        <p className="label">{isOwner ? "Your piece" : "Piece"} · {piece.piece_id}</p>
         <h1 className="mt-2 font-display text-4xl tracking-tight">Piece {piece.token_id}</h1>
         <p className="mt-2 text-sm text-ink-2">
           By {piece.artist} · <Link className="underline" href={`/p/${pieceId}`}>proof page</Link>
@@ -106,11 +107,11 @@ export function Vault({ pieceId }: { pieceId: string }) {
           ) : (
             <div className="flex flex-wrap items-end gap-3">
               <label className="block">
-                <span className="label">Price</span>
+                <span className="label block">Price</span>
                 <input className="field mt-1 w-40" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} aria-label="Sale price" />
               </label>
               <label className="block">
-                <span className="label">Only for (optional)</span>
+                <span className="label block">Only for (optional)</span>
                 <input className="field mt-1 w-56" value={reserved} onChange={(e) => setReserved(e.target.value.trim())} aria-label="Reserved for" />
               </label>
               <button
@@ -129,6 +130,7 @@ export function Vault({ pieceId }: { pieceId: string }) {
         </Section>
       )}
       <Earnings pieceId={pieceId} acc={acc} onChange={reload} />
+      <History pieceId={pieceId} currency={piece.currency} decimals={d} />
       <ErrorNote error={error} />
     </div>
   );

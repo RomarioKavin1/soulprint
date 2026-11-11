@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useNear } from "@/components/NearProvider";
 import { ErrorNote, Section, Stat, usePoll, when } from "@/components/ui";
 import { Earnings } from "@/components/Earnings";
+import { History } from "@/components/History";
 import { accounting, act, pieceInfo, terms as termsView, STATUS_TEXT, STORAGE_DEPOSIT, type PieceInfo } from "@/lib/piece";
 import { actionsFor, explainRace, fundCall, rejectCall, rejectConfirmText, type Action, type Call } from "@/lib/commission";
 import { money } from "@/lib/money";
@@ -221,6 +222,7 @@ export function Room({ pieceId }: { pieceId: string }) {
       <Earnings pieceId={pieceId} acc={acc} onChange={reload} />
       {isParty && piece.owner !== piece.artist && <Progress pieceId={pieceId} />}
       {t && <TermsCard t={t} decimals={d} />}
+      <History pieceId={pieceId} currency={piece.currency} decimals={d} />
       {isParty && piece.owner !== piece.artist && <Notes pieceId={pieceId} artist={piece.artist} />}
     </div>
   );
