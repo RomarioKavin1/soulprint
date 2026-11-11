@@ -7,6 +7,9 @@ export interface PieceView {
   owner: string;
   status: string;
   mode: string;
+  /** base64, set once delivered */
+  finalFileHash?: string | null;
+  reportHash?: string | null;
 }
 export interface ChainChallenge {
   id: number;
@@ -16,7 +19,7 @@ export interface ChainChallenge {
   ackedAt: number | null;
 }
 export interface PieceWithSegments extends PieceView {
-  segments: { key: Uint8Array; genesis: Uint8Array }[];
+  segments: { key: Uint8Array; genesis: Uint8Array; head: Uint8Array; count: number }[];
   invites: string[];
   challenges: ChainChallenge[];
 }
@@ -56,13 +59,13 @@ export class RpcChainReader implements ChainReader {
     const proof = await this.view<any>(pieceId, "proof_page", { from: 0, limit: 32 });
     const segments = (proof?.segments ?? []).map((s: any) => {
       const key = parseNearPublicKey(s.key);
-      return { key, genesis: genesis(pieceId, key) };
+      return { key, genesis: genesis(pieceId, key), head: b64.decode(s.head), count: Number(s.count) };
     });
     const challenges = (proof?.challenges ?? []).map((c: any) => ({
       id: c.id, nonceHash: b64.decode(c.nonce_hash), issuer: c.issuer, issuedAt: Number(c.issued_at) / 1e6,
       ackedAt: c.acked_at == null ? null : Number(c.acked_at) / 1e6,
     }));
-    return { pieceId, artist: info.artist, owner: info.owner, status: info.status, mode: info.mode, segments, invites: proof?.invites ?? [], challenges };
+    return { pieceId, artist: info.artist, owner: info.owner, status: info.status, mode: info.mode, finalFileHash: info.final_file_hash, reportHash: info.report_hash, segments, invites: proof?.invites ?? [], challenges };
   }
 
   async isFullAccessKey(account: string, publicKey: string): Promise<boolean> {

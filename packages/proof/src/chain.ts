@@ -50,3 +50,10 @@ export function eq(a: Uint8Array, b: Uint8Array): boolean {
   for (let i = 0; i < a.length; i++) d |= a[i]! ^ b[i]!;
   return d === 0;
 }
+
+/** A33: `p7.soulprint-v1.x.testnet` → token id `"7"`. */
+export function tokenIdOf(pieceId: string): string {
+  const m = /^p(\d+)\./.exec(pieceId);
+  if (!m) throw new Error(`not a piece account: ${pieceId}`);
+  return m[1]!;
+}

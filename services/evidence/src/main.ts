@@ -1,7 +1,8 @@
 /**
  * Evidence service entry. Env:
  *   NEAR_RPC_URL, EVIDENCE_ACCOUNT_ID, EVIDENCE_SECRET_KEY (ed25519:…, the A35 sender account),
- *   EVIDENCE_MASTER_KEY (64 hex chars), EVIDENCE_DATA_DIR, EVIDENCE_RECIPIENT (NEP-413), PORT.
+ *   EVIDENCE_MASTER_KEY (64 hex chars), EVIDENCE_DATA_DIR, EVIDENCE_RECIPIENT (NEP-413), PORT,
+ *   NEAR_NETWORK, SOULPRINT_COLLECTION, EVIDENCE_VERIFIER_SEED (64 hex), EVIDENCE_VERIFIER_KEY_ID.
  * With `--sandbox`, NEAR settings come from config/networks.json (`sandbox` entry).
  */
 import { readFileSync } from "node:fs";
@@ -13,12 +14,19 @@ import { buildApp } from "./server.ts";
 
 const env = process.env;
 let rpc = env.NEAR_RPC_URL, accountId = env.EVIDENCE_ACCOUNT_ID, secret = env.EVIDENCE_SECRET_KEY;
+let network = env.NEAR_NETWORK, collection = env.SOULPRINT_COLLECTION;
 if (process.argv.includes("--sandbox")) {
   const cfg = JSON.parse(readFileSync(new URL("../../../config/networks.json", import.meta.url), "utf8")).sandbox;
   rpc = cfg.rpc_url;
   accountId = cfg.accounts.relayer.account_id; // sandbox: reuse the service account
   secret = cfg.accounts.relayer.secret_key;
+  network = cfg.network_id;
+  collection = cfg.collection;
 }
+if (!network || !collection) throw new Error("NEAR_NETWORK and SOULPRINT_COLLECTION are required");
+// A7 verifier key: 32-byte ed25519 seed registered in the collection as key `EVIDENCE_VERIFIER_KEY_ID`.
+const verifierSeed = env.EVIDENCE_VERIFIER_SEED ? hex.decode(env.EVIDENCE_VERIFIER_SEED) : null;
+if (!verifierSeed || verifierSeed.length !== 32) throw new Error("EVIDENCE_VERIFIER_SEED must be 64 hex chars");
 if (!rpc || !accountId || !secret) throw new Error("NEAR_RPC_URL, EVIDENCE_ACCOUNT_ID and EVIDENCE_SECRET_KEY are required");
 const master = env.EVIDENCE_MASTER_KEY ? hex.decode(env.EVIDENCE_MASTER_KEY) : null;
 if (!master || master.length !== 32) throw new Error("EVIDENCE_MASTER_KEY must be 64 hex chars");
@@ -31,5 +39,8 @@ const app = await buildApp({
   masterKey: master,
   recipient: env.EVIDENCE_RECIPIENT ?? "soulprint-evidence",
   now: Date.now,
+  network,
+  collection,
+  verifier: { seed: verifierSeed, keyId: Number(env.EVIDENCE_VERIFIER_KEY_ID ?? 1) },
 });
 await app.listen({ port: Number(env.PORT ?? 8787), host: env.HOST ?? "127.0.0.1" });

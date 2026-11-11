@@ -15,12 +15,15 @@ export const PIECE = "p1.soulprint.test.near";
 export const PIECE2 = "p2.soulprint.test.near";
 
 export class FakeChain implements ChainReader {
-  pieces = new Map<string, PieceView & { keys: Uint8Array[]; invites?: string[]; challenges?: ChainChallenge[] }>();
+  pieces = new Map<string, PieceView & { keys: Uint8Array[]; invites?: string[]; challenges?: ChainChallenge[]; anchored?: Map<string, { head: Uint8Array; count: number }> }>();
   fullKeys = new Map<string, string[]>(); // account → ed25519:… keys
   async piece(id: string) {
     const p = this.pieces.get(id);
     if (!p) return null;
-    return { ...p, invites: p.invites ?? [], challenges: p.challenges ?? [], segments: p.keys.map((k) => ({ key: k, genesis: genesis(id, k) })) };
+    return { ...p, invites: p.invites ?? [], challenges: p.challenges ?? [], segments: p.keys.map((k) => {
+      const a = p.anchored?.get(Buffer.from(k).toString("hex"));
+      return { key: k, genesis: genesis(id, k), head: a?.head ?? new Uint8Array(32), count: a?.count ?? 0 };
+    }) };
   }
   async isFullAccessKey(account: string, pk: string) {
     return this.fullKeys.get(account)?.includes(pk) ?? false;
@@ -35,7 +38,8 @@ export class FakeSender implements Sender {
     return { txHash: `tx${this.anchors.length}` };
   }
   async ackChallenge(a: unknown) { this.acks.push(a); return { txHash: "ack" }; }
-  async attest() { return { txHash: "attest" }; }
+  attests: string[] = [];
+  async attest(a: { collection: string; argsJson: string }) { this.attests.push(a.argsJson); return { txHash: "attest" }; }
 }
 
 export interface User { account: string; seed: Uint8Array; pk: string }
@@ -65,12 +69,12 @@ export class Device {
   static async make(pieceId: string, seed: number, salt = 0) {
     return new Device(pieceId, await nobleSigner(new Uint8Array(32).fill(seed)), salt);
   }
-  capture(n: number) {
+  capture(n: number, images?: Uint8Array[], stepMs = 60_000) {
     for (let i = 0; i < n; i++) {
       const index = this.frames.length;
-      const jpeg = new Uint8Array([0xff, 0xd8, this.salt, index, 0xff, 0xd9]);
+      const jpeg = images?.[i] ?? new Uint8Array([0xff, 0xd8, this.salt, index, 0xff, 0xd9]);
       const jpegHash = sha256(jpeg);
-      const deviceTs = 1_700_000_000_000 + index * 60_000;
+      const deviceTs = 1_700_000_000_000 + index * stepMs;
       const prev = index === 0 ? genesis(this.pieceId, this.signer.publicKey) : this.frames[index - 1]!.link;
       this.frames.push({ index, sessionId: "s1", deviceTs, jpegHash, link: linkHash(prev, frameRecordHash(jpegHash, index, deviceTs)), jpeg, width: 4, height: 3 });
     }
@@ -101,7 +105,8 @@ export async function world(over: Partial<Deps> = {}) {
   chain.pieces.set(PIECE, { pieceId: PIECE, artist: artist.account, owner: client.account, status: "InProgress", mode: "Commission", keys: [dev.signer.publicKey] });
   const app = await buildApp({
     chain, sender, dataDir: mkdtempSync(join(tmpdir(), "evidence-")), masterKey: new Uint8Array(32).fill(7),
-    recipient: "soulprint-evidence", now: () => Date.now(), ...over,
+    recipient: "soulprint-evidence", now: () => Date.now(), network: "sandbox", collection: "soulprint.test.near",
+    verifier: { seed: new Uint8Array(32).fill(77), keyId: 1 }, ...over,
   });
   return { app, chain, sender, artist, client, stranger, dev };
 }

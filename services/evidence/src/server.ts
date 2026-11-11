@@ -11,7 +11,13 @@ import { BlobStore } from "./blob.ts";
 import type { ChainReader, PieceWithSegments } from "./chain.ts";
 import { openDb, type Db } from "./db.ts";
 import type { Sender } from "./sender.ts";
-import { newCode, nonceHashOf } from "./challenge.ts";
+import { evaluateChallenge, newCode, nonceHashOf, TesseractOcr, type Ocr } from "./challenge.ts";
+import { jcs } from "./jcs.ts";
+import { computeMetrics } from "./metrics/index.ts";
+import { band } from "./metrics/activity.ts";
+import { THRESHOLDS } from "./metrics/thresholds.ts";
+import { decideLevel, signReport } from "./report.ts";
+import { nobleSigner, segmentsDigest, tokenIdOf } from "@soulprint/proof";
 
 export interface Deps {
   chain: ChainReader;
@@ -26,6 +32,13 @@ export interface Deps {
   /** Anchor cadence (Plan 2): every N frames or T ms, whichever first. */
   anchorEveryFrames?: number;
   anchorEveryMs?: number;
+  /** NEAR network name written into ReportMessage (must equal the collection's). */
+  network: string;
+  collection: string;
+  /** Verifier key registered in the collection (A7). */
+  verifier: { seed: Uint8Array; keyId: number };
+  ocr?: Ocr;
+  challengeWindowMs?: number;
 }
 
 export const MAX_BATCH = 100;
@@ -349,6 +362,103 @@ export async function buildApp(d: Deps): Promise<App> {
     const msg = challengeAckMessage({ pieceId: p.pieceId, challengeId: cid, nonceHash: c.nonceHash });
     if (!p.segments.some((s) => ed.verify(sig, msg, s.key))) throw new HttpError(401, "bad_signature");
     return d.sender.ackChallenge({ pieceId: p.pieceId, challengeId: cid, sig: b64.encode(sig) });
+  });
+
+  // ---------------- report and attestation (Task 6) ----------------
+
+  const ocr = d.ocr ?? new TesseractOcr(join(d.dataDir, "ocr"));
+  const verifier = await nobleSigner(d.verifier.seed);
+  const windowMs = d.challengeWindowMs ?? 10 * 60_000;
+
+  async function* frameStream(pieceId: string, keyHex: string) {
+    let from = 0;
+    for (;;) {
+      const rows = (await db.query<any>("SELECT idx, device_ts, width, height, blob_key FROM frames WHERE piece_id = $1 AND key_hex = $2 AND idx >= $3 ORDER BY idx LIMIT 50", [pieceId, keyHex, from])).rows;
+      if (!rows.length) return;
+      for (const r of rows) {
+        from = r.idx + 1;
+        if (!r.blob_key) continue; // discarded: hash in the chain, no image
+        const jpeg = await blobs.get(pieceId, r.blob_key);
+        if (jpeg) yield { jpeg, deviceTs: Number(r.device_ts), width: r.width, height: r.height };
+      }
+    }
+  }
+
+  app.post<{ Params: { id: string } }>("/pieces/:id/report", async (req) => {
+    const p = await piece(req.params.id);
+    requireRole(p, await who(req), ["artist"]);
+    const final = (await db.query<any>("SELECT sha256, blob_key FROM files WHERE piece_id = $1 AND kind = 'final' ORDER BY id DESC LIMIT 1", [p.pieceId])).rows[0];
+    if (!final) throw new HttpError(409, "final_file_missing");
+    const finalBytes = (await blobs.get(p.pieceId, final.blob_key))!;
+    // Primary capture segment: the key with the most frames.
+    const counts = (await db.query<{ key_hex: string; n: number }>("SELECT key_hex, max(idx) + 1 AS n FROM frames WHERE piece_id = $1 GROUP BY key_hex ORDER BY n DESC", [p.pieceId])).rows;
+    const primary = counts[0];
+    const seg = primary ? p.segments.find((s) => hex.encode(s.key) === primary.key_hex) : undefined;
+    if (primary && seg && seg.count < Number(primary.n)) {
+      await maybeAnchor(p.pieceId, seg.key, Number(primary.n), true);
+      throw new HttpError(409, "anchor_pending", { anchoring: Number(primary.n) });
+    }
+    const anchored = !!(primary && seg && seg.count === Number(primary.n) && seg.count > 0);
+    const source = body(req).source === "camera" ? "camera" : "screen";
+    const m = primary ? await computeMetrics(frameStream(p.pieceId, primary.key_hex), { finalFile: finalBytes, source }) : null;
+    const rows = (await db.query<any>("SELECT * FROM challenges WHERE piece_id = $1", [p.pieceId])).rows;
+    const challenges = [];
+    for (const c of p.challenges) {
+      const row = rows.find((r) => eq(r.nonce_hash, c.nonceHash));
+      if (!row) continue;
+      const result = c.ackedAt == null || !primary ? "not_acknowledged"
+        : await evaluateChallenge(frameStream(p.pieceId, primary.key_hex), row.code, c.ackedAt, windowMs, ocr);
+      challenges.push({ chainId: c.id, issuerClass: p.invites.includes(c.issuer) ? "invited" : "client", issuer: c.issuer, result, code: row.code, salt: b64.encode(row.salt) });
+    }
+    const level = decideLevel({
+      anchored, frames: m?.frames ?? 0, coverage: m?.coverage ?? 0, largestJump: m?.largestJump ?? 1, activeMs: m?.activeMs ?? 0,
+      finalMatch: m?.finalMatch ?? null, passedChallengesByOthers: challenges.filter((c) => c.result === "passed" && c.issuer !== p.artist).length,
+    });
+    const segments = p.segments.map((s) => ({ key: s.key, head: s.head, count: s.count }));
+    const pub = {
+      version: "soulprint-report-v1", pieceId: p.pieceId, network: d.network, level, thresholds: THRESHOLDS.id, verifier: "server-not-TEE",
+      finalFileHash: b64.encode(final.sha256),
+      capture: m && seg ? {
+        key: nearPublicKey(seg.key), anchoredHead: b64.encode(seg.head), anchoredCount: seg.count, frames: m.frames,
+        sessions: m.sessions, spanDays: Math.round(m.spanDays * 10) / 10, activeBand: band(m.activeMs),
+        coverage: Math.round(m.coverage * 1000) / 1000, largestJump: Math.round(m.largestJump * 1000) / 1000,
+        finalMatch: m.finalMatch, timeNote: "device-reported, bounded by on-chain anchors",
+      } : null,
+      challenges: challenges.map(({ issuer: _i, ...c }) => c),
+      segmentsDigest: b64.encode(segmentsDigest(segments)),
+    };
+    const text = jcs(pub);
+    const reportHash = sha256(new TextEncoder().encode(text));
+    await db.query(
+      `INSERT INTO reports (piece_id, public_json, report_hash, final_file_hash, level, capture_key, anchor_head, anchor_count, built_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT (piece_id) DO UPDATE SET public_json = EXCLUDED.public_json, report_hash = EXCLUDED.report_hash,
+       final_file_hash = EXCLUDED.final_file_hash, level = EXCLUDED.level, capture_key = EXCLUDED.capture_key, anchor_head = EXCLUDED.anchor_head,
+       anchor_count = EXCLUDED.anchor_count, built_at = EXCLUDED.built_at`,
+      [p.pieceId, text, reportHash, final.sha256, level, seg?.key ?? null, seg?.head ?? null, seg?.count ?? null, d.now()]);
+    // The artist now calls deliver(final_file_hash, report_hash).
+    return { public: pub, level, reportHash: b64.encode(reportHash), finalFileHash: b64.encode(final.sha256) };
+  });
+
+  app.get<{ Params: { id: string } }>("/pieces/:id/report", async (req) => {
+    const p = await piece(req.params.id);
+    if (role(p, await who(req)) === "other") throw new HttpError(403, "forbidden");
+    const r = (await db.query<any>("SELECT public_json, report_hash FROM reports WHERE piece_id = $1", [p.pieceId])).rows[0];
+    if (!r) throw new HttpError(404, "no_report");
+    return { public: JSON.parse(r.public_json), reportHash: b64.encode(r.report_hash) };
+  });
+
+  app.post<{ Params: { id: string } }>("/pieces/:id/attest", async (req) => {
+    const p = await piece(req.params.id);
+    if (role(p, await who(req)) === "other") throw new HttpError(403, "forbidden");
+    if (!["Delivered", "Settled"].includes(p.status) || !p.reportHash) throw new HttpError(409, "not_delivered");
+    const r = (await db.query<any>("SELECT * FROM reports WHERE piece_id = $1", [p.pieceId])).rows[0];
+    if (!r || b64.encode(r.report_hash) !== p.reportHash || b64.encode(r.final_file_hash) !== p.finalFileHash) throw new HttpError(409, "report_mismatch");
+    const capture = r.capture_key ? { key: r.capture_key as Uint8Array, head: r.anchor_head as Uint8Array, count: r.anchor_count as number } : null;
+    const signed = await signReport(verifier, {
+      network: d.network, pieceId: p.pieceId, finalFileHash: r.final_file_hash, reportHash: r.report_hash, level: r.level,
+      capture, segments: p.segments.map((s) => ({ key: s.key, head: s.head, count: s.count })), issuedAt: BigInt(d.now()) * 1_000_000n,
+    });
+    return d.sender.attest({ collection: d.collection, argsJson: signed.argsJson(tokenIdOf(p.pieceId), d.verifier.keyId) });
   });
 
   app.get("/health", async () => ({ ok: true }));
