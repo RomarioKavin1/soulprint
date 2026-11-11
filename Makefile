@@ -10,6 +10,8 @@ test: build
 	cd contracts && cargo test --workspace -- --test-threads=3
 	pnpm -C packages/proof test
 	pnpm -C services/evidence test
+	pnpm -C services/indexer test
+	pnpm -C services/relayer test
 	pnpm -C apps/web test
 
 e2e:

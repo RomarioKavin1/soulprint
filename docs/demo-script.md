@@ -23,7 +23,7 @@ webcam.
 | 5 | Client | Vault → price **200** → **List for sale**. | | *Listed at 200 USDC*. |
 | 5 | Buyer | `/buy/<piece>` → **Buy for 200 USDC**. (Optionally Shop pays again at the same moment.) | "The buy is pinned to this listing, price and income pool; a payment racing the sale goes to the buyer." | *It's yours*; buyer's vault shows the files and the pool; artist credit gains the 5% royalty. |
 | 5 | Client | Reload the vault. | "The seller's access ended with the sale." | *Only the current owner of this piece can open its files.* |
-| 6 | — | History view (Plan 3 Task 6, not built yet) — instead open the proof page's **Verify on-chain**. | | Accounts, code hash, anchors, attesting key. |
+| 6 | Anyone | Open the room or vault: **History**. Then the proof page's **Verify on-chain**. | "Every step is on the piece; the history is rebuilt from its events." | Payment, delivery, sale with royalty, income — in order; accounts, code hash, anchors, attesting key. |
 
 Timings: record once end-to-end on testnet before submission and note them here.
 
