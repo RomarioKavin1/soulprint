@@ -132,16 +132,15 @@ fn natural_actor(p: &PieceCore, op: &Op, pick: usize) -> AccountId {
     let creditors: Vec<AccountId> = p.credits.iter().filter(|(_, s)| s.available > 0).map(|(a, _)| a.clone()).collect();
     match op {
         Op::Fund(..) => acc("client.near"),
-        Op::Deliver | Op::ProposeSplit(_) if pick % 2 == 0 => artist,
         Op::Deliver => artist,
-        Op::ProposeSplit(_) => owner,
+        Op::ProposeSplit(_) => if pick.is_multiple_of(2) { artist } else { owner },
         Op::AcceptSplit(_) => match &p.split { Some(s) if s.by == artist => owner, _ => artist },
         Op::RequestChanges | Op::Accept | Op::Reject(_) | Op::ClaimRefund | Op::Release(_) | Op::List(..) | Op::Delist | Op::Withdraw => owner,
-        Op::Resolve(_) => if pick % 2 == 0 { acc("arb.near") } else { acc("fallback.near") },
-        Op::Buy(..) => if pick % 2 == 0 { acc("buyer.near") } else { acc("buyer2.near") },
+        Op::Resolve(_) => if pick.is_multiple_of(2) { acc("arb.near") } else { acc("fallback.near") },
+        Op::Buy(..) => if pick.is_multiple_of(2) { acc("buyer.near") } else { acc("buyer2.near") },
         Op::Rotate(..) | Op::ResolveTransfer(_) => acc("soulprint-v1.near"),
         Op::Claim | Op::ClaimTo(_) => creditors.get(pick % creditors.len().max(1)).cloned().unwrap_or(artist),
-        Op::Cancel | Op::MutualCancel | Op::Extend(_) => if pick % 2 == 0 { artist } else { owner },
+        Op::Cancel | Op::MutualCancel | Op::Extend(_) => if pick.is_multiple_of(2) { artist } else { owner },
         _ => acc("stranger.near"),
     }
 }
@@ -155,7 +154,7 @@ fn op() -> impl Strategy<Value = Op> {
         2 => Just(Op::Accept),
         1 => Just(Op::Settle),
         1 => Just(Op::ClaimRefund),
-        1 => Just(Op::Cancel).prop_filter("rare", |_| true),
+        1 => Just(Op::Cancel),
         1 => Just(Op::MutualCancel),
         1 => (0u64..40).prop_map(|d| Op::Extend(d * DAY)),
         2 => dep().prop_map(Op::Reject),
@@ -397,7 +396,7 @@ proptest! {
         let all = actors();
         for (o, a) in &ops {
             // Cancel by the artist ends most sequences early: let it through only rarely.
-            if matches!(o, Op::Cancel) && a % 4 != 0 { continue; }
+            if matches!(o, Op::Cancel) && !a.is_multiple_of(4) { continue; }
             let actor = if *a < 14 { natural_actor(&w.p, o, *a) } else { all[*a % all.len()].clone() };
             step(&mut w, o, &actor)?;
         }
