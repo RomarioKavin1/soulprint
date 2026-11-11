@@ -483,10 +483,6 @@ impl PieceCore {
     pub(crate) fn price(&self) -> u128 {
         self.terms.as_ref().map(|t| t.price.0).unwrap_or(0)
     }
-
-    pub(crate) fn u128s(v: u128) -> U128 {
-        U128(v)
-    }
 }
 
 #[cfg(test)]

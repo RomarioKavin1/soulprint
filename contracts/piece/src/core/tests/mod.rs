@@ -1,7 +1,7 @@
 //! Unit tests for the pure core. `Fx` builds a piece and drives it with explicit contexts.
 #![allow(dead_code)]
-use crate::core::*;
-use common::*;
+pub use crate::core::*;
+pub use common::*;
 use near_sdk::AccountId;
 
 mod t3_skeleton;
