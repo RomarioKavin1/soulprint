@@ -360,3 +360,11 @@ fn ed25519_key_roundtrip() {
     let secp: near_sdk::PublicKey = "secp256k1:qMoRgcoXai4mBPsdbHi1wfyxF9TdbPCF4qSDQTRP3TfescSRoUdSx6nmeQoN3aiwGzwMyGXAb1gUjBTv5AY8DXj".parse().unwrap();
     assert_eq!(ed25519_raw(&secp), None);
 }
+
+#[test]
+fn token_id_and_piece_account() {
+    let c = acc("soulprint-v1.x.testnet");
+    let p = piece_account("7", &c);
+    assert_eq!(p.as_str(), "p7.soulprint-v1.x.testnet");
+    assert_eq!(token_id_of(&p), "7");
+}

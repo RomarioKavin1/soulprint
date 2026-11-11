@@ -1,0 +1,167 @@
+{
+  "piece_info": {
+    "piece_id": "p1.soulprint-v1.near",
+    "token_id": "1",
+    "collection": "soulprint-v1.near",
+    "mode": "Commission",
+    "artist": "artist.near",
+    "owner": "client.near",
+    "rotation_seq": "1",
+    "status": "Settled",
+    "dispute_stage": null,
+    "transfer_pending": null,
+    "currency": {
+      "Ft": "usdc.near"
+    },
+    "price": "100000000",
+    "royalty_bps": 500,
+    "grant": {
+      "kind": "CommercialNonExclusive",
+      "attribution": true,
+      "transferable": true
+    },
+    "grant_active": true,
+    "licence_text_hash": "BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=",
+    "terms_hash": "Fy1DTS3DJkPF5ci2dcf+DhQ3od0N/dX5p3Th/E4O7Og=",
+    "deadline": "1802592000000000000",
+    "review_ends_at": null,
+    "refund_eligible": false,
+    "delivered_at": "1800000000000000002",
+    "disputed_at": null,
+    "revisions_used": 0,
+    "released_milestones": 0,
+    "final_file_hash": "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=",
+    "report_hash": "AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=",
+    "evidence_level": 0,
+    "commissioned_badge": true,
+    "split": null,
+    "pending_addendum": null,
+    "addenda": [],
+    "created_at": "1800000000000000000"
+  },
+  "terms": {
+    "price": "100000000",
+    "currency": {
+      "Ft": "usdc.near"
+    },
+    "milestones": [
+      {
+        "bps": 10000
+      }
+    ],
+    "deadline_ns": "1802592000000000000",
+    "grace_ns": "172800000000000",
+    "review_window_ns": "604800000000000",
+    "revision_period_ns": "259200000000000",
+    "revision_rounds": 2,
+    "arbitrator": "arb.near",
+    "fallback_arbitrator": "fallback.near",
+    "timeout_artist_bps": 7500,
+    "reject_bond_bps": 500,
+    "royalty_bps": 500,
+    "grant": {
+      "kind": "CommercialNonExclusive",
+      "attribution": true,
+      "transferable": true
+    },
+    "licence_text_hash": "BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=",
+    "client": "client.near"
+  },
+  "accounting": {
+    "currency": {
+      "Ft": "usdc.near"
+    },
+    "funded": "100000000",
+    "escrow": "0",
+    "released": "100000000",
+    "refunded": "0",
+    "holder_pool": "50000",
+    "bond": "0",
+    "liabilities": "50000",
+    "credits": [
+      {
+        "account": "arb.near",
+        "available": "0",
+        "in_flight": "0"
+      },
+      {
+        "account": "artist.near",
+        "available": "0",
+        "in_flight": "100000000"
+      },
+      {
+        "account": "client.near",
+        "available": "0",
+        "in_flight": "0"
+      },
+      {
+        "account": "fallback.near",
+        "available": "0",
+        "in_flight": "0"
+      }
+    ],
+    "near_balance": "10000000000000000000000001",
+    "storage_usage": "307240"
+  },
+  "proof_page": {
+    "segments": [
+      {
+        "key": "ed25519:2iXtA8oeZqUU5pofxK971TCEvFGfems2AcDRaZHKD2pQ",
+        "genesis": "EsBqicJHM4lHab2viQjfnkHY64hSV1iEZuuaTxPv6qY=",
+        "head": "EsBqicJHM4lHab2viQjfnkHY64hSV1iEZuuaTxPv6qY=",
+        "count": 0,
+        "last_anchor_at": "0"
+      }
+    ],
+    "anchors_total": 0,
+    "segments_digest": "N6U2yqi5Cws87qnwL/sbGdWmjKtT5UINBu57YmtheAA=",
+    "invites": [],
+    "challenges": [],
+    "challenges_total": 0,
+    "attestation": {
+      "evidence_level": 0,
+      "key_id": 0,
+      "issued_at": "0",
+      "attested_at": "0",
+      "report_hash": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    },
+    "final_file_hash": "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=",
+    "report_hash": "AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI="
+  },
+  "listing": {
+    "seller": "client.near",
+    "price": "500000000",
+    "nonce": "1",
+    "reserved_for": null
+  },
+  "owner_info": {
+    "token_id": "1",
+    "owner": "client.near",
+    "seq": "1",
+    "status": "Settled",
+    "transfer_pending": false
+  },
+  "nft_item_info": {
+    "token_id": "1",
+    "collection": "soulprint-v1.near",
+    "owner": "client.near",
+    "creator": "artist.near",
+    "status": "Settled",
+    "royalty_bps": 500
+  },
+  "time_config": {
+    "grace_max": "1209600000000000",
+    "review_min": "259200000000000",
+    "revision_period_min": "86400000000000",
+    "negotiation": "604800000000000",
+    "arbitration": "1209600000000000",
+    "fallback": "1209600000000000",
+    "pending_expiry": "86400000000000",
+    "key_timelock": "259200000000000",
+    "challenge_window": "600000000000",
+    "challenge_min_interval": "1800000000000",
+    "deadline_min_lead": "86400000000000",
+    "deadline_max": "31536000000000000",
+    "fund_cutoff": "86400000000000"
+  }
+}

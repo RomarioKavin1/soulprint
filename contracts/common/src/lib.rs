@@ -28,3 +28,14 @@ pub const LEVEL_E3: u8 = 3;
 
 #[cfg(test)]
 mod tests;
+
+/// `p7.soulprint-v1.x.testnet` → `"7"` (A33: token_id is the decimal N).
+pub fn token_id_of(piece_id: &near_sdk::AccountId) -> String {
+    let first = piece_id.as_str().split('.').next().unwrap_or("");
+    first.strip_prefix('p').unwrap_or(first).to_string()
+}
+
+/// `("7", collection)` → `p7.<collection>`.
+pub fn piece_account(token_id: &str, collection: &near_sdk::AccountId) -> near_sdk::AccountId {
+    format!("p{token_id}.{collection}").parse().expect("valid piece account")
+}

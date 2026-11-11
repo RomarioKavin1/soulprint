@@ -18,3 +18,4 @@ borsh.workspace = true
 ed25519-dalek.workspace = true
 rand.workspace = true
 hex.workspace = true
+wasmparser = "0.243"

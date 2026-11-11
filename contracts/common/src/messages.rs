@@ -2,6 +2,7 @@
 //! produces identical borsh bytes; test vectors live in `common/test-vectors/`.
 use crate::Bytes32;
 use near_sdk::{near, AccountId};
+#[cfg(not(target_arch = "wasm32"))]
 use sha2::{Digest, Sha256};
 
 pub const REPORT_DOMAIN: &str = "soulprint-report-v1";
@@ -10,23 +11,31 @@ pub const BATCH_DOMAIN: &str = "soulprint-batch-v1";
 pub const CHALLENGE_ACK_DOMAIN: &str = "soulprint-challenge-ack-v1";
 
 pub fn sha256(data: &[u8]) -> Bytes32 {
-    Bytes32(Sha256::digest(data).into())
+    #[cfg(target_arch = "wasm32")]
+    {
+        Bytes32(near_sdk::env::sha256_array(data))
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        Bytes32(Sha256::digest(data).into())
+    }
+}
+
+fn concat(a: &[u8], b: &[u8]) -> Vec<u8> {
+    let mut v = Vec::with_capacity(a.len() + b.len());
+    v.extend_from_slice(a);
+    v.extend_from_slice(b);
+    v
 }
 
 /// Genesis of a capture-key segment: sha256(piece_id ‖ capture_pubkey).
 pub fn genesis(piece_id: &AccountId, capture_pubkey: &Bytes32) -> Bytes32 {
-    let mut h = Sha256::new();
-    h.update(piece_id.as_bytes());
-    h.update(capture_pubkey.0);
-    Bytes32(h.finalize().into())
+    sha256(&concat(piece_id.as_bytes(), &capture_pubkey.0))
 }
 
 /// link_i = sha256(link_{i-1} ‖ frame_hash_i); link_{-1} = genesis.
 pub fn chain_link(prev: &Bytes32, frame_hash: &Bytes32) -> Bytes32 {
-    let mut h = Sha256::new();
-    h.update(prev.0);
-    h.update(frame_hash.0);
-    Bytes32(h.finalize().into())
+    sha256(&concat(&prev.0, &frame_hash.0))
 }
 
 /// A44: sha256(borsh(Vec<(key, head, count)>)) over all segments, in key-registration order.

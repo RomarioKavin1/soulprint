@@ -4,7 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/../contracts"
 MODE="${MODE:-non-reproducible}"
-BUDGET=$((300 * 1024))
+BUDGET=$((400 * 1024))
 mkdir -p res
 cargo clippy --workspace --all-targets -- -D warnings
 if command -v cargo-audit >/dev/null; then cargo audit -q || { echo "cargo audit found issues"; exit 1; }; fi

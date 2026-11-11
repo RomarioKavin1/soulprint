@@ -233,20 +233,101 @@ pub enum Error {
     DuplicateKey,
 }
 
+impl Error {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Error::Terms(t) => match t {
+                TermsError::MilestoneCount => "ERR_TERMS_MilestoneCount",
+                TermsError::MilestoneZero => "ERR_TERMS_MilestoneZero",
+                TermsError::MilestoneSum => "ERR_TERMS_MilestoneSum",
+                TermsError::Royalty => "ERR_TERMS_Royalty",
+                TermsError::Bond => "ERR_TERMS_Bond",
+                TermsError::TimeoutBps => "ERR_TERMS_TimeoutBps",
+                TermsError::Grace => "ERR_TERMS_Grace",
+                TermsError::ReviewWindow => "ERR_TERMS_ReviewWindow",
+                TermsError::RevisionPeriod => "ERR_TERMS_RevisionPeriod",
+                TermsError::RevisionRounds => "ERR_TERMS_RevisionRounds",
+                TermsError::Deadline => "ERR_TERMS_Deadline",
+                TermsError::Price => "ERR_TERMS_Price",
+                TermsError::Currency => "ERR_TERMS_Currency",
+                TermsError::Arbitrator => "ERR_TERMS_Arbitrator",
+                TermsError::Client => "ERR_TERMS_Client",
+            },
+            Error::RequiresDeposit => "ERR_REQUIRES_DEPOSIT",
+            Error::NotArtist => "ERR_NOT_ARTIST",
+            Error::NotOwner => "ERR_NOT_OWNER",
+            Error::NotCollection => "ERR_NOT_COLLECTION",
+            Error::NotParty => "ERR_NOT_PARTY",
+            Error::NotArbitrator => "ERR_NOT_ARBITRATOR",
+            Error::TransferPending => "ERR_TRANSFER_PENDING",
+            Error::NoTransferPending => "ERR_NO_TRANSFER_PENDING",
+            Error::WrongStatus => "ERR_WRONG_STATUS",
+            Error::WrongCurrency => "ERR_WRONG_CURRENCY",
+            Error::WrongAmount => "ERR_WRONG_AMOUNT",
+            Error::TermsChanged => "ERR_TERMS_CHANGED",
+            Error::NotNamedClient => "ERR_NOT_NAMED_CLIENT",
+            Error::FunderNotAllowed => "ERR_FUNDER_NOT_ALLOWED",
+            Error::FundCutoff => "ERR_FUND_CUTOFF",
+            Error::DeadlinePassed => "ERR_DEADLINE_PASSED",
+            Error::RefundNotYet => "ERR_REFUND_NOT_YET",
+            Error::ReviewClosed => "ERR_REVIEW_CLOSED",
+            Error::ReviewOpen => "ERR_REVIEW_OPEN",
+            Error::NoRevisionsLeft => "ERR_NO_REVISIONS_LEFT",
+            Error::MilestoneOrder => "ERR_MILESTONE_ORDER",
+            Error::NoMilestonesLeft => "ERR_NO_MILESTONES_LEFT",
+            Error::WrongStage => "ERR_WRONG_STAGE",
+            Error::NoProposal => "ERR_NO_PROPOSAL",
+            Error::ProposalChanged => "ERR_PROPOSAL_CHANGED",
+            Error::OwnProposal => "ERR_OWN_PROPOSAL",
+            Error::InvalidBps => "ERR_INVALID_BPS",
+            Error::NothingToClaim => "ERR_NOTHING_TO_CLAIM",
+            Error::ClaimInFlight => "ERR_CLAIM_IN_FLIGHT",
+            Error::InvalidRecipient => "ERR_INVALID_RECIPIENT",
+            Error::PoolEmpty => "ERR_POOL_EMPTY",
+            Error::Listed => "ERR_LISTED",
+            Error::NotListed => "ERR_NOT_LISTED",
+            Error::ListingChanged => "ERR_LISTING_CHANGED",
+            Error::PriceTooHigh => "ERR_PRICE_TOO_HIGH",
+            Error::PriceTooLow => "ERR_PRICE_TOO_LOW",
+            Error::PoolBelowExpected => "ERR_POOL_BELOW_EXPECTED",
+            Error::BuyerIsSeller => "ERR_BUYER_IS_SELLER",
+            Error::Reserved => "ERR_RESERVED",
+            Error::IncomeTooSmall => "ERR_INCOME_TOO_SMALL",
+            Error::IncomeNotLicensed => "ERR_INCOME_NOT_LICENSED",
+            Error::InvalidReceiver => "ERR_INVALID_RECEIVER",
+            Error::PendingNotExpired => "ERR_PENDING_NOT_EXPIRED",
+            Error::UnknownKey => "ERR_UNKNOWN_KEY",
+            Error::TooManyKeys => "ERR_TOO_MANY_KEYS",
+            Error::BadSignature => "ERR_BAD_SIGNATURE",
+            Error::AnchorNotMonotonic => "ERR_ANCHOR_NOT_MONOTONIC",
+            Error::TooManyAnchors => "ERR_TOO_MANY_ANCHORS",
+            Error::NotChallenger => "ERR_NOT_CHALLENGER",
+            Error::ChallengeOpen => "ERR_CHALLENGE_OPEN",
+            Error::ChallengeTooSoon => "ERR_CHALLENGE_TOO_SOON",
+            Error::TooManyChallenges => "ERR_TOO_MANY_CHALLENGES",
+            Error::NoSuchChallenge => "ERR_NO_SUCH_CHALLENGE",
+            Error::ChallengeClosed => "ERR_CHALLENGE_CLOSED",
+            Error::TooManyInvites => "ERR_TOO_MANY_INVITES",
+            Error::AlreadyInvited => "ERR_ALREADY_INVITED",
+            Error::WrongPiece => "ERR_WRONG_PIECE",
+            Error::ReportMismatch => "ERR_REPORT_MISMATCH",
+            Error::StaleReport => "ERR_STALE_REPORT",
+            Error::AddendumNotWider => "ERR_ADDENDUM_NOT_WIDER",
+            Error::NoAddendum => "ERR_NO_ADDENDUM",
+            Error::AddendumChanged => "ERR_ADDENDUM_CHANGED",
+            Error::TooManyAddenda => "ERR_TOO_MANY_ADDENDA",
+            Error::AlreadyConsented => "ERR_ALREADY_CONSENTED",
+            Error::InvalidDeadline => "ERR_INVALID_DEADLINE",
+            Error::NotStandaloneEligible => "ERR_NOT_STANDALONE_ELIGIBLE",
+            Error::NotEnoughGas => "ERR_NOT_ENOUGH_GAS",
+            Error::DuplicateKey => "ERR_DUPLICATE_KEY",
+        }
+    }
+}
+
 impl core::fmt::Display for Error {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        if let Error::Terms(t) = self {
-            return write!(f, "ERR_TERMS_{t:?}");
-        }
-        let name = format!("{self:?}");
-        let mut out = String::from("ERR");
-        for (i, ch) in name.chars().enumerate() {
-            if ch.is_uppercase() || i == 0 {
-                out.push('_');
-            }
-            out.push(ch.to_ascii_uppercase());
-        }
-        f.write_str(&out)
+        f.write_str(self.as_str())
     }
 }
 

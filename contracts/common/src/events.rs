@@ -4,7 +4,9 @@ use crate::{Bytes32, Currency, Grant};
 use near_sdk::json_types::{U128, U64};
 use near_sdk::borsh::{BorshDeserialize, BorshSerialize};
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::serde_json::{self, json, Value};
+use near_sdk::serde_json;
+#[cfg(not(target_arch = "wasm32"))]
+use near_sdk::serde_json::{json, Value};
 use near_sdk::{AccountId, PublicKey};
 
 pub const EVENT_STANDARD: &str = "soulprint";
@@ -90,23 +92,27 @@ pub enum SoulprintEvent {
 
 impl SoulprintEvent {
     pub fn name(&self) -> String {
-        let v = serde_json::to_value(self).expect("event json");
-        v["event"].as_str().expect("event name").to_string()
+        let s = serde_json::to_string(self).expect("event json");
+        // {"event":"<name>","data":...}
+        let rest = &s["{\"event\":\"".len()..];
+        rest[..rest.find('"').expect("name")].to_string()
     }
 
-    /// `EVENT_JSON:{"standard":"soulprint","version":"1.0.0","event":..,"data":[{..}]}`
+    /// `EVENT_JSON:{"standard":"soulprint","version":"1.0.0","event":..,"data":[{..}]}`.
+    /// Built by splicing the adjacently-tagged serde output (no `serde_json::Value` in the wasm).
     pub fn to_log(&self) -> String {
-        let v = serde_json::to_value(self).expect("event json");
-        let data = v.get("data").cloned().unwrap_or(Value::Null);
-        let data = if data.is_null() { json!([]) } else { json!([data]) };
-        let out = json!({ "standard": EVENT_STANDARD, "version": EVENT_VERSION, "event": v["event"], "data": data });
-        format!("EVENT_JSON:{out}")
+        let s = serde_json::to_string(self).expect("event json");
+        let body = &s[1..s.len() - 1]; // "event":"x","data":{..}
+        let split = body.find(",\"data\":").expect("data");
+        let (ev, data) = (&body[..split], &body[split + ",\"data\":".len()..]);
+        format!("EVENT_JSON:{{\"standard\":\"{EVENT_STANDARD}\",\"version\":\"{EVENT_VERSION}\",{ev},\"data\":[{data}]}}")
     }
 
     pub fn emit(&self) {
         near_sdk::env::log_str(&self.to_log());
     }
 
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn from_nep297(v: &Value) -> Result<Self, String> {
         if v["standard"] != EVENT_STANDARD || v["version"] != EVENT_VERSION {
             return Err("wrong standard/version".into());
