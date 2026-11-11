@@ -13,3 +13,5 @@ tokio.workspace = true
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+tests = { path = "../tests" }
+ed25519-dalek.workspace = true

@@ -4018,9 +4018,11 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "common",
+ "ed25519-dalek",
  "near-workspaces",
  "serde",
  "serde_json",
+ "tests",
  "tokio",
 ]
 

@@ -181,7 +181,7 @@ async fn create_piece_failure_refunds_deposit() -> anyhow::Result<()> {
             continue;
         }
         // The batch failed inside the piece's init.
-        assert_eq!(r.json::<bool>()?, false);
+        assert!(!r.json::<bool>()?, "on_piece_created reports the failure");
         w.worker.fast_forward(3).await?;
         let spent = a0 as i128 - w.near_balance(w.artist.id()).await? as i128;
         // Back to gas only: not the deposit lost, and not refunded twice.
