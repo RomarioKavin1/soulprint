@@ -1,0 +1,7 @@
+{
+  "piece_id": "p7.soulprint-v1.x.testnet",
+  "capture_pubkey_hex": "0303030303030303030303030303030303030303030303030303030303030303",
+  "genesis_hex": "8922ac6be2a2220534b43c51079de5c28de30bf813a301c3a3717a58e4cd6985",
+  "frame_hash_hex": "abababababababababababababababababababababababababababababababab",
+  "link1_hex": "32091da5f70c5808a8a8ab23cdb0c0261434df443779c160a5d9fd50117ebc62"
+}

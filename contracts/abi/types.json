@@ -1,0 +1,104 @@
+{
+  "Terms": {
+    "price": "100000000",
+    "currency": {
+      "Ft": "usdc.test.near"
+    },
+    "milestones": [
+      {
+        "bps": 3000
+      },
+      {
+        "bps": 7000
+      }
+    ],
+    "deadline_ns": "1802592000000000000",
+    "grace_ns": "172800000000000",
+    "review_window_ns": "604800000000000",
+    "revision_period_ns": "259200000000000",
+    "revision_rounds": 2,
+    "arbitrator": "arb.test.near",
+    "fallback_arbitrator": "fallback.test.near",
+    "timeout_artist_bps": 7500,
+    "reject_bond_bps": 500,
+    "royalty_bps": 500,
+    "grant": {
+      "kind": "CommercialNonExclusive",
+      "attribution": true,
+      "transferable": true
+    },
+    "licence_text_hash": "BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=",
+    "client": "client.test.near"
+  },
+  "PieceKind.Commission": {
+    "Commission": {
+      "price": "100000000",
+      "currency": {
+        "Ft": "usdc.test.near"
+      },
+      "milestones": [
+        {
+          "bps": 3000
+        },
+        {
+          "bps": 7000
+        }
+      ],
+      "deadline_ns": "1802592000000000000",
+      "grace_ns": "172800000000000",
+      "review_window_ns": "604800000000000",
+      "revision_period_ns": "259200000000000",
+      "revision_rounds": 2,
+      "arbitrator": "arb.test.near",
+      "fallback_arbitrator": "fallback.test.near",
+      "timeout_artist_bps": 7500,
+      "reject_bond_bps": 500,
+      "royalty_bps": 500,
+      "grant": {
+        "kind": "CommercialNonExclusive",
+        "attribution": true,
+        "transferable": true
+      },
+      "licence_text_hash": "BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=",
+      "client": "client.test.near"
+    }
+  },
+  "CurrencyConfig": {
+    "currency": {
+      "Ft": "usdc.test.near"
+    },
+    "decimals": 6,
+    "min_price": "1000000",
+    "min_list": "100000",
+    "min_income": "10000",
+    "badge_min": "20000000"
+  },
+  "TimeConfig.production": {
+    "grace_max": "1209600000000000",
+    "review_min": "259200000000000",
+    "revision_period_min": "86400000000000",
+    "negotiation": "604800000000000",
+    "arbitration": "1209600000000000",
+    "fallback": "1209600000000000",
+    "pending_expiry": "86400000000000",
+    "key_timelock": "259200000000000",
+    "challenge_window": "600000000000",
+    "challenge_min_interval": "1800000000000",
+    "deadline_min_lead": "86400000000000",
+    "deadline_max": "31536000000000000",
+    "fund_cutoff": "86400000000000"
+  },
+  "ReportMessage": {
+    "domain": "soulprint-report-v1",
+    "network": "testnet",
+    "piece_id": "p7.soulprint-v1.x.testnet",
+    "final_file_hash": "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=",
+    "last_anchor_head": "AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=",
+    "last_anchor_count": 42,
+    "capture_pubkey": "AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=",
+    "evidence_level": 2,
+    "report_hash": "BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ=",
+    "issued_at": 1800000000000000000,
+    "segments_digest": "BQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU="
+  }
+}
