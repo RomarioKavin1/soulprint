@@ -4,3 +4,4 @@ node_modules/
 *.wasm
 !contracts/res/*.wasm
 .env*
+*.traineddata

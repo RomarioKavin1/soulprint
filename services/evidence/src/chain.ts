@@ -8,8 +8,17 @@ export interface PieceView {
   status: string;
   mode: string;
 }
+export interface ChainChallenge {
+  id: number;
+  nonceHash: Uint8Array;
+  issuer: string;
+  issuedAt: number;
+  ackedAt: number | null;
+}
 export interface PieceWithSegments extends PieceView {
   segments: { key: Uint8Array; genesis: Uint8Array }[];
+  invites: string[];
+  challenges: ChainChallenge[];
 }
 export interface ChainReader {
   piece(pieceId: string): Promise<PieceWithSegments | null>;
@@ -44,12 +53,16 @@ export class RpcChainReader implements ChainReader {
   async piece(pieceId: string): Promise<PieceWithSegments | null> {
     const info = await this.view<any>(pieceId, "piece_info", {});
     if (!info) return null;
-    const proof = await this.view<any>(pieceId, "proof_page", { from: 0, limit: 0 });
+    const proof = await this.view<any>(pieceId, "proof_page", { from: 0, limit: 32 });
     const segments = (proof?.segments ?? []).map((s: any) => {
       const key = parseNearPublicKey(s.key);
       return { key, genesis: genesis(pieceId, key) };
     });
-    return { pieceId, artist: info.artist, owner: info.owner, status: info.status, mode: info.mode, segments };
+    const challenges = (proof?.challenges ?? []).map((c: any) => ({
+      id: c.id, nonceHash: b64.decode(c.nonce_hash), issuer: c.issuer, issuedAt: Number(c.issued_at) / 1e6,
+      ackedAt: c.acked_at == null ? null : Number(c.acked_at) / 1e6,
+    }));
+    return { pieceId, artist: info.artist, owner: info.owner, status: info.status, mode: info.mode, segments, invites: proof?.invites ?? [], challenges };
   }
 
   async isFullAccessKey(account: string, publicKey: string): Promise<boolean> {

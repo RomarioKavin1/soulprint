@@ -7,7 +7,7 @@ import {
   anchorMessage, b64, batchMessage, frameRecordHash, genesis, linkHash, nearPublicKey, nobleSigner, type Signer,
 } from "@soulprint/proof";
 import { buildApp, type Deps } from "../src/server.ts";
-import type { ChainReader, PieceView } from "../src/chain.ts";
+import type { ChainChallenge, ChainReader, PieceView } from "../src/chain.ts";
 import type { Sender } from "../src/sender.ts";
 import { nep413Payload } from "../src/auth.ts";
 
@@ -15,12 +15,12 @@ export const PIECE = "p1.soulprint.test.near";
 export const PIECE2 = "p2.soulprint.test.near";
 
 export class FakeChain implements ChainReader {
-  pieces = new Map<string, PieceView & { keys: Uint8Array[] }>();
+  pieces = new Map<string, PieceView & { keys: Uint8Array[]; invites?: string[]; challenges?: ChainChallenge[] }>();
   fullKeys = new Map<string, string[]>(); // account → ed25519:… keys
   async piece(id: string) {
     const p = this.pieces.get(id);
     if (!p) return null;
-    return { ...p, segments: p.keys.map((k) => ({ key: k, genesis: genesis(id, k) })) };
+    return { ...p, invites: p.invites ?? [], challenges: p.challenges ?? [], segments: p.keys.map((k) => ({ key: k, genesis: genesis(id, k) })) };
   }
   async isFullAccessKey(account: string, pk: string) {
     return this.fullKeys.get(account)?.includes(pk) ?? false;
@@ -29,11 +29,12 @@ export class FakeChain implements ChainReader {
 
 export class FakeSender implements Sender {
   anchors: unknown[] = [];
+  acks: unknown[] = [];
   async anchor(a: unknown) {
     this.anchors.push(a);
     return { txHash: `tx${this.anchors.length}` };
   }
-  async ackChallenge() { return { txHash: "ack" }; }
+  async ackChallenge(a: unknown) { this.acks.push(a); return { txHash: "ack" }; }
   async attest() { return { txHash: "attest" }; }
 }
 

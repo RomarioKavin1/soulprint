@@ -4,13 +4,14 @@ import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest }
 import { sha256 } from "@noble/hashes/sha256";
 import * as ed from "@noble/ed25519";
 import {
-  anchorMessage, b64, batchMessage, eq, hex, nearPublicKey, parseNearPublicKey, verifyChain, type FrameMeta,
+  anchorMessage, b64, batchMessage, challengeAckMessage, eq, hex, nearPublicKey, parseNearPublicKey, verifyChain, type FrameMeta,
 } from "@soulprint/proof";
 import { authenticate, AuthError } from "./auth.ts";
 import { BlobStore } from "./blob.ts";
 import type { ChainReader, PieceWithSegments } from "./chain.ts";
 import { openDb, type Db } from "./db.ts";
 import type { Sender } from "./sender.ts";
+import { newCode, nonceHashOf } from "./challenge.ts";
 
 export interface Deps {
   chain: ChainReader;
@@ -303,6 +304,52 @@ export async function buildApp(d: Deps): Promise<App> {
       return kind === "story" ? { story: items.at(-1) ?? null } : { items };
     });
   }
+
+  // ---------------- challenges (A28) ----------------
+
+  const mayChallenge = (p: PieceWithSegments, account: string) =>
+    (p.mode === "Commission" && account === p.owner && p.owner !== p.artist) || p.invites.includes(account);
+
+  app.post<{ Params: { id: string } }>("/pieces/:id/challenges", async (req) => {
+    const p = await piece(req.params.id);
+    const account = await who(req);
+    if (!mayChallenge(p, account)) throw new HttpError(403, "not_challenger");
+    const code = newCode(), salt = crypto.getRandomValues(new Uint8Array(16));
+    const nonceHash = nonceHashOf(code, salt);
+    await db.query("INSERT INTO challenges (piece_id, nonce_hash, code, salt, issuer, created_at) VALUES ($1,$2,$3,$4,$5,$6)",
+      [p.pieceId, nonceHash, code, salt, account, d.now()]);
+    // The issuer now calls piece.issue_challenge(nonce_hash) from their own wallet (A48).
+    return { nonceHash: b64.encode(nonceHash) };
+  });
+
+  app.get<{ Params: { id: string } }>("/pieces/:id/challenges", async (req) => {
+    const p = await piece(req.params.id);
+    const account = await who(req);
+    const isArtist = account === p.artist;
+    if (!isArtist && !mayChallenge(p, account)) throw new HttpError(403, "forbidden");
+    const rows = (await db.query<any>("SELECT * FROM challenges WHERE piece_id = $1", [p.pieceId])).rows;
+    const items = [];
+    for (const c of p.challenges) {
+      const row = rows.find((r) => eq(r.nonce_hash, c.nonceHash));
+      if (!row || (!isArtist && c.issuer !== account)) continue;
+      items.push({
+        chainId: c.id, nonceHash: b64.encode(c.nonceHash), issuer: c.issuer, issuedAt: c.issuedAt, ackedAt: c.ackedAt,
+        ...(isArtist ? { code: row.code } : {}),
+      });
+    }
+    return { items };
+  });
+
+  app.post<{ Params: { id: string; cid: string } }>("/pieces/:id/challenges/:cid/ack", async (req) => {
+    const p = await piece(req.params.id);
+    const cid = Number(req.params.cid);
+    const c = p.challenges.find((x) => x.id === cid);
+    if (!c) throw new HttpError(404, "unknown_challenge");
+    const sig = b64.decode(String(body(req).sig ?? ""));
+    const msg = challengeAckMessage({ pieceId: p.pieceId, challengeId: cid, nonceHash: c.nonceHash });
+    if (!p.segments.some((s) => ed.verify(sig, msg, s.key))) throw new HttpError(401, "bad_signature");
+    return d.sender.ackChallenge({ pieceId: p.pieceId, challengeId: cid, sig: b64.encode(sig) });
+  });
 
   app.get("/health", async () => ({ ok: true }));
   return app;

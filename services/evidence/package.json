@@ -21,6 +21,7 @@
     "@soulprint/proof": "workspace:*",
     "fastify": "^5.12.8",
     "near-api-js": "^7.5.1",
-    "sharp": "^0.35.5"
+    "sharp": "^0.35.5",
+    "tesseract.js": "^7.0.0"
   }
 }
