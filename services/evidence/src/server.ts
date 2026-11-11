@@ -2,6 +2,9 @@
 import { join } from "node:path";
 import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from "fastify";
 import { sha256 } from "@noble/hashes/sha256";
+import { hmac } from "@noble/hashes/hmac";
+
+const b64url = (b: Uint8Array) => Buffer.from(b).toString("base64url");
 import * as ed from "@noble/ed25519";
 import {
   anchorMessage, b64, batchMessage, challengeAckMessage, eq, hex, nearPublicKey, parseNearPublicKey, verifyChain, type FrameMeta,
@@ -459,6 +462,56 @@ export async function buildApp(d: Deps): Promise<App> {
       capture, segments: p.segments.map((s) => ({ key: s.key, head: s.head, count: s.count })), issuedAt: BigInt(d.now()) * 1_000_000n,
     });
     return d.sender.attest({ collection: d.collection, argsJson: signed.argsJson(tokenIdOf(p.pieceId), d.verifier.keyId) });
+  });
+
+  // ---------------- holder vault (Plan 3 Task 5) ----------------
+
+  const VAULT_TTL_MS = 300_000;
+  const vaultKey = sha256(new Uint8Array([...d.masterKey, ...new TextEncoder().encode("soulprint-vault-v1")]));
+  const vaultSig = (pieceId: string, fileId: number, seq: number, exp: number) =>
+    b64url(hmac(sha256, vaultKey, new TextEncoder().encode(`${pieceId}|${fileId}|${seq}|${exp}`)));
+  const tokenIdOfPiece = (pieceId: string) => /^p(\d+)\./.exec(pieceId)?.[1] ?? "";
+
+  /** Owner only, read from the piece itself: settled, no transfer in flight (Plan 3 Global Constraints). */
+  app.post<{ Params: { id: string } }>("/pieces/:id/vault", async (req) => {
+    const p = await piece(req.params.id);
+    const account = await who(req);
+    const o = await d.chain.ownerInfo(p.pieceId);
+    if (!o) throw new HttpError(404, "unknown_piece");
+    if (o.owner !== account) throw new HttpError(403, "not_owner");
+    if (o.status !== "Settled") throw new HttpError(403, "not_settled");
+    if (o.transferPending) throw new HttpError(409, "transfer_pending");
+    const tokenId = tokenIdOfPiece(p.pieceId);
+    const indexed = await d.chain.indexOwner(d.collection, tokenId).catch(() => null);
+    if (indexed !== o.owner) await d.sender.syncOwner({ collection: d.collection, tokenId }).catch(() => undefined); // lag: fix, don't deny
+    const exp = d.now() + VAULT_TTL_MS;
+    const rows = (await db.query<any>("SELECT id, kind, name, sha256 FROM files WHERE piece_id = $1 AND kind IN ('final','source') ORDER BY id", [p.pieceId])).rows;
+    return {
+      expiresIn: VAULT_TTL_MS / 1000,
+      seq: o.seq,
+      files: rows.map((f) => ({
+        id: f.id, kind: f.kind, name: f.name, sha256: b64.encode(f.sha256),
+        url: `/pieces/${p.pieceId}/vault/${f.id}?seq=${o.seq}&exp=${exp}&sig=${vaultSig(p.pieceId, f.id, o.seq, exp)}`,
+      })),
+    };
+  });
+
+  app.get<{ Params: { id: string; fid: string }; Querystring: { seq?: string; exp?: string; sig?: string } }>("/pieces/:id/vault/:fid", async (req, reply: FastifyReply) => {
+    const fileId = Number(req.params.fid), seq = Number(req.query.seq), exp = Number(req.query.exp);
+    const expect = vaultSig(req.params.id, fileId, seq, exp);
+    if (!req.query.sig || req.query.sig.length !== expect.length || !eq(new TextEncoder().encode(req.query.sig), new TextEncoder().encode(expect))) throw new HttpError(403, "bad_link");
+    if (d.now() > exp) throw new HttpError(403, "link_expired");
+    const o = await d.chain.ownerInfo(req.params.id);
+    if (!o || o.seq !== seq || o.status !== "Settled" || o.transferPending) throw new HttpError(403, "owner_changed");
+    const f = (await db.query<any>("SELECT name, blob_key FROM files WHERE id = $1 AND piece_id = $2", [fileId, req.params.id])).rows[0];
+    if (!f) throw new HttpError(404, "unknown_file");
+    const data = await blobs.get(req.params.id, f.blob_key);
+    if (!data) throw new HttpError(410, "gone");
+    return reply
+      .header("content-type", "application/octet-stream")
+      .header("content-disposition", `attachment; filename="${String(f.name).replace(/[^\w.\- ]/g, "_")}"`)
+      .header("cache-control", "no-store")
+      .send(Buffer.from(data));
   });
 
   // ---------------- public proof page (Plan 3 Task 4) ----------------

@@ -15,8 +15,17 @@ export const PIECE = "p1.soulprint.test.near";
 export const PIECE2 = "p2.soulprint.test.near";
 
 export class FakeChain implements ChainReader {
-  pieces = new Map<string, PieceView & { keys: Uint8Array[]; invites?: string[]; challenges?: ChainChallenge[]; anchored?: Map<string, { head: Uint8Array; count: number }> }>();
+  pieces = new Map<string, PieceView & { rotationSeq?: number; transferPending?: boolean; keys: Uint8Array[]; invites?: string[]; challenges?: ChainChallenge[]; anchored?: Map<string, { head: Uint8Array; count: number }> }>();
   fullKeys = new Map<string, string[]>(); // account → ed25519:… keys
+  index = new Map<string, string>(); // collection token index: token id → owner
+  async ownerInfo(id: string) {
+    const p = this.pieces.get(id);
+    if (!p) return null;
+    return { owner: p.owner, seq: p.rotationSeq ?? 0, status: p.status, transferPending: p.transferPending ?? false };
+  }
+  async indexOwner(_collection: string, tokenId: string) {
+    return this.index.get(tokenId) ?? null;
+  }
   async piece(id: string) {
     const p = this.pieces.get(id);
     if (!p) return null;
@@ -39,6 +48,8 @@ export class FakeSender implements Sender {
   }
   async ackChallenge(a: unknown) { this.acks.push(a); return { txHash: "ack" }; }
   attests: string[] = [];
+  syncs: { collection: string; tokenId: string }[] = [];
+  async syncOwner(a: { collection: string; tokenId: string }) { this.syncs.push(a); return { txHash: "sync" }; }
   async attest(a: { collection: string; argsJson: string }) { this.attests.push(a.argsJson); return { txHash: "attest" }; }
 }
 

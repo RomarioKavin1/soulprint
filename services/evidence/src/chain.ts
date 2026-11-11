@@ -23,8 +23,13 @@ export interface PieceWithSegments extends PieceView {
   invites: string[];
   challenges: ChainChallenge[];
 }
+export interface OwnerInfo { owner: string; seq: number; status: string; transferPending: boolean }
 export interface ChainReader {
   piece(pieceId: string): Promise<PieceWithSegments | null>;
+  /** The piece's own view of who owns it (truth for the vault, T10). */
+  ownerInfo(pieceId: string): Promise<OwnerInfo | null>;
+  /** The collection index's owner for a token (may lag the piece). */
+  indexOwner(collection: string, tokenId: string): Promise<string | null>;
   /** True if `publicKey` (ed25519:…) is a full-access key of `account` (NEP-413 auth). */
   isFullAccessKey(account: string, publicKey: string): Promise<boolean>;
 }
@@ -68,6 +73,14 @@ export class RpcChainReader implements ChainReader {
     return { pieceId, artist: info.artist, owner: info.owner, status: info.status, mode: info.mode, finalFileHash: info.final_file_hash, reportHash: info.report_hash, segments, invites: proof?.invites ?? [], challenges };
   }
 
+  async ownerInfo(pieceId: string): Promise<OwnerInfo | null> {
+    const o = await this.view<any>(pieceId, "owner_info", {});
+    return o ? { owner: o.owner, seq: Number(o.seq), status: o.status, transferPending: !!o.transfer_pending } : null;
+  }
+  async indexOwner(collection: string, tokenId: string): Promise<string | null> {
+    const t = await this.view<any>(collection, "nft_token", { token_id: tokenId });
+    return t?.owner_id ?? null;
+  }
   async isFullAccessKey(account: string, publicKey: string): Promise<boolean> {
     try {
       const r = await this.rpc({ request_type: "view_access_key", account_id: account, public_key: publicKey });

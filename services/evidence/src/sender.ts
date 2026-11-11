@@ -9,6 +9,8 @@ export interface Sender {
   anchor(a: AnchorArgs): Promise<{ txHash: string }>;
   ackChallenge(a: AckArgs): Promise<{ txHash: string }>;
   attest(a: AttestArgs): Promise<{ txHash: string }>;
+  /** Ask the collection to re-read a piece's owner (index lag; anyone may call). */
+  syncOwner(a: { collection: string; tokenId: string }): Promise<{ txHash: string }>;
 }
 
 const TGAS = 1_000_000_000_000n;
@@ -26,6 +28,9 @@ export class NearSender implements Sender {
   }
   ackChallenge(a: AckArgs) {
     return this.call(a.pieceId, "ack_challenge", { challenge_id: a.challengeId, sig: a.sig }, 30n);
+  }
+  syncOwner(a: { collection: string; tokenId: string }) {
+    return this.call(a.collection, "sync_owner", { token_id: a.tokenId }, 50n);
   }
   attest(a: AttestArgs) {
     return this.call(a.collection, "attest", new TextEncoder().encode(a.argsJson), 100n);
