@@ -7,6 +7,7 @@ use near_sdk::AccountId;
 mod t3_skeleton;
 mod t4_status;
 mod t5_commission;
+mod t6_dispute;
 
 pub const SEC: u64 = 1_000_000_000;
 pub const DAY: u64 = 86_400 * SEC;
@@ -146,3 +147,12 @@ pub fn settled_piece(cur: &CurrencyConfig) -> PieceCore {
 }
 
 pub const SETTLED_AT: u64 = DELIVER_AT + DAY;
+
+pub const BOND: u128 = PRICE * 500 / 10_000;
+pub const REJECT_AT: u64 = DELIVER_AT + DAY;
+
+pub fn disputed_piece() -> PieceCore {
+    let mut p = delivered_piece(&cur_ft());
+    p.reject(&fx_ft(&client(), BOND, REJECT_AT)).unwrap();
+    p
+}
