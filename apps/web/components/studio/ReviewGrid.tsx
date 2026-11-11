@@ -8,6 +8,7 @@ import { loadCaptureKey } from "@/lib/keystore";
 import { parseNearPublicKey } from "@soulprint/proof";
 
 interface Frame { key: string; index: number; deviceTs: number; visibility: "private" | "client" | "public"; discarded: boolean; jpeg: string | null }
+const PAGE = 60;
 const VIS: Record<Frame["visibility"], string> = { private: "Only you", client: "You and the client", public: "Everyone (proof page)" };
 
 /** Review controls only who sees each frame (A27); discarding removes the image, the chain keeps its hash. */
@@ -16,8 +17,16 @@ export function ReviewGrid({ pieceId }: { pieceId: string }) {
   const evidence = useEvidence();
   const [sel, setSel] = useState<Set<string>>(new Set());
   const { busy, error, run } = useAction();
-  const { data, reload } = usePoll(() => evidence<{ frames: Frame[] }>("GET", `/pieces/${pieceId}/progress`), 10_000, [pieceId, accountId]);
+  // Plan 3 review I6: page through every frame; poll only the page on screen.
+  const [page, setPage] = useState(0);
+  const { data, reload } = usePoll(
+    () => evidence<{ total: number; frames: Frame[] }>("GET", `/pieces/${pieceId}/progress?from=${page * PAGE}&limit=${PAGE}`),
+    15_000,
+    [pieceId, accountId, page],
+  );
   const frames = data?.frames ?? [];
+  const total = data?.total ?? frames.length;
+  const pages = Math.max(1, Math.ceil(total / PAGE));
   const id = (f: Frame) => `${f.key}#${f.index}`;
   const chosen = frames.filter((f) => sel.has(id(f)));
 
@@ -45,7 +54,7 @@ export function ReviewGrid({ pieceId }: { pieceId: string }) {
   }
 
   return (
-    <Section title="Review frames" aside={<span className="text-sm text-ink-3">{frames.length} recorded</span>}>
+    <Section title="Review frames" aside={<span className="text-sm text-ink-3">{total} recorded</span>}>
       {frames.length === 0 ? (
         <p className="text-ink-2">Frames appear here as you record. Everything starts visible only to you.</p>
       ) : (
@@ -65,9 +74,16 @@ export function ReviewGrid({ pieceId }: { pieceId: string }) {
               Discard images
             </button>
             <button className="ml-auto text-ink-3 underline" onClick={() => setSel(new Set(frames.filter((f) => !f.discarded).map(id)))}>
-              Select all
+              Select all on this page
             </button>
           </div>
+          {pages > 1 && (
+            <div className="mb-3 flex items-center gap-3 text-sm">
+              <button className="btn-ghost py-1" disabled={page === 0} onClick={() => setPage((n) => n - 1)}>Earlier</button>
+              <span className="text-ink-3">Frames {page * PAGE + 1}–{Math.min(total, (page + 1) * PAGE)} of {total}</span>
+              <button className="btn-ghost py-1" disabled={page >= pages - 1} onClick={() => setPage((n) => n + 1)}>Later</button>
+            </div>
+          )}
           <ul className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-6">
             {frames.map((f) => (
               <li key={id(f)}>

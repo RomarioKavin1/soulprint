@@ -5,10 +5,15 @@ import { useEvidence } from "@/lib/evidence";
 /** Frames the artist chose to show the client. */
 export function Progress({ pieceId }: { pieceId: string }) {
   const evidence = useEvidence();
-  const { data } = usePoll(() => evidence<{ frames: { index: number; key: string; jpeg: string | null; deviceTs: number }[] }>("GET", `/pieces/${pieceId}/progress`), 10000, [pieceId]);
-  const frames = (data?.frames ?? []).filter((f) => f.jpeg);
+  // Plan 3 review I6: the newest shared frames, not the first 200 forever.
+  const { data } = usePoll(
+    () => evidence<{ total: number; frames: { index: number; key: string; jpeg: string | null; deviceTs: number }[] }>("GET", `/pieces/${pieceId}/progress?order=desc&limit=24`),
+    20000,
+    [pieceId],
+  );
+  const frames = (data?.frames ?? []).filter((f) => f.jpeg).reverse();
   return (
-    <Section title="Work in progress" aside={<span className="text-sm text-ink-3">{frames.length} shared with you</span>}>
+    <Section title="Work in progress" aside={<span className="text-sm text-ink-3">{data?.total ?? frames.length} shared with you{(data?.total ?? 0) > frames.length ? " · latest shown" : ""}</span>}>
       {frames.length === 0 ? (
         <p className="text-sm text-ink-2">The artist hasn&apos;t shared progress frames yet.</p>
       ) : (

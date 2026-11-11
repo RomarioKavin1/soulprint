@@ -117,6 +117,17 @@ describe("endpoint auth", () => {
     expect((await call(w, w.artist, "GET", `/pieces/${PIECE}/files?kind=final`)).statusCode).toBe(400);
   });
 
+  it("progress pages past 200 frames, reports the total, and serves newest first (Plan 3 review I6)", async () => {
+    const w = await world();
+    w.dev.capture(250);
+    for (let i = 0; i < 250; i += 50) await w.app.inject({ method: "POST", url: `/pieces/${PIECE}/frames`, payload: await w.dev.batch(i, i + 49) });
+    const page = (await call(w, w.artist, "GET", `/pieces/${PIECE}/progress?from=200&limit=60&images=0`)).json();
+    expect(page.total).toBe(250);
+    expect(page.frames.map((f: any) => f.index)).toEqual(Array.from({ length: 50 }, (_, i) => 200 + i));
+    const newest = (await call(w, w.artist, "GET", `/pieces/${PIECE}/progress?order=desc&limit=3&images=0`)).json();
+    expect(newest.frames.map((f: any) => f.index)).toEqual([249, 248, 247]);
+  });
+
   it("final anchor: artist forces the latest head on chain before deliver", async () => {
     const w = await seeded();
     const url = `/pieces/${PIECE}/anchor/final`;

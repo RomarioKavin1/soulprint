@@ -266,16 +266,18 @@ export async function buildApp(d: Deps): Promise<App> {
   });
 
   /** Client progress (approved frames) or the artist's full view, decrypted for authorised viewers. */
-  app.get<{ Params: { id: string }; Querystring: { from?: string; limit?: string; images?: string } }>("/pieces/:id/progress", async (req) => {
+  /** Paged (Plan 3 review I6): `total` for pagers, `order=desc` for "newest first". */
+  app.get<{ Params: { id: string }; Querystring: { from?: string; limit?: string; images?: string; order?: string } }>("/pieces/:id/progress", async (req) => {
     const p = await piece(req.params.id);
     const r = role(p, await who(req));
     if (r === "other") throw new HttpError(403, "forbidden");
-    const limit = Math.min(Number(req.query.limit ?? 200), 500), from = Number(req.query.from ?? 0);
-    const rows = await db.query<any>(
-      `SELECT * FROM frames WHERE piece_id = $1 ${r === "owner" ? "AND visibility IN ('client','public')" : ""}
-       ORDER BY key_hex, idx OFFSET $2 LIMIT $3`, [p.pieceId, from, limit]);
+    const limit = Math.max(0, Math.min(Number(req.query.limit ?? 200) || 0, 500)), from = Math.max(0, Number(req.query.from ?? 0) || 0);
+    const where = `piece_id = $1 ${r === "owner" ? "AND visibility IN ('client','public')" : ""}`;
+    const dir = req.query.order === "desc" ? "DESC" : "ASC";
+    const rows = await db.query<any>(`SELECT * FROM frames WHERE ${where} ORDER BY key_hex ${dir}, idx ${dir} OFFSET $2 LIMIT $3`, [p.pieceId, from, limit]);
+    const total = Number((await db.query<{ n: number }>(`SELECT count(*)::int AS n FROM frames WHERE ${where}`, [p.pieceId])).rows[0]!.n);
     const images = req.query.images !== "0";
-    return { role: r, frames: await Promise.all(rows.rows.map((x) => frameJson(p.pieceId, x, images))) };
+    return { role: r, total, frames: await Promise.all(rows.rows.map((x) => frameJson(p.pieceId, x, images))) };
   });
 
   app.get<{ Params: { id: string; key: string; index: string } }>("/pieces/:id/frames/:key/:index", async (req, reply: FastifyReply) => {
