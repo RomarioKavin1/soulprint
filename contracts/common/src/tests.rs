@@ -368,3 +368,39 @@ fn token_id_and_piece_account() {
     assert_eq!(p.as_str(), "p7.soulprint-v1.x.testnet");
     assert_eq!(token_id_of(&p), "7");
 }
+
+/// Review C1: an FT bond of 0 is a transfer NEP-141 refuses, so the client could never reject.
+#[test]
+fn ft_terms_require_a_nonzero_reject_bond() {
+    let mut t = sample_terms();
+    t.reject_bond_bps = 0;
+    assert_eq!(check(&t), Err(TermsError::Bond));
+    // NEAR pieces reject with 1 yocto when the bond is 0.
+    let near = CurrencyConfig { currency: Currency::Near, min_price: 1u128.into(), ..cur() };
+    t.currency = Currency::Near;
+    assert_eq!(t.validate(&acc("artist.test.near"), NOW, &TimeConfig::production(), &near), Ok(()));
+    // An FT bond that rounds to zero is refused too.
+    let low = CurrencyConfig { min_price: 1u128.into(), ..cur() };
+    let mut t = sample_terms();
+    t.reject_bond_bps = 1;
+    t.price = 9_999u128.into();
+    assert_eq!(t.validate(&acc("artist.test.near"), NOW, &TimeConfig::production(), &low), Err(TermsError::Bond));
+    t.price = 10_000u128.into();
+    assert_eq!(t.validate(&acc("artist.test.near"), NOW, &TimeConfig::production(), &low), Ok(()));
+}
+
+/// Review I3: windows longer than `deadline_max` could push a deadline to u64::MAX.
+#[test]
+fn review_and_revision_windows_are_capped() {
+    let max = TimeConfig::production().deadline_max;
+    let mut t = sample_terms();
+    t.review_window_ns = (max + 1).into();
+    assert_eq!(check(&t), Err(TermsError::ReviewWindow));
+    let mut t = sample_terms();
+    t.revision_period_ns = (max + 1).into();
+    assert_eq!(check(&t), Err(TermsError::RevisionPeriod));
+    let mut t = sample_terms();
+    t.review_window_ns = max.into();
+    t.revision_period_ns = max.into();
+    assert_eq!(check(&t), Ok(()));
+}

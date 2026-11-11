@@ -1,5 +1,6 @@
 //! Static gas constants (Tgas). Callback budgets are measured with every vector at its cap (A17);
-//! values here are upper bounds verified by the sandbox test `callbacks_succeed_at_min_gas`.
+//! values here are upper bounds verified by the sandbox tests `callbacks_succeed_at_min_gas` and
+//! `callbacks_succeed_at_min_gas_with_state_at_caps` (6.7 KB state, 64-character ids).
 use near_sdk::Gas;
 
 pub const NEAR_TRANSFER_CALLBACK: Gas = Gas::from_tgas(10);

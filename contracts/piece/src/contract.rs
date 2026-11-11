@@ -66,16 +66,28 @@ impl Piece {
         if self.is_near_piece() { self.core.liabilities() } else { 0 }
     }
 
-    /// Flush, then require `storage_usage × byte_cost ≤ near_balance − near_liabilities` (A17).
-    /// Returns the headroom above the requirement.
-    fn check_storage(&self) -> u128 {
+    /// Flush, then require `storage_usage × byte_cost ≤ near_balance − outflow − near_liabilities`
+    /// (A17). `outflow` is NEAR this call is about to send (review I1: a claim's amount is still in
+    /// the balance but no longer a liability). Returns the headroom above the requirement.
+    fn check_storage(&self, outflow: u128) -> u128 {
         env::state_write(self);
         let need = env::storage_byte_cost().as_yoctonear() * env::storage_usage() as u128 + self.near_liabilities();
-        let have = env::account_balance().as_yoctonear();
+        let have = env::account_balance().as_yoctonear().saturating_sub(outflow);
         if have < need {
             env::panic_str("ERR_STORAGE");
         }
         have - need
+    }
+
+    /// NEAR leaving with these effects: claimed NEAR, plus 1 yocto per `ft_transfer` (NEP-141).
+    fn outflow(fx: &Effects) -> u128 {
+        fx.iter()
+            .map(|e| match e {
+                Effect::TransferNear { amount, .. } => *amount,
+                Effect::TransferFt { .. } => 1,
+                _ => 0,
+            })
+            .sum()
     }
 
     /// Run effects with low-level promise calls only (no `near_sdk::Promise`, whose builder links
@@ -111,21 +123,28 @@ impl Piece {
         env::promise_batch_action_transfer(p, NearToken::from_yoctonear(amount));
     }
 
-    /// Mutating entry with a NEAR context. `value_call` = the attached deposit is the payment itself.
-    fn run(&mut self, value_call: bool, f: impl FnOnce(&mut PieceCore, &Ctx) -> Result<Effects, Error>) {
-        self.run_keeping(value_call, 0, f)
+    /// Mutating entry with a NEAR context.
+    fn run(&mut self, pay: Pay, f: impl FnOnce(&mut PieceCore, &Ctx) -> Result<Effects, Error>) {
+        self.run_keeping(pay, 0, f)
     }
 
     /// As `run`, but the piece must keep `keep` yoctoNEAR of headroom after the call (paid from
-    /// the attached deposit if needed). Every dispatched `ft_transfer` also takes 1 yocto from
-    /// the piece's balance (NEP-141), so that is kept too.
-    fn run_keeping(&mut self, value_call: bool, keep: u128, f: impl FnOnce(&mut PieceCore, &Ctx) -> Result<Effects, Error>) {
+    /// the attached deposit if needed). Review C2: a `Pay::Storage` call may not take headroom
+    /// below `STORAGE_RESERVE_BYTES` (or below where it stood, if already lower): its caller pays
+    /// for that growth from the attached deposit.
+    fn run_keeping(&mut self, pay: Pay, keep: u128, f: impl FnOnce(&mut PieceCore, &Ctx) -> Result<Effects, Error>) {
         let ctx = near_ctx();
+        let cost = env::storage_byte_cost().as_yoctonear();
+        // Headroom as it stood before this call (deposit excluded); state is not yet written.
+        let before = env::account_balance()
+            .as_yoctonear()
+            .saturating_sub(ctx.attached)
+            .saturating_sub(cost * env::storage_usage() as u128 + self.near_liabilities());
         let fx = f(&mut self.core, &ctx).unwrap_or_else(|e| fail(e));
-        let ft_outflow = fx.iter().filter(|e| matches!(e, Effect::TransferFt { .. })).count() as u128;
-        let spare = self.check_storage().checked_sub(keep + ft_outflow).unwrap_or_else(|| env::panic_str("ERR_STORAGE"));
+        let floor = keep + if pay == Pay::Storage { (cost * STORAGE_RESERVE_BYTES as u128).min(before) } else { 0 };
+        let spare = self.check_storage(Self::outflow(&fx)).checked_sub(floor).unwrap_or_else(|| env::panic_str("ERR_STORAGE"));
         // A13: anything above 1 yocto not needed for storage is refunded.
-        if !value_call && ctx.attached > 1 {
+        if pay != Pay::Value && ctx.attached > 1 {
             let refund = (ctx.attached - 1).min(spare);
             if refund > 0 {
                 Self::send_near(&ctx.predecessor, refund);
@@ -133,6 +152,17 @@ impl Piece {
         }
         self.apply(fx);
     }
+}
+
+/// How a call pays for storage (review C2).
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Pay {
+    /// The attached deposit is the payment (fund, buy, pay_income, reject). May use the reserve.
+    Value,
+    /// Payable, non-value: pays for growth below the reserve; surplus refunded.
+    Storage,
+    /// Keeper, relayed and collection-driven calls: may use the reserve; surplus refunded.
+    Free,
 }
 
 #[near]
@@ -154,22 +184,22 @@ impl Piece {
 
     #[payable]
     pub fn fund(&mut self, expected_terms_hash: Bytes32, beneficiary: Option<AccountId>) {
-        self.run(true, |c, ctx| c.fund(ctx, expected_terms_hash, beneficiary));
+        self.run(Pay::Value, |c, ctx| c.fund(ctx, expected_terms_hash, beneficiary));
     }
 
     #[payable]
     pub fn buy(&mut self, nonce: U64, max_price: U128, expected_pool_min: U128) {
-        self.run(true, |c, ctx| c.buy(ctx, nonce.0, max_price.0, expected_pool_min.0));
+        self.run(Pay::Value, |c, ctx| c.buy(ctx, nonce.0, max_price.0, expected_pool_min.0));
     }
 
     #[payable]
     pub fn pay_income(&mut self) {
-        self.run(true, |c, ctx| c.pay_income(ctx));
+        self.run(Pay::Value, |c, ctx| c.pay_income(ctx));
     }
 
     #[payable]
     pub fn reject(&mut self) {
-        self.run(true, |c, ctx| c.reject(ctx));
+        self.run(Pay::Value, |c, ctx| c.reject(ctx));
     }
 
     /// NEP-141 receiver. First check: the predecessor is this piece's currency (T14); anything
@@ -202,7 +232,7 @@ impl Piece {
         };
         match r {
             Ok(fx) => {
-                self.check_storage();
+                self.check_storage(Self::outflow(&fx));
                 self.apply(fx);
                 U128(0)
             }
@@ -217,78 +247,80 @@ impl Piece {
 
     #[payable]
     pub fn deliver(&mut self, final_file_hash: Bytes32, report_hash: Bytes32) {
-        self.run(false, |c, ctx| c.deliver(ctx, final_file_hash, report_hash));
+        self.run(Pay::Storage, |c, ctx| c.deliver(ctx, final_file_hash, report_hash));
     }
     #[payable]
     pub fn request_changes(&mut self) {
-        self.run(false, |c, ctx| c.request_changes(ctx));
+        self.run(Pay::Storage, |c, ctx| c.request_changes(ctx));
     }
     #[payable]
     pub fn release_milestone(&mut self, index: u8) {
-        self.run(false, |c, ctx| c.release_milestone(ctx, index));
+        self.run(Pay::Storage, |c, ctx| c.release_milestone(ctx, index));
     }
     #[payable]
     pub fn accept(&mut self) {
-        self.run(false, |c, ctx| c.accept(ctx));
+        self.run(Pay::Storage, |c, ctx| c.accept(ctx));
     }
     pub fn settle(&mut self) {
-        self.run(false, |c, ctx| c.settle(ctx));
+        self.run(Pay::Free, |c, ctx| c.settle(ctx));
     }
     #[payable]
     pub fn claim_refund(&mut self) {
-        self.run(false, |c, ctx| c.claim_refund(ctx));
+        self.run(Pay::Storage, |c, ctx| c.claim_refund(ctx));
     }
     #[payable]
     pub fn cancel(&mut self) {
-        self.run(false, |c, ctx| c.cancel(ctx));
+        self.run(Pay::Storage, |c, ctx| c.cancel(ctx));
     }
     #[payable]
     pub fn consent_mutual_cancel(&mut self) {
-        self.run(false, |c, ctx| c.consent_mutual_cancel(ctx));
+        self.run(Pay::Storage, |c, ctx| c.consent_mutual_cancel(ctx));
     }
     #[payable]
     pub fn consent_extend(&mut self, new_deadline: U64) {
-        self.run(false, |c, ctx| c.consent_extend(ctx, new_deadline.0));
+        self.run(Pay::Storage, |c, ctx| c.consent_extend(ctx, new_deadline.0));
     }
     #[payable]
     pub fn settle_standalone(&mut self, final_file_hash: Bytes32, report_hash: Bytes32) {
-        self.run(false, |c, ctx| c.settle_standalone(ctx, final_file_hash, report_hash));
+        self.run(Pay::Storage, |c, ctx| c.settle_standalone(ctx, final_file_hash, report_hash));
     }
     #[payable]
     pub fn reopen_as_standalone(&mut self) {
-        self.run(false, |c, ctx| c.reopen_as_standalone(ctx));
+        self.run(Pay::Storage, |c, ctx| c.reopen_as_standalone(ctx));
     }
 
     // ---------- dispute ----------
 
     #[payable]
     pub fn propose_split(&mut self, artist_bps: u16) {
-        self.run(false, |c, ctx| c.propose_split(ctx, artist_bps));
+        self.run(Pay::Storage, |c, ctx| c.propose_split(ctx, artist_bps));
     }
     #[payable]
     pub fn accept_split(&mut self, expected_artist_bps: u16, proposal_nonce: u32) {
-        self.run(false, |c, ctx| c.accept_split(ctx, expected_artist_bps, proposal_nonce));
+        self.run(Pay::Storage, |c, ctx| c.accept_split(ctx, expected_artist_bps, proposal_nonce));
     }
     #[payable]
     pub fn resolve(&mut self, artist_bps: u16) {
-        self.run(false, |c, ctx| c.resolve(ctx, artist_bps));
+        self.run(Pay::Storage, |c, ctx| c.resolve(ctx, artist_bps));
     }
+    /// Anyone, after the stage timeouts. Payable so a caller can cover storage (review I2).
+    #[payable]
     pub fn timeout_resolve(&mut self) {
-        self.run(false, |c, ctx| c.timeout_resolve(ctx));
+        self.run(Pay::Free, |c, ctx| c.timeout_resolve(ctx));
     }
 
     // ---------- money out ----------
 
     pub fn claim(&mut self) {
-        self.run(false, |c, ctx| c.claim(ctx));
+        self.run(Pay::Free, |c, ctx| c.claim(ctx));
     }
     #[payable]
     pub fn claim_to(&mut self, recipient: AccountId) {
-        self.run(false, |c, ctx| c.claim_to(ctx, recipient));
+        self.run(Pay::Storage, |c, ctx| c.claim_to(ctx, recipient));
     }
     #[payable]
     pub fn withdraw(&mut self) {
-        self.run(false, |c, ctx| c.withdraw(ctx));
+        self.run(Pay::Storage, |c, ctx| c.withdraw(ctx));
     }
 
     /// Callback for a dispatched transfer (A16): no balance checks, no storage growth, no panics.
@@ -310,60 +342,60 @@ impl Piece {
         // A buy (NEAR or FT) carries no storage deposit but may grow state: the seller's new
         // credit entry and a longer owner id. The lister pays for those bytes up front.
         let keep = env::storage_byte_cost().as_yoctonear() * BUY_RESERVE_BYTES;
-        self.run_keeping(false, keep, |c, ctx| c.list(ctx, price.0, reserved_for));
+        self.run_keeping(Pay::Storage, keep, |c, ctx| c.list(ctx, price.0, reserved_for));
     }
     #[payable]
     pub fn delist(&mut self) {
-        self.run(false, |c, ctx| c.delist(ctx));
+        self.run(Pay::Storage, |c, ctx| c.delist(ctx));
     }
 
     // ---------- proof ----------
 
     pub fn anchor(&mut self, key: PublicKey, head: Bytes32, count: u32, sig: Bytes64) {
         let k = raw_key(&key);
-        self.run(false, |c, ctx| c.anchor(ctx, &EnvVerifier, k, head, count, sig));
+        self.run(Pay::Free, |c, ctx| c.anchor(ctx, &EnvVerifier, k, head, count, sig));
     }
     #[payable]
     pub fn add_capture_key(&mut self, key: PublicKey) {
         let k = raw_key(&key);
-        self.run(false, |c, ctx| c.add_capture_key(ctx, k));
+        self.run(Pay::Storage, |c, ctx| c.add_capture_key(ctx, k));
     }
     #[payable]
     pub fn invite_challenger(&mut self, account: AccountId) {
-        self.run(false, |c, ctx| c.invite_challenger(ctx, account));
+        self.run(Pay::Storage, |c, ctx| c.invite_challenger(ctx, account));
     }
     #[payable]
     pub fn issue_challenge(&mut self, nonce_hash: Bytes32) {
-        self.run(false, |c, ctx| c.issue_challenge(ctx, nonce_hash));
+        self.run(Pay::Storage, |c, ctx| c.issue_challenge(ctx, nonce_hash));
     }
     pub fn ack_challenge(&mut self, challenge_id: u32, sig: Bytes64) {
-        self.run(false, |c, ctx| c.ack_challenge(ctx, &EnvVerifier, challenge_id, sig));
+        self.run(Pay::Free, |c, ctx| c.ack_challenge(ctx, &EnvVerifier, challenge_id, sig));
     }
     pub fn record_attestation(&mut self, msg: ReportMessage, key_id: u16) {
-        self.run(false, |c, ctx| c.record_attestation(ctx, msg, key_id));
+        self.run(Pay::Free, |c, ctx| c.record_attestation(ctx, msg, key_id));
     }
     #[payable]
     pub fn propose_addendum(&mut self, grant: Grant, text_hash: Bytes32) {
-        self.run(false, |c, ctx| c.propose_addendum(ctx, grant, text_hash));
+        self.run(Pay::Storage, |c, ctx| c.propose_addendum(ctx, grant, text_hash));
     }
     #[payable]
     pub fn accept_addendum(&mut self, expected_hash: Bytes32) {
-        self.run(false, |c, ctx| c.accept_addendum(ctx, expected_hash));
+        self.run(Pay::Storage, |c, ctx| c.accept_addendum(ctx, expected_hash));
     }
 
     // ---------- ownership (collection) ----------
 
     /// Returns the piece's view of ownership after the change; the collection indexes it.
     pub fn rotate_owner(&mut self, sender: AccountId, receiver: AccountId, call: bool) -> OwnerView {
-        self.run(false, |c, ctx| c.rotate_owner(ctx, sender, receiver, call));
+        self.run(Pay::Free, |c, ctx| c.rotate_owner(ctx, sender, receiver, call));
         self.core.owner_view(env::block_timestamp())
     }
     pub fn resolve_transfer(&mut self, revert: bool) -> OwnerView {
-        self.run(false, |c, ctx| c.resolve_transfer(ctx, revert));
+        self.run(Pay::Free, |c, ctx| c.resolve_transfer(ctx, revert));
         self.core.owner_view(env::block_timestamp())
     }
     pub fn expire_pending(&mut self) {
-        self.run(false, |c, ctx| c.expire_pending(ctx));
+        self.run(Pay::Free, |c, ctx| c.expire_pending(ctx));
     }
 
     // ---------- views ----------

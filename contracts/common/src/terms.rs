@@ -132,6 +132,12 @@ impl core::fmt::Display for TermsError {
 }
 
 impl Terms {
+    /// `floor(price × reject_bond_bps / 10000)` without overflow.
+    pub fn reject_bond(&self) -> u128 {
+        let (p, b, d) = (self.price.0, self.reject_bond_bps as u128, BPS_DENOM as u128);
+        (p / d) * b + (p % d) * b / d
+    }
+
     pub fn validate(
         &self,
         artist: &AccountId,
@@ -155,16 +161,21 @@ impl Terms {
         if self.reject_bond_bps > MAX_REJECT_BOND_BPS {
             return Err(Bond);
         }
+        // Review C1: an FT bond of 0 would be a zero `ft_transfer_call`, which NEP-141 refuses.
+        if matches!(self.currency, crate::Currency::Ft(_)) && self.reject_bond() == 0 {
+            return Err(Bond);
+        }
         if self.timeout_artist_bps > BPS_DENOM {
             return Err(TimeoutBps);
         }
         if self.grace_ns.0 > time.grace_max {
             return Err(Grace);
         }
-        if self.review_window_ns.0 < time.review_min {
+        // Review I3: no window may exceed `deadline_max` (a saturated deadline would never pass).
+        if self.review_window_ns.0 < time.review_min || self.review_window_ns.0 > time.deadline_max {
             return Err(ReviewWindow);
         }
-        if self.revision_period_ns.0 < time.revision_period_min {
+        if self.revision_period_ns.0 < time.revision_period_min || self.revision_period_ns.0 > time.deadline_max {
             return Err(RevisionPeriod);
         }
         if self.revision_rounds > MAX_REVISION_ROUNDS {

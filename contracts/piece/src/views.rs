@@ -185,7 +185,7 @@ impl PieceCore {
                 .delivered_at
                 .zip(self.terms.as_ref())
                 .filter(|_| self.status == Status::Delivered)
-                .map(|(d, t)| U64(d + t.review_window_ns.0)),
+                .map(|(d, t)| U64(d.saturating_add(t.review_window_ns.0))),
             refund_eligible: self.refund_eligible(now),
             delivered_at: self.delivered_at.map(U64),
             disputed_at: self.disputed_at.map(U64),

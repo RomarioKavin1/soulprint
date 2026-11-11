@@ -4210,6 +4210,7 @@ dependencies = [
  "hex",
  "near-sdk",
  "near-workspaces",
+ "piece",
  "rand 0.8.8",
  "serde",
  "serde_json",

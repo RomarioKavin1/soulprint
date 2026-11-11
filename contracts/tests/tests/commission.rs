@@ -188,3 +188,22 @@ async fn standalone_settle_list_buy() -> anyhow::Result<()> {
     assert_eq!(w.credit(&piece, w.artist.id()).await?.0, 50 * USDC);
     Ok(())
 }
+
+/// Review C1: an FT commission with a zero reject bond would leave the client no way to reject.
+#[tokio::test]
+async fn ft_commission_with_zero_reject_bond_is_refused() -> anyhow::Result<()> {
+    let w = World::new().await?;
+    let mut t = w.terms(true, 100 * USDC, 600).await?;
+    t.reject_bond_bps = 0;
+    let cost = w.creation_cost(true).await?;
+    let r = w
+        .artist
+        .call(&w.collection, "create_piece")
+        .args_json(json!({ "kind": common::PieceKind::Commission(t), "capture_pubkey": ed_pk(&w.capture) }))
+        .deposit(NearToken::from_yoctonear(cost))
+        .max_gas()
+        .transact()
+        .await?;
+    fails_with(r, "ERR_TERMS_Bond")?;
+    Ok(())
+}

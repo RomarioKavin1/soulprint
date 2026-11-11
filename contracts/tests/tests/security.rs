@@ -8,10 +8,15 @@ const BYTE: u128 = 10_000_000_000_000_000_000; // yocto per byte of storage
 
 /// Set the piece's NEAR balance to exactly what its storage and NEAR liabilities need.
 async fn zero_headroom(w: &World, piece: &AccountId) -> anyhow::Result<()> {
+    set_headroom(w, piece, 0).await
+}
+
+/// As `zero_headroom`, plus `bytes` of spare storage.
+async fn set_headroom(w: &World, piece: &AccountId, bytes: u128) -> anyhow::Result<()> {
     let usage = w.worker.view_account(piece).await?.storage_usage as u128;
     let acc = w.accounting(piece).await?;
     let near_liab: u128 = if acc["currency"] == "Near" { acc["liabilities"].as_str().unwrap().parse()? } else { 0 };
-    let bal = usage * BYTE + near_liab;
+    let bal = (usage + bytes) * BYTE + near_liab;
     // Start from the current details: a bare patch would drop the global-contract reference.
     w.worker
         .patch(piece)
@@ -248,4 +253,158 @@ async fn pay_income_rejected_on_personal_grant() -> anyhow::Result<()> {
     assert_eq!(w.usdc_balance(w.shop.id()).await?, s0, "refunded in full");
     assert_eq!(w.holder_pool(&piece).await?, 0);
     Ok(())
+}
+
+/// Review C2: the artist (invites with long ids) cannot spend the reserve that keeps the
+/// client's deposit-less `reject` working.
+#[tokio::test]
+async fn artist_growth_cannot_block_reject() -> anyhow::Result<()> {
+    let w = World::new().await?;
+    let (_, piece, t) = w.commission(true, 10 * USDC).await?;
+    ok(w.fund(&piece, &t, &w.client).await?)?;
+    w.deliver(&piece).await?;
+    set_headroom(&w, &piece, common::STORAGE_RESERVE_BYTES as u128).await?;
+    let mut refused = 0;
+    for i in 0..16u8 {
+        let long: AccountId = format!("{:02x}", i).repeat(32).parse()?;
+        let r = w.act(&w.artist, &piece, "invite_challenger", json!({ "account": long })).await?;
+        if !r.is_success() {
+            fails_with(r, "ERR_STORAGE")?;
+            refused += 1;
+        }
+    }
+    assert_eq!(refused, 16, "1-yocto invites must not spend the reserve");
+    // Paying for its own bytes, the artist can still invite.
+    let long: AccountId = "ff".repeat(32).parse()?;
+    ok(w.artist.call(&piece, "invite_challenger").args_json(json!({ "account": long })).deposit(NearToken::from_millinear(10)).max_gas().transact().await?)?;
+    let bond = 10 * USDC * common::DEFAULT_REJECT_BOND_BPS as u128 / 10_000;
+    ok(w.ft_action(&w.client, &piece, bond, json!({ "action": "reject" })).await?)?;
+    assert_eq!(w.info(&piece).await?["status"], "Disputed");
+    storage_covered(&w, &piece).await
+}
+
+/// Review I1: on a NEAR piece the outgoing claim was counted as headroom, so a storage deposit
+/// was refunded and the transfer left the piece short.
+#[tokio::test]
+async fn new_owner_can_withdraw_on_min_reserve_near_piece() -> anyhow::Result<()> {
+    let w = World::new().await?;
+    let (_, piece) = w.settled(false, NEAR).await?;
+    let nonce = w.list(&w.client, &piece, NEAR).await?;
+    ok(w.buy_near(&w.buyer, &piece, NEAR, nonce).await?)?;
+    ok(w.shop.call(&piece, "pay_income").deposit(NearToken::from_millinear(500)).max_gas().transact().await?)?;
+    ok(w.artist.call(&piece, "claim").max_gas().transact().await?)?;
+    ok(w.client.call(&piece, "claim").max_gas().transact().await?)?;
+    w.worker.fast_forward(3).await?;
+    zero_headroom(&w, &piece).await?;
+    let before = w.near_balance(w.buyer.id()).await?;
+    ok(w.buyer.call(&piece, "withdraw").deposit(NearToken::from_millinear(10)).max_gas().transact().await?)?;
+    w.worker.fast_forward(3).await?;
+    assert_eq!(w.holder_pool(&piece).await?, 0);
+    assert!(w.near_balance(w.buyer.id()).await? > before + 480 * NEAR / 1000, "buyer received the pool");
+    storage_covered(&w, &piece).await
+}
+
+/// Review I2: a timed-out dispute can be closed at zero headroom by attaching a deposit.
+#[tokio::test]
+async fn timeout_resolve_can_pay_for_its_storage() -> anyhow::Result<()> {
+    let w = World::new().await?;
+    let mut t = w.terms(true, 10 * USDC, 600).await?;
+    t.client = None;
+    let id = w.create(common::PieceKind::Commission(t.clone())).await?;
+    let piece = w.piece_id(&id);
+    ok(w.fund(&piece, &t, &w.client).await?)?;
+    w.deliver(&piece).await?;
+    let bond = 10 * USDC * common::DEFAULT_REJECT_BOND_BPS as u128 / 10_000;
+    ok(w.ft_action(&w.client, &piece, bond, json!({ "action": "reject" })).await?)?;
+    w.sleep(61).await?;
+    zero_headroom(&w, &piece).await?;
+    ok(w.shop.call(&piece, "timeout_resolve").deposit(NearToken::from_millinear(10)).max_gas().transact().await?)?;
+    assert_eq!(w.info(&piece).await?["status"], "Settled");
+    storage_covered(&w, &piece).await
+}
+
+/// Review C2/I2: with the reserve intact, the deposit-less paths work without any deposit.
+#[tokio::test]
+async fn reserve_covers_deposit_less_paths() -> anyhow::Result<()> {
+    let w = World::new().await?;
+    let mut t = w.terms(true, 10 * USDC, 600).await?;
+    t.client = None;
+    let id = w.create(common::PieceKind::Commission(t.clone())).await?;
+    let piece = w.piece_id(&id);
+    ok(w.fund(&piece, &t, &w.client).await?)?;
+    w.deliver(&piece).await?;
+    set_headroom(&w, &piece, common::STORAGE_RESERVE_BYTES as u128).await?;
+    let bond = 10 * USDC * common::DEFAULT_REJECT_BOND_BPS as u128 / 10_000;
+    ok(w.ft_action(&w.client, &piece, bond, json!({ "action": "reject" })).await?)?;
+    w.sleep(61).await?;
+    ok(w.shop.call(&piece, "timeout_resolve").max_gas().transact().await?)?;
+    let long: AccountId = "ab".repeat(32).parse()?;
+    ok(w.client.call(&w.collection, "nft_transfer").args_json(json!({ "receiver_id": long, "token_id": id })).deposit(NearToken::from_yoctonear(1)).gas(Gas::from_tgas(100)).transact().await?)?;
+    assert_eq!(w.info(&piece).await?["owner"], long.as_str());
+    storage_covered(&w, &piece).await
+}
+
+/// Review I5 (A17): the gas minimums hold with every bounded vector at its cap and 64-character
+/// ids, i.e. with the largest state blob each call reads and writes.
+#[tokio::test]
+async fn callbacks_succeed_at_min_gas_with_state_at_caps() -> anyhow::Result<()> {
+    use piece::core::{Addendum, Challenge, PieceCore, Segment, MAX_ADDENDA, MAX_CAPTURE_KEYS, MAX_CHALLENGES, MAX_INVITES};
+    let w = World::new().await?;
+    let (id, piece) = w.settled(true, 10 * USDC).await?;
+    // Grow the state blob in place: `Piece { core }` borsh-encodes as the core.
+    let state = w.worker.view_state(&piece).await?;
+    let raw = state.get(b"STATE".as_slice()).expect("STATE key");
+    let mut core: PieceCore = borsh::from_slice(raw)?;
+    let long = |i: usize| -> AccountId { format!("{i:064x}").parse().unwrap() };
+    for k in core.capture_keys.len()..MAX_CAPTURE_KEYS {
+        let key = common::Bytes32([k as u8 + 50; 32]);
+        core.capture_keys.push(key);
+        core.segments.push(Segment { key, head: key, count: 1, last_anchor_at: 1 });
+    }
+    core.invites = (0..MAX_INVITES).map(long).collect();
+    core.challenges = (0..MAX_CHALLENGES)
+        .map(|i| Challenge {
+            issuer: long(i % MAX_INVITES),
+            issuer_class: common::IssuerClass::Invited,
+            nonce_hash: common::Bytes32([9; 32]),
+            issued_at: 1,
+            acked_at: Some(2),
+        })
+        .collect();
+    core.addenda = (0..MAX_ADDENDA).map(|_| Addendum { grant: core.grant, text_hash: common::Bytes32([4; 32]) }).collect();
+    core.pending_addendum = Some(Addendum { grant: core.grant, text_hash: common::Bytes32([5; 32]) });
+    let blob = borsh::to_vec(&core)?;
+    assert!(blob.len() > raw.len() + 4000, "state at caps: {} bytes (was {})", blob.len(), raw.len());
+    let usage0 = w.worker.view_account(&piece).await?.storage_usage;
+    w.worker.patch_state(&piece, b"STATE", &blob).await?;
+    // patch_state does not account for the size change; keep storage_usage consistent.
+    let usage = usage0 + (blob.len() - raw.len()) as u64;
+    w.worker
+        .patch(&piece)
+        .account_from_current(move |cur| AccountDetailsPatch::from(cur).balance(NearToken::from_near(1)).storage_usage(usage))
+        .transact()
+        .await?;
+
+    let min = Gas::from_tgas(common::gas::MIN_CLAIM_FT.as_tgas());
+    // Failed FT claim (unregistered receiver) at its minimum: the callback restores the credit.
+    let nobody = w.fresh("nobody", 5).await?;
+    let r = landed(claim_to(&w.artist, &piece, nobody.id(), min).transact().await?)?;
+    assert!(r.logs().iter().any(|l| l.contains("claim_restored")), "{:?}", r.logs());
+    assert_eq!(w.credit(&piece, w.artist.id()).await?, (10 * USDC, 0));
+    // Successful FT claim at its minimum.
+    let a0 = w.usdc_balance(w.artist.id()).await?;
+    ok(w.artist.call(&piece, "claim").gas(min).transact().await?)?;
+    assert_eq!(w.usdc_balance(w.artist.id()).await? - a0, 10 * USDC);
+    assert_eq!(w.credit(&piece, w.artist.id()).await?, (0, 0));
+    // nft_transfer_call at its minimum completes rotate, receiver, resolve and index sync.
+    ok(w.client
+        .call(&w.collection, "nft_transfer_call")
+        .args_json(json!({ "receiver_id": w.evil.id(), "token_id": id, "msg": "keep" }))
+        .deposit(NearToken::from_yoctonear(1))
+        .gas(Gas::from_tgas(common::gas::MIN_TRANSFER_CALL.as_tgas()))
+        .transact()
+        .await?)?;
+    assert_eq!(w.info(&piece).await?["owner"], w.evil.id().as_str());
+    assert_eq!(w.index_owner(&id).await?, w.evil.id().as_str());
+    storage_covered(&w, &piece).await
 }

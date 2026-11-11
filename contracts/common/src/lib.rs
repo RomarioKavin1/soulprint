@@ -39,3 +39,9 @@ pub fn token_id_of(piece_id: &near_sdk::AccountId) -> String {
 pub fn piece_account(token_id: &str, collection: &near_sdk::AccountId) -> near_sdk::AccountId {
     format!("p{token_id}.{collection}").parse().expect("valid piece account")
 }
+
+/// Review C2: storage headroom (in bytes) that only deposit-less paths may spend: value calls
+/// (fund, reject, buy, pay_income), keeper calls (settle, timeout_resolve, claim), challenge acks,
+/// attestation and collection-driven transfers. Payable non-value calls pay for any growth that
+/// would take headroom below this. Worst-case deposit-less growth is about 800 bytes (DESIGN §6.2).
+pub const STORAGE_RESERVE_BYTES: u64 = 1_000;

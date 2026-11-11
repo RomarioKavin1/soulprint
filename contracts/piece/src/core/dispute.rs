@@ -4,10 +4,7 @@ use super::*;
 
 impl PieceCore {
     pub fn reject_bond(&self) -> u128 {
-        let t = self.terms.as_ref().expect("commission");
-        let p = t.price.0;
-        let b = t.reject_bond_bps as u128;
-        (p / BPS_DENOM as u128) * b + (p % BPS_DENOM as u128) * b / BPS_DENOM as u128
+        self.terms.as_ref().expect("commission").reject_bond()
     }
 
     /// Owner rejects the delivery within the review window, posting the bond as a value action
