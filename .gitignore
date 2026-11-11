@@ -1,0 +1,6 @@
+target/
+.superpowers/
+node_modules/
+*.wasm
+!contracts/res/*.wasm
+.env*
