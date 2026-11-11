@@ -1,3 +1,4 @@
+import { effectiveTimes, MAX_UPLOAD_LAG_MS } from "./metrics/activity.ts";
 /**
  * Live challenges (A28): the issuer gets only nonce_hash = sha256(code ‖ salt) and submits
  * `issue_challenge` from their own wallet; the artist sees the code; a capture key acknowledges
@@ -47,9 +48,19 @@ export type ChallengeResult = "passed" | "inconclusive" | "expired";
 
 const norm = (s: string) => s.toUpperCase().replace(/[^A-Z0-9]/g, "");
 
-/** `ackedAt` = on-chain acknowledgement time (ms); frames by device time, one at a time. */
+/** After the window, frames are still read this long to tell "expired" from "inconclusive". */
+export const LATE_SCAN_MS = 30 * 60_000;
+
+type ChallengeFrame = { jpeg: Uint8Array; deviceTs: number; receivedAt?: number };
+
+/**
+ * `ackedAt` = on-chain acknowledgement time (ms). Frames in capture order, one at a time.
+ * Review C2: a frame's time is its device time clamped to the service receive time, so a frame
+ * uploaded long after the window cannot pass whatever it is stamped with. Review I6: OCR runs only
+ * up to `LATE_SCAN_MS` after the window.
+ */
 export async function evaluateChallenge(
-  frames: Iterable<{ jpeg: Uint8Array; deviceTs: number }> | AsyncIterable<{ jpeg: Uint8Array; deviceTs: number }>,
+  frames: Iterable<ChallengeFrame> | AsyncIterable<ChallengeFrame>,
   code: string,
   ackedAt: number,
   windowMs: number,
@@ -57,12 +68,24 @@ export async function evaluateChallenge(
 ): Promise<ChallengeResult> {
   const want = norm(code);
   let late = false;
-  for await (const f of frames as AsyncIterable<{ jpeg: Uint8Array; deviceTs: number }>) {
-    if (f.deviceTs < ackedAt) continue;
-    const seen = norm((await ocr.words(f.jpeg)).filter((w) => w.confidence >= MIN_CONFIDENCE).map((w) => w.text).join("")).includes(want);
-    if (!seen) continue;
-    if (f.deviceTs < ackedAt + windowMs) return "passed";
+  for await (const f of frames as AsyncIterable<ChallengeFrame>) {
+    const t = effectiveTimes([f.deviceTs], [f.receivedAt])[0]!;
+    if (t < ackedAt) continue;
+    if (t >= ackedAt + windowMs + LATE_SCAN_MS) {
+      // Received far too late to count; keep scanning only frames that could still be in time.
+      if (f.receivedAt != null && f.receivedAt - MAX_UPLOAD_LAG_MS >= ackedAt + windowMs + LATE_SCAN_MS) {
+        if (!late && (await seen(f))) late = true;
+        break;
+      }
+      continue;
+    }
+    if (!(await seen(f))) continue;
+    if (t < ackedAt + windowMs) return "passed";
     late = true;
   }
   return late ? "expired" : "inconclusive";
+
+  async function seen(f: ChallengeFrame) {
+    return norm((await ocr.words(f.jpeg)).filter((w) => w.confidence >= MIN_CONFIDENCE).map((w) => w.text).join("")).includes(want);
+  }
 }

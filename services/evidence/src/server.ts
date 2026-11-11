@@ -18,7 +18,7 @@ import type { Sender } from "./sender.ts";
 import { evaluateChallenge, newCode, nonceHashOf, TesseractOcr, type Ocr } from "./challenge.ts";
 import { jcs } from "./jcs.ts";
 import { computeMetrics } from "./metrics/index.ts";
-import { band } from "./metrics/activity.ts";
+import { band, CLOCK_SKEW_MS } from "./metrics/activity.ts";
 import { THRESHOLDS } from "./metrics/thresholds.ts";
 import { decideLevel, signReport } from "./report.ts";
 import { nobleSigner, segmentsDigest, tokenIdOf } from "@soulprint/proof";
@@ -185,6 +185,8 @@ export async function buildApp(d: Deps): Promise<App> {
     const lastCount = last?.count ?? 0;
     if (count <= lastCount) return null;
     if (!force && count - lastCount < everyFrames && d.now() - since < everyMs) return null;
+    // Review I2: a built report names the anchored head; a cadence anchor would move it before delivery.
+    if (!force && (await db.query("SELECT 1 FROM reports WHERE piece_id = $1", [pieceId])).rows.length) return null;
     const cand = (await db.query<{ count: number; head: Uint8Array; sig: Uint8Array }>(
       "SELECT count, head, sig FROM anchor_sigs WHERE piece_id = $1 AND key_hex = $2 AND count <= $3 ORDER BY count DESC LIMIT 1",
       [pieceId, keyHex, count])).rows[0];
@@ -387,20 +389,39 @@ export async function buildApp(d: Deps): Promise<App> {
   async function* frameStream(pieceId: string, keyHex: string) {
     let from = 0;
     for (;;) {
-      const rows = (await db.query<any>("SELECT idx, device_ts, width, height, blob_key, reused FROM frames WHERE piece_id = $1 AND key_hex = $2 AND idx >= $3 ORDER BY idx LIMIT 50", [pieceId, keyHex, from])).rows;
+      const rows = (await db.query<any>("SELECT idx, device_ts, received_at, width, height, blob_key, reused FROM frames WHERE piece_id = $1 AND key_hex = $2 AND idx >= $3 ORDER BY idx LIMIT 50", [pieceId, keyHex, from])).rows;
       if (!rows.length) return;
       for (const r of rows) {
         from = r.idx + 1;
         if (!r.blob_key || r.reused) continue; // discarded (hash only) or reused from another piece
         const jpeg = await blobs.get(pieceId, r.blob_key);
-        if (jpeg) yield { jpeg, deviceTs: Number(r.device_ts), width: r.width, height: r.height };
+        if (jpeg) yield { jpeg, deviceTs: Number(r.device_ts), receivedAt: Number(r.received_at) };
       }
     }
+  }
+
+  /** Review C2 / DESIGN §6.3: frames stamped in the future or earlier than the previous frame. */
+  async function timeAnomalies(pieceId: string, keyHex: string): Promise<number> {
+    const rows = (await db.query<{ device_ts: string; received_at: string }>(
+      "SELECT device_ts, received_at FROM frames WHERE piece_id = $1 AND key_hex = $2 ORDER BY idx", [pieceId, keyHex])).rows;
+    let n = 0, prev = -Infinity;
+    for (const r of rows) {
+      const t = Number(r.device_ts);
+      if (t > Number(r.received_at) + CLOCK_SKEW_MS || t < prev) n++;
+      prev = Math.max(prev, t);
+    }
+    return n;
   }
 
   app.post<{ Params: { id: string } }>("/pieces/:id/report", async (req) => {
     const p = await piece(req.params.id);
     requireRole(p, await who(req), ["artist"]);
+    // Review I2: once delivered, the report is the one on chain; rebuilding cannot change it.
+    if (["Delivered", "Settled"].includes(p.status) && p.reportHash) {
+      const r = (await db.query<any>("SELECT public_json, report_hash, final_file_hash, level FROM reports WHERE piece_id = $1", [p.pieceId])).rows[0];
+      if (!r || b64.encode(r.report_hash) !== p.reportHash) throw new HttpError(409, "delivered_report_unknown");
+      return { public: JSON.parse(r.public_json), level: r.level, reportHash: p.reportHash, finalFileHash: b64.encode(r.final_file_hash) };
+    }
     const final = (await db.query<any>("SELECT sha256, blob_key FROM files WHERE piece_id = $1 AND kind = 'final' ORDER BY id DESC LIMIT 1", [p.pieceId])).rows[0];
     if (!final) throw new HttpError(409, "final_file_missing");
     const finalBytes = (await blobs.get(p.pieceId, final.blob_key))!;
@@ -412,7 +433,11 @@ export async function buildApp(d: Deps): Promise<App> {
       await maybeAnchor(p.pieceId, seg.key, Number(primary.n), true);
       throw new HttpError(409, "anchor_pending", { anchoring: Number(primary.n) });
     }
-    const anchored = !!(primary && seg && seg.count === Number(primary.n) && seg.count > 0);
+    // Review I2: the chain must hold our head at that count, not just the count.
+    const localHead = primary && seg && seg.count > 0
+      ? (await db.query<{ link: Uint8Array }>("SELECT link FROM frames WHERE piece_id = $1 AND key_hex = $2 AND idx = $3", [p.pieceId, primary.key_hex, seg.count - 1])).rows[0]?.link
+      : undefined;
+    const anchored = !!(primary && seg && seg.count === Number(primary.n) && seg.count > 0 && localHead && eq(localHead, seg.head));
     const source = body(req).source === "camera" ? "camera" : "screen";
     const reusedFrames = primary ? Number((await db.query<{ n: number }>("SELECT count(*)::int AS n FROM frames WHERE piece_id = $1 AND key_hex = $2 AND reused", [p.pieceId, primary.key_hex])).rows[0]!.n) : 0;
     const m = primary ? await computeMetrics(frameStream(p.pieceId, primary.key_hex), { finalFile: finalBytes, source }) : null;
@@ -437,7 +462,7 @@ export async function buildApp(d: Deps): Promise<App> {
         key: nearPublicKey(seg.key), anchoredHead: b64.encode(seg.head), anchoredCount: seg.count, frames: m.frames, reusedFrames,
         sessions: m.sessions, spanDays: Math.round(m.spanDays * 10) / 10, activeBand: band(m.activeMs),
         coverage: Math.round(m.coverage * 1000) / 1000, largestJump: Math.round(m.largestJump * 1000) / 1000,
-        finalMatch: m.finalMatch, source, timeNote: "device-reported, bounded by on-chain anchors",
+        finalMatch: m.finalMatch, source, timeNote: "device time, limited to when the service received each frame", timeAnomalies: await timeAnomalies(p.pieceId, primary!.key_hex),
       } : null,
       challenges: challenges.map(({ issuer: _i, ...c }) => c),
       segmentsDigest: b64.encode(segmentsDigest(segments)),

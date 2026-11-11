@@ -93,3 +93,63 @@ describe("activity (A38)", () => {
     expect([0, 4.9, 5, 12, 25, 31, 70].map((h) => band(h * 3_600_000))).toEqual(["<5h", "<5h", "5–10h", "10–20h", "20–30h", "30–50h", "50h+"]);
   });
 });
+
+describe("final-review fixes (Plan 2 review C1, C2, I1, I3)", () => {
+  const t = target();
+  /** Copy of `img` with a rectangle (fractions of the canvas) set to `v`. */
+  const rect = (img: Uint8Array, [x0, y0, x1, y1]: number[], v: number) => {
+    const out = img.slice();
+    for (let y = Math.floor(H * y0!); y < Math.floor(H * y1!); y++) for (let x = Math.floor(W * x0!); x < Math.floor(W * x1!); x++) out[y * W + x] = v;
+    return out;
+  };
+
+  it("finished_image_at_first_frame_low_coverage (C1)", async () => {
+    // The finished picture from frame 0; a ~5% patch is nudged back and forth for 16 frames.
+    const seq = [t, ...Array.from({ length: 16 }, (_, i) => rect(t, [0.4, 0.4, 0.62, 0.62], i % 2 ? 90 : 160)), t];
+    const r = await m(await frames(seq, { stepMs: 180_000 }));
+    expect(r.coverage).toBeLessThan(0.2);
+  });
+
+  it("transient_occlusion_not_counted (C1)", async () => {
+    // A finished print with a hand moving over it; the hand leaves before the last frame.
+    const seq = [t, ...Array.from({ length: 40 }, (_, i) => rect(t, [(i % 10) / 10, 0.2, (i % 10) / 10 + 0.3, 0.9], 30)), t];
+    const r = await m(await frames(seq, { stepMs: 120_000 }));
+    expect(r.coverage).toBeLessThan(0.2);
+  });
+
+  it("paste_with_declared_resize_is_still_a_jump (I1)", async () => {
+    const blank = new Uint8Array(W * H).fill(BLANK);
+    const fs = await frames([blank, blank, blank, t, t, t]);
+    fs[3] = { ...fs[3]!, width: W + 1 }; // a lying client
+    const r = await m(fs);
+    expect(r.largestJump).toBeGreaterThan(0.9);
+    expect(r.coverage).toBeLessThan(0.1);
+  });
+
+  it("lamp_on_with_clipped_highlights_is_not_a_jump (I3)", async () => {
+    // Most of the canvas is still near white when a +20% lamp comes on: highlights clip.
+    const r = await m(await frames(painting(), { gain: (i) => (i < 4 ? 1 : 1.2) }));
+    expect(r.largestJump).toBeLessThan(0.3);
+  });
+
+  it("device time is clamped to the service receive time (C2)", async () => {
+    // 25 frames uploaded in one go with invented timestamps spread over 8 days.
+    const fs = (await frames(painting(), { stepMs: 8 * 3_600_000 })).map((f) => ({ ...f, receivedAt: 1_700_000_000_000 + 60_000 }));
+    const r = await m(fs);
+    expect(r.spanDays).toBeLessThan(0.01);
+    expect(r.sessions).toBe(1);
+    expect(r.activeMs).toBeLessThanOrEqual(15 * 60_000);
+  });
+
+  it("camera_moved_between_sessions_is_not_a_jump (I3)", async () => {
+    // A phone put back 2% off between two sessions (31 minutes apart), honest painting throughout.
+    const shift = (g: Uint8Array, dx: number) => g.map((_, i) => g[i - dx] ?? BLANK);
+    const seq = [...painting()].map((g, i) => (i < 13 ? g : shift(g, Math.round(W * 0.02))));
+    const fs = (await frames(seq)).map((f, i) => ({ ...f, deviceTs: f.deviceTs + (i >= 13 ? 31 * 60_000 : 0) }));
+    const cam = await computeMetrics(stream(fs), { source: "camera" });
+    expect(cam.largestJump).toBeLessThan(0.3);
+    // On screen capture nothing moves the "camera": the same step is still a jump.
+    const scr = await computeMetrics(stream(fs), { source: "screen" });
+    expect(scr.largestJump).toBeGreaterThan(0.3);
+  });
+});

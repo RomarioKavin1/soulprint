@@ -39,13 +39,20 @@ describe("level rules (DESIGN §5, A32: E0/E2/E3)", () => {
   });
 });
 
-async function recorded() {
-  const w = await world();
+/** Live capture: each batch reaches the service right after its last frame (`live = false`: all at once at the end). */
+async function recorded(live = true) {
+  // Fake clock while frames upload (capture-key signed), real clock afterwards (NEP-413 auth checks it).
+  const clock: { t: number | null } = { t: 1_700_000_000_000 };
+  const w = await world({ now: () => clock.t ?? Date.now() });
   const imgs = (await synthFrames(painting())).map((f) => f.jpeg);
   const dev = w.dev;
   dev.capture(imgs.length, imgs, 5 * 60_000);
-  for (let i = 0; i < imgs.length; i += 10)
+  const at = (i: number) => 1_700_000_000_000 + i * 5 * 60_000 + 5_000;
+  for (let i = 0; i < imgs.length; i += 10) {
+    clock.t = live ? at(Math.min(i + 9, imgs.length - 1)) : at(imgs.length - 1);
     expect((await w.app.inject({ method: "POST", url: `/pieces/${PIECE}/frames`, payload: await dev.batch(i, Math.min(i + 9, imgs.length - 1)) })).statusCode).toBe(200);
+  }
+  clock.t = null;
   const call = async (who: any, method: "GET" | "POST", url: string, body?: unknown) =>
     w.app.inject({ method, url, payload: body as any, headers: who ? { authorization: await nep413(who, method, url, body) } : {} });
   const final = await jpeg(target());
@@ -57,6 +64,50 @@ const anchorAll = (w: Awaited<ReturnType<typeof recorded>>) => {
 };
 
 describe("report", () => {
+  it("a delivered report is pinned: rebuilding cannot change it, attest still works (review I2)", async () => {
+    const w = await recorded();
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/files`, { kind: "final", name: "final.jpg", data: b64.encode(w.final) });
+    anchorAll(w);
+    const rep = (await w.call(w.artist, "POST", `/pieces/${PIECE}/report`, {})).json();
+    Object.assign(w.chain.pieces.get(PIECE)!, { status: "Delivered", finalFileHash: rep.finalFileHash, reportHash: rep.reportHash });
+    // Rebuilding with different inputs after delivery returns the delivered report.
+    const again = (await w.call(w.artist, "POST", `/pieces/${PIECE}/report`, { source: "camera" })).json();
+    expect(again.reportHash).toBe(rep.reportHash);
+    expect((await w.call(w.artist, "POST", `/pieces/${PIECE}/attest`, {})).statusCode).toBe(200);
+  }, 60_000);
+
+  it("anchored means the chain holds our head, not just our count (review I2)", async () => {
+    const w = await recorded();
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/files`, { kind: "final", name: "final.jpg", data: b64.encode(w.final) });
+    anchorAll(w);
+    const a = w.chain.pieces.get(PIECE)!.anchored!.get(hex.encode(w.dev.signer.publicKey))!;
+    a.head = new Uint8Array(32).fill(9); // same count, different chain
+    const r = (await w.call(w.artist, "POST", `/pieces/${PIECE}/report`, {})).json();
+    expect(r.level).toBe(0);
+  }, 60_000);
+
+  it("no cadence anchor while a built report waits for delivery (review I2)", async () => {
+    const w = await recorded();
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/files`, { kind: "final", name: "final.jpg", data: b64.encode(w.final) });
+    anchorAll(w);
+    expect((await w.call(w.artist, "POST", `/pieces/${PIECE}/report`, {})).statusCode).toBe(200);
+    const sent = w.sender.anchors.length;
+    w.dev.capture(25);
+    expect((await w.app.inject({ method: "POST", url: `/pieces/${PIECE}/frames`, payload: await w.dev.batch(w.count, w.count + 24) })).statusCode).toBe(200);
+    expect(w.sender.anchors.length).toBe(sent);
+  }, 60_000);
+  it("frames uploaded in one go cannot claim the hours their timestamps say (review C2)", async () => {
+    const w = await recorded(false);
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/files`, { kind: "final", name: "final.jpg", data: b64.encode(w.final) });
+    anchorAll(w);
+    const r = await w.call(w.artist, "POST", `/pieces/${PIECE}/report`, {});
+    expect(r.statusCode).toBe(200);
+    const cap = r.json().public.capture;
+    expect(cap.spanDays).toBeLessThan(0.05);
+    expect(cap.timeNote).toMatch(/received/);
+    expect(r.json().level).toBe(0);
+  });
+
   it("report_hash_is_sha256_of_canonical_json and recomputable from the public report", async () => {
     const w = await recorded();
     const url = `/pieces/${PIECE}/report`;

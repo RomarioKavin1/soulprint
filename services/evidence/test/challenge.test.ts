@@ -40,6 +40,23 @@ describe("challenge evaluation (A28)", () => {
     expect(await evaluateChallenge([], "K7XQ4M", T0, WINDOW, ocr)).toBe("inconclusive");
   });
 
+  it("frame_received_after_window_does_not_pass_whatever_its_device_time (review C2)", async () => {
+    const ocr = new FakeOcr(new Map([[1, [{ text: "K7XQ4M", confidence: 90 }]]]));
+    // Stamped 3 minutes after the ack, but uploaded 1,092 days later.
+    const late = { ...frame(1, T0 + 180_000), receivedAt: T0 + 1092 * 86_400_000 };
+    expect(await evaluateChallenge([late], "K7XQ4M", T0, WINDOW, ocr)).toBe("expired");
+    // Received in time: passes.
+    expect(await evaluateChallenge([{ ...late, receivedAt: T0 + 200_000 }], "K7XQ4M", T0, WINDOW, ocr)).toBe("passed");
+  });
+
+  it("ocr_is_bounded_to_the_window (review I6)", async () => {
+    let calls = 0;
+    const ocr: Ocr = { words: async () => (calls++, []) };
+    const fs = Array.from({ length: 1200 }, (_, i) => ({ ...frame(3, T0 + i * 60_000), receivedAt: T0 + i * 60_000 + 1000 }));
+    expect(await evaluateChallenge(fs, "K7XQ4M", T0, WINDOW, ocr)).toBe("inconclusive");
+    expect(calls).toBeLessThan(60);
+  });
+
   it("late_frame_expired", async () => {
     const ocr = new FakeOcr(new Map([[3, [{ text: "K7XQ4M", confidence: 95 }]]]));
     expect(await evaluateChallenge([frame(3, T0 + WINDOW + 1)], "K7XQ4M", T0, WINDOW, ocr)).toBe("expired");
