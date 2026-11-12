@@ -7,4 +7,4 @@
 - [ ] Demo video (≤ 3 min) following docs/demo-script.md
 - [ ] Hackathon form: track 10 "NFTs That Do Something"; secondary track decision (Privacy & Private AI?)
 - [ ] Spikes recorded: S2 (wallet sign-in / delegate signing), S3 (5 real recordings → thresholds), S4 (OCR on photos)
-- [ ] Final full suite: `make test && make e2e`
+- [x] Final full suite: `make test && make e2e` (12 Nov, plus the E2E against testnet 10/10)
