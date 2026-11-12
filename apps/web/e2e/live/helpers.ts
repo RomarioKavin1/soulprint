@@ -6,18 +6,12 @@ export function live() {
   if (!path || path.includes("fixtures")) return null;
   const c = JSON.parse(readFileSync(path, "utf8")).sandbox;
   const id = (role: string) => c.accounts[role].account_id as string;
-  return { c, rpc: c.rpc_url as string, collection: c.collection as string, artist: id("artist"), client: id("client"), buyer: id("buyer"), shop: id("shop"), arbitrator: id("arbitrator") };
+  return { c, rpc: c.rpc_url as string, rpcs: (c.rpc_urls ?? [c.rpc_url]) as string[], collection: c.collection as string, artist: id("artist"), client: id("client"), buyer: id("buyer"), shop: id("shop"), arbitrator: id("arbitrator") };
 }
 
-export async function view(rpc: string, contract: string, method: string, args: object = {}) {
-  const r = await fetch(rpc, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "query", params: { request_type: "call_function", finality: "final", account_id: contract, method_name: method, args_base64: Buffer.from(JSON.stringify(args)).toString("base64") } }),
-  });
-  const j = await r.json();
-  if (j.error || j.result?.error) throw new Error(JSON.stringify(j.error ?? j.result.error));
-  return JSON.parse(Buffer.from(j.result.result).toString("utf8"));
+/** A view through the same RPC failover the app uses (`rpc` kept for the call sites; all endpoints are tried). */
+export async function view(_rpc: string, contract: string, method: string, args: object = {}) {
+  return new ChainView(live()!.rpcs).view(contract, method, args as Record<string, unknown>);
 }
 
 import { KeySigner } from "../../lib/near.ts";
@@ -29,7 +23,7 @@ import { ChainView } from "../../lib/near.ts";
 export function as(role: string) {
   const L = live()!;
   const a = L.c.accounts[role];
-  return new KeySigner(a.account_id, a.secret_key, L.rpc);
+  return new KeySigner(a.account_id, a.secret_key, L.rpcs);
 }
 
 /** A USDC commission from the demo artist to the demo client, created directly on chain. */
@@ -37,7 +31,7 @@ export async function newCommission(price = 25_000_000n, over: Partial<TermsJson
   const L = live()!;
   const o = { ...defaultOffer({ now: Date.now(), currency: { Ft: L.c.currency_token }, decimals: 6 }), price, arbitrator: L.arbitrator, fallbackArbitrator: L.c.accounts.fallback_arbitrator.account_id, client: L.client };
   const t = { ...offerToTerms(o), ...over };
-  const chain = new ChainView(L.rpc);
+  const chain = new ChainView(L.rpcs);
   const { pieceId } = await createPiece(chain, as("artist"), L.collection, { Commission: t }, capturePublicKey);
   return { pieceId, t };
 }

@@ -23,7 +23,7 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
   const { pieceId } = await params;
   const config = loadConfig();
   if (!config) return <p className="pt-10">Not set up yet.</p>;
-  const chain = new ChainView(config.rpcUrl);
+  const chain = new ChainView(config.rpcUrls);
   let piece: PieceInfo, proof: ProofView;
   try {
     [piece, proof] = await Promise.all([pieceInfo(chain, pieceId), proofPage(chain, pieceId)]);

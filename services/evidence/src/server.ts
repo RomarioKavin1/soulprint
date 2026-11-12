@@ -116,6 +116,7 @@ export async function buildApp(d: Deps): Promise<App> {
     if (e instanceof HttpError) return reply.code(e.status).send({ error: e.code, ...e.extra });
     if (e instanceof AuthError) return reply.code(e.status).send({ error: e.code });
     if (e.statusCode && e.statusCode < 500) return reply.code(e.statusCode).send({ error: e.code ?? "bad_request", message: e.message });
+    if (e.statusCode === 503) return reply.code(503).send({ error: e.code ?? "unavailable" });
     app.log.error(e);
     console.error(`[evidence] ${_req.method} ${_req.url} failed:`, e?.stack ?? e);
     return reply.code(500).send({ error: "internal" });

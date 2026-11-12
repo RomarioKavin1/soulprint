@@ -26,6 +26,7 @@ export function Stat({ label, value }: { label: string; value: ReactNode }) {
 
 /** Plain-language messages for contract and service errors people can hit. */
 const MESSAGES: Record<string, string> = {
+  ERR_NOT_CONFIRMED: "The network did not confirm this step in time. It may still go through — refresh in a minute before trying again.",
   ERR_WRONG_STATUS: "That step is not available any more — the piece has moved on. The page now shows where it stands.",
   ERR_NOT_OWNER: "Only the current owner of the piece can do that.",
   ERR_NOT_ARTIST: "Only the artist can do that.",
@@ -100,12 +101,17 @@ export function usePoll<T>(load: () => Promise<T>, ms: number, deps: unknown[]) 
   }, []);
   useEffect(() => {
     let alive = true;
-    const tick = () => alive && reload();
+    // A hidden tab does not poll (each open page costs public-RPC calls); it refreshes on return.
+    const visible = () => typeof document === "undefined" || document.visibilityState !== "hidden";
+    const tick = () => alive && visible() && reload();
+    const onShow = () => visible() && tick();
     tick();
     const h = setInterval(tick, ms);
+    if (typeof document !== "undefined") document.addEventListener("visibilitychange", onShow);
     return () => {
       alive = false;
       clearInterval(h);
+      if (typeof document !== "undefined") document.removeEventListener("visibilitychange", onShow);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);

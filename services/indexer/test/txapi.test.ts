@@ -79,3 +79,41 @@ describe("transaction-API source", () => {
     expect((await db.query<{ v: string }>("SELECT v FROM meta WHERE k = 'height'")).rows[0]!.v).toBe("300");
   });
 });
+
+describe("transaction-API source under a rate limit (found at 83 testnet pieces)", () => {
+  const many = async (n: number) => {
+    const db = await openDb(), api = new FakeApi();
+    for (let i = 1; i <= n; i++) api.add(`c${i}`, [C], [rc(100 + i, C, [created(`p${i}.${C}`, String(i))])]);
+    return { db, api };
+  };
+  it("idle pieces are read a slice per cycle; indexed height is the oldest read", async () => {
+    const { db, api } = await many(10);
+    const reads: string[] = [];
+    const orig = api.accountTxs.bind(api);
+    api.accountTxs = async (a: string) => (reads.push(a), orig(a));
+    await syncOnce(db, cfg, api, head(500), { idlePerCycle: 3, hotBlocks: 0 });
+    // Collection, then the 10 pieces it created (created this cycle → read this cycle).
+    expect(reads.length).toBe(11);
+    reads.length = 0;
+    await syncOnce(db, cfg, api, head(510), { idlePerCycle: 3, hotBlocks: 0 });
+    expect(reads.length).toBe(4); // collection + 3 idle
+    const meta = Number((await db.query<{ v: string }>("SELECT v FROM meta WHERE k = 'height'")).rows[0]!.v);
+    expect(meta).toBe(500); // 7 pieces were last read at 500
+  });
+  it("one rate-limited account does not stop the cycle; it is read first next time", async () => {
+    const { db, api } = await many(3);
+    await syncOnce(db, cfg, api, head(500));
+    api.add("f1", [`p2.${C}`], [rc(600, `p2.${C}`, [ev("funded", { amount: "9", owner: "c.testnet" }, `p2.${C}`)])]);
+    const orig = api.accountTxs.bind(api);
+    let limited = true;
+    api.accountTxs = async (a: string) => {
+      if (a === `p2.${C}` && limited) throw new Error("/v0/account 429: rate limited");
+      return orig(a);
+    };
+    const r = await syncOnce(db, cfg, api, head(700), { idlePerCycle: 5, hotBlocks: 0 });
+    expect(r.failed).toBeGreaterThan(0);
+    limited = false;
+    await syncOnce(db, cfg, api, head(710), { idlePerCycle: 1, hotBlocks: 0 });
+    expect((await history(db, `p2.${C}`)).balances.funded).toBe("9");
+  });
+});

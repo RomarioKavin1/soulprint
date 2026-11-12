@@ -14,9 +14,13 @@ export async function buildApi(d: ApiDeps) {
     reply.header("access-control-allow-origin", "*");
   });
 
-  async function lag() {
+  /** Global lag, or (transaction-API source) how fresh one piece is: its own last read. */
+  async function lag(pieceId?: string) {
     const meta = (await d.db.query<{ v: string }>("SELECT v FROM meta WHERE k = 'height'")).rows[0];
-    const indexedHeight = meta ? Number(meta.v) : 0;
+    const own = pieceId
+      ? (await d.db.query<{ h: string }>("SELECT polled_head AS h FROM account_poll WHERE account = $1 AND polled_head > 0", [pieceId])).rows[0]
+      : undefined;
+    const indexedHeight = own ? Number(own.h) : meta ? Number(meta.v) : 0;
     // Heights without a block (skipped) have no row: use the latest block actually seen.
     const ts = Number((await d.db.query<{ ts: string | null }>("SELECT max(ts_ms) AS ts FROM blocks WHERE height <= $1", [indexedHeight])).rows[0]?.ts ?? 0);
     const head = await d.head();
@@ -24,8 +28,12 @@ export async function buildApi(d: ApiDeps) {
     return { indexedHeight, chainHeight: head.height, behindBlocks: Math.max(0, head.height - indexedHeight), behindMs, updating: behindMs > LAG_UPDATING_MS };
   }
 
-  app.get("/lag", lag);
-  app.get<{ Params: { id: string } }>("/pieces/:id/history", async (req) => ({ ...(await history(d.db, req.params.id)), lag: await lag() }));
+  app.get("/lag", () => lag());
+  app.get<{ Params: { id: string } }>("/pieces/:id/history", async (req) => {
+    // Someone is looking: the transaction-API source reads this piece every cycle for a while.
+    await d.db.query("UPDATE account_poll SET wanted_ms = $2 WHERE account = $1", [req.params.id, Date.now()]);
+    return { ...(await history(d.db, req.params.id)), lag: await lag(req.params.id) };
+  });
   app.get<{ Params: { id: string } }>("/artists/:id/pieces", async (req) => {
     const rows = (await d.db.query<any>(
       "SELECT p.piece_id, p.token_id, p.mode, h.owner FROM pieces p LEFT JOIN holders h USING (piece_id) WHERE p.artist = $1 ORDER BY p.created_height DESC", [req.params.id],

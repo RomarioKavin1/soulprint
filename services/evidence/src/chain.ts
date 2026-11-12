@@ -34,28 +34,58 @@ export interface ChainReader {
   isFullAccessKey(account: string, publicKey: string): Promise<boolean>;
 }
 
+/** RPC trouble (rate limit, timeout, outage) as opposed to "that account or method does not exist". */
+export class ChainUnavailable extends Error {
+  statusCode = 503;
+  code = "chain_unavailable";
+}
+
+/** The chain says the thing is not there (answer: null), as opposed to a transport problem. */
+const ABSENT = /UNKNOWN_ACCOUNT|does not exist|NO_CONTRACT_CODE|CodeDoesNotExist|MethodNotFound|MethodResolveError/i;
+
+/**
+ * Views with retry and failover across endpoints (testnet E2E: free RPCs answer 429/408/"Internal
+ * server error" under load, and the old reader turned that into "unknown piece").
+ */
 export class RpcChainReader implements ChainReader {
-  constructor(private rpcUrl: string) {}
+  private urls: string[];
+  private next = 0;
+  constructor(rpc: string | string[], private attempts = 6) {
+    this.urls = (Array.isArray(rpc) ? rpc : rpc.split(",")).map((s) => s.trim()).filter(Boolean);
+  }
 
   private async rpc(params: Record<string, unknown>): Promise<any> {
-    const r = await fetch(this.rpcUrl, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ jsonrpc: "2.0", id: "evidence", method: "query", params: { finality: "final", ...params } }),
-    });
-    const j = (await r.json()) as any;
-    if (j.error) throw new Error(JSON.stringify(j.error));
-    return j.result;
+    let last: unknown = null;
+    for (let i = 0; i < this.attempts; i++) {
+      const url = this.urls[this.next++ % this.urls.length]!;
+      try {
+        const r = await fetch(url, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ jsonrpc: "2.0", id: "evidence", method: "query", params: { finality: "final", ...params } }),
+        });
+        const text = await r.text();
+        let j: any = null;
+        try {
+          j = JSON.parse(text);
+        } catch {
+          /* HTML error page */
+        }
+        if (j?.error && ABSENT.test(JSON.stringify(j.error))) return { absent: true };
+        if (r.ok && j && !j.error) return j.result;
+        last = j?.error ?? `${r.status} ${text.slice(0, 120)}`;
+      } catch (e) {
+        last = e;
+      }
+      await new Promise((res) => setTimeout(res, Math.min(4000, 300 * 2 ** i)));
+    }
+    throw new ChainUnavailable(`chain unavailable: ${typeof last === "string" ? last : JSON.stringify(last)}`);
   }
 
   async view<T>(account: string, method: string, args: unknown): Promise<T | null> {
-    try {
-      const res = await this.rpc({ request_type: "call_function", account_id: account, method_name: method, args_base64: b64.encode(new TextEncoder().encode(JSON.stringify(args))) });
-      if (res.error) return null;
-      return JSON.parse(new TextDecoder().decode(new Uint8Array(res.result))) as T;
-    } catch {
-      return null;
-    }
+    const res = await this.rpc({ request_type: "call_function", account_id: account, method_name: method, args_base64: b64.encode(new TextEncoder().encode(JSON.stringify(args))) });
+    if (res.absent || res.error) return null;
+    return JSON.parse(new TextDecoder().decode(new Uint8Array(res.result))) as T;
   }
 
   async piece(pieceId: string): Promise<PieceWithSegments | null> {

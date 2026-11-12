@@ -6,7 +6,7 @@
 import * as ed from "@noble/ed25519";
 import { sha256 } from "@noble/hashes/sha256";
 import { b58, b64, nearPublicKey } from "@soulprint/proof";
-import { Account, JsonRpcProvider } from "near-api-js";
+import { Account, actions as nearActions, encodeTransaction, FailoverRpcProvider, JsonRpcProvider, type Provider } from "near-api-js";
 import { nep413Payload } from "./nep413.ts";
 
 export const TGAS = 1_000_000_000_000n;
@@ -65,35 +65,91 @@ export function outcome(r: any): CallOutcome {
   return { txHash, logs, value };
 }
 
+/**
+ * RPC access for one or more endpoints. Free public RPCs rate-limit per client (FastNear answers
+ * HTTP 429 after a burst; found on the testnet E2E): each provider retries with back-off, then
+ * fails over to the next endpoint, and each instance starts at a random endpoint so several
+ * tabs (or users behind one address) spread their load.
+ */
+export function rpcProvider(rpc: string | string[]): Provider {
+  const urls = (Array.isArray(rpc) ? rpc : [rpc]).filter(Boolean);
+  const one = (url: string) => new JsonRpcProvider({ url }, { retries: 3, backoff: 2, wait: 400 });
+  if (urls.length < 2) return one(urls[0] ?? "");
+  const start = Math.floor(Math.random() * urls.length);
+  return new FailoverRpcProvider([...urls.slice(start), ...urls.slice(0, start)].map(one));
+}
+
+const TRANSIENT = /429|408|Rate limit|Exceeded \d+ providers|fetch failed|ECONNRESET|ETIMEDOUT|Timeout|Internal server error|502|503|504/i;
+
+/** Retry `f` while every endpoint is briefly overloaded (1, 2, 4, 8 s), then give up. */
+export async function withRetry<T>(f: () => Promise<T>, waits = [1000, 2000, 4000, 8000]): Promise<T> {
+  for (let i = 0; ; i++) {
+    try {
+      return await f();
+    } catch (e) {
+      if (i >= waits.length || !TRANSIENT.test(`${(e as Error)?.message ?? ""} ${JSON.stringify(e)}`)) throw e;
+      await new Promise((res) => setTimeout(res, waits[i]! * (0.75 + Math.random() / 2)));
+    }
+  }
+}
+
 /** Sandbox / E2E signer: a full-access key known to the app. Never used on testnet or mainnet. */
 export class KeySigner implements Signer {
   private seed: Uint8Array;
   readonly publicKey: string;
   private account: Account;
-  constructor(readonly accountId: string, secret: string, rpcUrl: string) {
+  private provider: Provider;
+  constructor(readonly accountId: string, secret: string, rpc: string | string[]) {
     const raw = b58.decode(secret.replace(/^ed25519:/, ""));
     this.seed = raw.slice(0, 32);
     this.publicKey = nearPublicKey(raw.slice(32, 64));
-    this.account = new Account(accountId, rpcUrl, secret as `ed25519:${string}`);
+    this.provider = rpcProvider(rpc);
+    this.account = new Account(accountId, this.provider, secret as `ed25519:${string}`);
   }
   async signNep413(p: { message: string; nonce: Uint8Array; recipient: string }): Promise<SignedNep413> {
     const sig = await ed.signAsync(sha256(nep413Payload(p)), this.seed);
     return { accountId: this.accountId, publicKey: this.publicKey, signature: b64.encode(sig) };
   }
+  /**
+   * Sign first, so the transaction hash is known; then send. Public RPCs time out (HTTP 408) or
+   * rate-limit while a transaction may still land, so on a transport failure the outcome is read
+   * back by hash instead of being reported as a failure (testnet E2E). A stale nonce (two tabs
+   * signing with one key) is re-signed and resent.
+   */
   async call(contractId: string, method: string, args: Record<string, unknown>, opts: CallOptions = {}): Promise<CallOutcome> {
-    try {
-      const r = await this.account.callFunctionRaw({
-        contractId,
-        methodName: method,
-        args,
-        deposit: opts.deposit ?? 0n,
-        gas: (opts.tgas ?? 100n) * TGAS,
-      });
-      return outcome(r);
-    } catch (e) {
-      if (e instanceof ChainError) throw e;
-      throw new ChainError(chainErrorCode(e));
+    const action = nearActions.functionCall(method, args, (opts.tgas ?? 100n) * TGAS, opts.deposit ?? 0n);
+    for (let attempt = 0; ; attempt++) {
+      const signed = await withRetry(() => this.account.createSignedTransaction({ receiverId: contractId, actions: [action] }));
+      const txHash = b58.encode(sha256(encodeTransaction(signed.transaction)));
+      try {
+        return outcome(await this.provider.sendTransactionUntil(signed, "FINAL"));
+      } catch (e) {
+        if (e instanceof ChainError) throw e;
+        const text = `${(e as Error)?.message ?? ""} ${JSON.stringify(e)}`;
+        if (/InvalidNonce/i.test(text) && attempt < 3) {
+          await new Promise((res) => setTimeout(res, 500 + Math.random() * 1000));
+          continue;
+        }
+        if (/^\s*(InvalidTx|InvalidNonce|NotEnoughBalance|Expired|InvalidSignature)/i.test((e as any)?.type ?? "") || /InvalidTxError|NotEnoughBalance/i.test(text))
+          throw new ChainError(chainErrorCode(e), txHash);
+        // Transport failure: the transaction may have landed. Ask for it by hash.
+        const landed = await this.readBack(txHash);
+        if (landed) return outcome(landed);
+        console.warn("[soulprint] call not confirmed", method, txHash, e);
+        throw new ChainError(chainErrorCode(e) === "ERR_UNKNOWN" ? "ERR_NOT_CONFIRMED" : chainErrorCode(e), txHash);
+      }
     }
+  }
+  private async readBack(txHash: string): Promise<any | null> {
+    for (let i = 0; i < 20; i++) {
+      try {
+        return await this.provider.viewTransactionStatus({ txHash, accountId: this.accountId, waitUntil: "FINAL" });
+      } catch (e) {
+        if (!/UNKNOWN_TRANSACTION|TIMEOUT_ERROR|408|429|Rate limit|fetch failed|ECONN|Timeout/i.test(`${(e as Error)?.message ?? ""} ${JSON.stringify(e)}`)) return null;
+        await new Promise((res) => setTimeout(res, 2000));
+      }
+    }
+    return null;
   }
 }
 
@@ -127,11 +183,11 @@ export class ConnectSigner implements Signer {
 
 /** Read-only chain access (views always read the chain; no local "paid" state). */
 export class ChainView {
-  private provider: JsonRpcProvider;
-  constructor(readonly rpcUrl: string) {
-    this.provider = new JsonRpcProvider({ url: rpcUrl });
+  private provider: Provider;
+  constructor(rpc: string | string[]) {
+    this.provider = rpcProvider(rpc);
   }
   async view<T = any>(contractId: string, method: string, args: Record<string, unknown> = {}): Promise<T> {
-    return (await this.provider.callFunction({ contractId, method, args })) as T;
+    return (await withRetry(() => this.provider.callFunction({ contractId, method, args }))) as T;
   }
 }

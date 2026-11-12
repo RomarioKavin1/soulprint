@@ -24,13 +24,13 @@ const SANDBOX_KEY = "soulprint.sandbox.account";
 
 export function NearProvider({ config, children }: { config: PublicConfig; children: ReactNode }) {
   const [signer, setSigner] = useState<Signer | null>(null);
-  const chain = useMemo(() => new ChainView(config.rpcUrl), [config.rpcUrl]);
+  const chain = useMemo(() => new ChainView(config.rpcUrls), [config.rpcUrls.join(",")]);
   const [connector, setConnector] = useState<any>(null);
 
   const useDemo = useCallback(
     (accountId: string | null) => {
       const a = config.demoAccounts.find((d) => d.accountId === accountId || d.role === accountId);
-      setSigner(a ? new KeySigner(a.accountId, a.secretKey, config.rpcUrl) : null);
+      setSigner(a ? new KeySigner(a.accountId, a.secretKey, config.rpcUrls) : null);
       try {
         if (a) localStorage.setItem(SANDBOX_KEY, a.accountId);
         else localStorage.removeItem(SANDBOX_KEY);

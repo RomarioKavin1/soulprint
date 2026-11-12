@@ -48,8 +48,9 @@ test("proof page: private until published, then the facts, badge and a matching 
   await page.goto(`/p/${pieceId}`);
   await expect(page.getByTestId("proof-private")).toBeVisible();
 
-  await ev("artist", "POST", `/pieces/${pieceId}/visibility`, { indices: [0, 10, 20], level: "public" });
-  await ev("artist", "POST", `/pieces/${pieceId}/story`, { text: "A study in three sittings." });
+  const vis = await ev("artist", "POST", `/pieces/${pieceId}/visibility`, { indices: [0, 10, 20], level: "public" });
+  expect([vis.status, vis.json]).toEqual([200, expect.anything()]);
+  expect((await ev("artist", "POST", `/pieces/${pieceId}/story`, { text: "A study in three sittings." })).status).toBe(200);
   expect((await ev("artist", "POST", `/pieces/${pieceId}/publish`, { published: true })).status).toBe(200);
   await page.reload();
   await expect(page.getByTestId("evidence-sentence")).toHaveText("Declared by the artist.");

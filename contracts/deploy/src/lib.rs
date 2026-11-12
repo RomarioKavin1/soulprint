@@ -437,6 +437,8 @@ pub async fn deploy<N: Network + 'static>(
     let entry = json!({
         "network_id": o.network_id,
         "rpc_url": o.rpc_url,
+        // The web fails over between these (free RPCs rate-limit per client; testnet E2E finding).
+        "rpc_urls": rpc_urls(&o.network_id, &o.rpc_url),
         "collection": collection,
         "governance": info["governance"],
         "currency_token": usdc,
@@ -473,6 +475,8 @@ pub fn services_env(entry: &Value, st: &State) -> String {
     let mut kv = |k: &str, v: String| out.push_str(&format!("export {k}='{v}'\n"));
     kv("NEAR_NETWORK", s(&entry["network_id"]));
     kv("NEAR_RPC_URL", s(&entry["rpc_url"]));
+    let urls: Vec<String> = entry["rpc_urls"].as_array().into_iter().flatten().filter_map(|u| u.as_str().map(String::from)).collect();
+    kv("NEAR_RPC_URLS", urls.join(","));
     kv("SOULPRINT_COLLECTION", s(&entry["collection"]));
     kv("CURRENCY_TOKEN", s(&entry["currency_token"]));
     kv("START_BLOCK", entry["start_block"].to_string());
@@ -534,4 +538,17 @@ pub async fn dry_run_sandbox(
     write_network_entry(&dir.join("networks.json"), "sandbox", d.entry.clone())?;
     std::fs::write(dir.join("services.env"), services_env(&d.entry, &d.state))?;
     Ok((d, dir, worker))
+}
+
+/** `rpc` first, then the public endpoints known to work for `network` (12 Nov 2026). */
+pub fn rpc_urls(network: &str, rpc: &str) -> Vec<String> {
+    let public: &[&str] = match network {
+        // rpc.testnet.near.org now answers every call with 429 "THIS ENDPOINT IS DEPRECATED".
+        "testnet" => &["https://test.rpc.fastnear.com", "https://near-testnet.drpc.org"],
+        "mainnet" => &["https://free.rpc.fastnear.com", "https://near.drpc.org"],
+        _ => &[],
+    };
+    let mut v = vec![rpc.to_string()];
+    v.extend(public.iter().map(|s| s.to_string()).filter(|s| s != rpc));
+    v
 }

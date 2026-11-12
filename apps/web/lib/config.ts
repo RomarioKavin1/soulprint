@@ -15,6 +15,8 @@ export interface DemoAccount { role: string; accountId: string; secretKey: strin
 export interface PublicConfig {
   network: NetworkId;
   rpcUrl: string;
+  /** All RPC endpoints (failover / load spreading); `rpc_urls` in the config, else `[rpc_url]`. */
+  rpcUrls: string[];
   collection: string;
   currencyToken: string;
   currencyDecimals: number;
@@ -48,6 +50,7 @@ export function loadConfig(): PublicConfig | null {
   return {
     network,
     rpcUrl: c.rpc_url,
+    rpcUrls: Array.isArray(c.rpc_urls) && c.rpc_urls.length ? c.rpc_urls : [c.rpc_url],
     collection: c.collection,
     currencyToken: c.currency_token,
     currencyDecimals: c.currency_decimals ?? 6,
