@@ -35,6 +35,8 @@ export interface Metrics {
   sessions: number;
   spanDays: number;
   finalMatch: { distance: number; ok: boolean } | null;
+  /** Frames whose image did not decode: skipped, counted and published (review M8). */
+  undecodable: number;
 }
 
 export async function computeMetrics(
@@ -48,9 +50,16 @@ export async function computeMetrics(
   let prev: { cells: Float64Array; w: number; h: number; ts: number } | null = null;
   let first: Float64Array | null = null, lastCells: Float64Array | null = null;
   let last: Uint8Array | null = null;
-  let discontinuities = 0;
+  let discontinuities = 0, undecodable = 0;
   for await (const f of frames) {
-    const { cells: c, width, height } = await decode(f.jpeg);
+    let dec: Awaited<ReturnType<typeof decode>>;
+    try {
+      dec = await decode(f.jpeg);
+    } catch {
+      undecodable++;
+      continue;
+    }
+    const { cells: c, width, height } = dec;
     device.push(f.deviceTs);
     received.push(f.receivedAt);
     first ??= c;
@@ -91,6 +100,6 @@ export async function computeMetrics(
   }
   return {
     frames: device.length, coverage: denom ? built / denom : 0, largestJump, changingCells: changing, presentAtStart, cellMap: counts,
-    changeSeries, discontinuities, ...act, finalMatch,
+    changeSeries, discontinuities, ...act, finalMatch, undecodable,
   };
 }

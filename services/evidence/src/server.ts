@@ -59,6 +59,35 @@ class HttpError extends Error {
   }
 }
 
+/** Plan 2 review M1: client-supplied base64 → bytes, or 400 (optionally of an exact length). */
+function bytesOf(v: unknown, code: string, len?: number): Uint8Array {
+  let out: Uint8Array;
+  try {
+    out = b64.decode(String(v ?? ""));
+  } catch {
+    throw new HttpError(400, code);
+  }
+  if (len != null && out.length !== len) throw new HttpError(400, code);
+  return out;
+}
+/** ed25519 verify that answers false (→ 401) instead of throwing on malformed input. */
+function verifySig(sig: Uint8Array, msg: Uint8Array, key: Uint8Array): boolean {
+  try {
+    return ed.verify(sig, msg, key);
+  } catch {
+    return false;
+  }
+}
+async function decodes(img: Uint8Array): Promise<boolean> {
+  try {
+    await sharp(img).raw().toBuffer();
+    return true;
+  } catch {
+    return false;
+  }
+}
+const isIndex = (v: unknown): v is number => typeof v === "number" && Number.isSafeInteger(v) && v >= 0;
+
 export interface App extends FastifyInstance {
   db: Db;
   blobs: BlobStore;
@@ -151,18 +180,19 @@ export async function buildApp(d: Deps): Promise<App> {
     const seg = segmentFor(p, b.key);
     const keyHex = hex.encode(seg.key);
     const frames: any[] = Array.isArray(b.frames) ? b.frames : [];
-    const from = Number(b.fromIndex), to = Number(b.toIndex);
-    if (!frames.length || frames.length > MAX_BATCH || to - from + 1 !== frames.length || frames.some((f, i) => f.index !== from + i))
+    const from = b.fromIndex, to = b.toIndex;
+    if (!isIndex(from) || !isIndex(to) || !frames.length || frames.length > MAX_BATCH || to - from + 1 !== frames.length
+      || frames.some((f, i) => typeof f !== "object" || f === null || f.index !== from + i || !Number.isFinite(Number(f.deviceTs))))
       throw new HttpError(400, "bad_batch");
     const metas: (FrameMeta & { raw: any; jpeg: Uint8Array | null })[] = frames.map((f) => ({
-      index: f.index, deviceTs: Number(f.deviceTs), jpegHash: b64.decode(f.jpegHash), link: b64.decode(f.link),
-      jpeg: f.jpeg ? b64.decode(f.jpeg) : null, raw: f,
+      index: f.index, deviceTs: Number(f.deviceTs), jpegHash: bytesOf(f.jpegHash, "bad_frame", 32), link: bytesOf(f.link, "bad_frame", 32),
+      jpeg: f.jpeg ? bytesOf(f.jpeg, "bad_frame") : null, raw: f,
     }));
     const head = metas.at(-1)!.link;
-    if (!ed.verify(b64.decode(b.sig), batchMessage({ pieceId: p.pieceId, key: seg.key, fromIndex: from, toIndex: to, head }), seg.key))
+    if (!verifySig(bytesOf(b.sig, "bad_signature_format", 64), batchMessage({ pieceId: p.pieceId, key: seg.key, fromIndex: from, toIndex: to, head }), seg.key))
       throw new HttpError(401, "bad_signature");
-    const anchorSig = b64.decode(b.anchorSig);
-    if (!ed.verify(anchorSig, anchorMessage({ pieceId: p.pieceId, head, count: to + 1 }), seg.key))
+    const anchorSig = bytesOf(b.anchorSig, "bad_signature_format", 64);
+    if (!verifySig(anchorSig, anchorMessage({ pieceId: p.pieceId, head, count: to + 1 }), seg.key))
       throw new HttpError(401, "bad_anchor_signature");
     for (const m of metas) if (m.jpeg && !eq(sha256(m.jpeg), m.jpegHash)) throw new HttpError(409, "image_hash_mismatch", { index: m.index });
 
@@ -182,6 +212,12 @@ export async function buildApp(d: Deps): Promise<App> {
       const other = await db.query("SELECT 1 FROM frames WHERE jpeg_hash = $1 AND piece_id <> $2 LIMIT 1", [m.jpegHash, p.pieceId]);
       if (other.rows.length) reused.add(m.index);
     }
+    // Review M8: flag images that do not decode (kept: the hash chain is valid; the report skips
+    // and counts them) so the capture app can warn while the artist is still recording.
+    const undecodable: number[] = [];
+    for (const m of fresh) {
+      if (m.jpeg && !(await decodes(m.jpeg))) undecodable.push(m.index);
+    }
     for (const m of fresh) {
       const blob = m.jpeg ? await blobs.put(p.pieceId, `${keyHex}-${m.index}.jpg`, m.jpeg) : null;
       await db.query(
@@ -194,7 +230,7 @@ export async function buildApp(d: Deps): Promise<App> {
       [p.pieceId, keyHex, to + 1, head, anchorSig]);
     const newCount = Math.max(count, to + 1);
     const anchored = await maybeAnchor(p.pieceId, seg.key, newCount, false);
-    return { stored: fresh.length, count: newCount, anchored, reused: [...reused] };
+    return { stored: fresh.length, count: newCount, anchored, reused: [...reused], undecodable };
   });
 
   /** Submit the newest signed head if the cadence (or `force`) says so. Never fails the caller. */
@@ -243,7 +279,8 @@ export async function buildApp(d: Deps): Promise<App> {
     const seg = segmentFor(p, body(req).key);
     const indices: number[] = (body(req).indices ?? []).map(Number);
     const msg = new TextEncoder().encode(`soulprint-discard-v1:${p.pieceId}:${indices.join(",")}`);
-    if (!ed.verify(b64.decode(String(body(req).sig ?? "")), msg, seg.key)) throw new HttpError(401, "bad_signature");
+    if (!indices.every(isIndex)) throw new HttpError(400, "bad_indices");
+    if (!verifySig(bytesOf(body(req).sig, "bad_signature_format", 64), msg, seg.key)) throw new HttpError(401, "bad_signature");
     const keyHex = hex.encode(seg.key);
     const rows = await db.query<{ idx: number; blob_key: string | null }>(
       "SELECT idx, blob_key FROM frames WHERE piece_id = $1 AND key_hex = $2 AND idx = ANY($3::int[])", [p.pieceId, keyHex, indices]);
@@ -317,7 +354,7 @@ export async function buildApp(d: Deps): Promise<App> {
     const allowed = FILE_KINDS[kind];
     if (!allowed) throw new HttpError(400, "bad_kind");
     requireRole(p, account, allowed);
-    const data = b64.decode(String(body(req).data ?? ""));
+    const data = bytesOf(body(req).data, "bad_data");
     if (kind === "final") {
       // The report compares the final file with the last frames; it must decode the same way.
       try {
@@ -418,9 +455,9 @@ export async function buildApp(d: Deps): Promise<App> {
     const cid = Number(req.params.cid);
     const c = p.challenges.find((x) => x.id === cid);
     if (!c) throw new HttpError(404, "unknown_challenge");
-    const sig = b64.decode(String(body(req).sig ?? ""));
+    const sig = bytesOf(body(req).sig, "bad_signature_format", 64);
     const msg = challengeAckMessage({ pieceId: p.pieceId, challengeId: cid, nonceHash: c.nonceHash });
-    if (!p.segments.some((s) => ed.verify(sig, msg, s.key))) throw new HttpError(401, "bad_signature");
+    if (!p.segments.some((s) => verifySig(sig, msg, s.key))) throw new HttpError(401, "bad_signature");
     return d.sender.ackChallenge({ pieceId: p.pieceId, challengeId: cid, sig: b64.encode(sig) });
   });
 
@@ -506,7 +543,7 @@ export async function buildApp(d: Deps): Promise<App> {
         key: nearPublicKey(seg.key), anchoredHead: b64.encode(seg.head), anchoredCount: seg.count, frames: m.frames, reusedFrames,
         sessions: m.sessions, spanDays: Math.round(m.spanDays * 10) / 10, activeBand: band(m.activeMs),
         coverage: Math.round(m.coverage * 1000) / 1000, largestJump: Math.round(m.largestJump * 1000) / 1000,
-        finalMatch: m.finalMatch, source, timeNote: "device time, limited to when the service received each frame", timeAnomalies: await timeAnomalies(p.pieceId, primary!.key_hex),
+        undecodableFrames: m.undecodable, finalMatch: m.finalMatch, source, timeNote: "device time, limited to when the service received each frame", timeAnomalies: await timeAnomalies(p.pieceId, primary!.key_hex),
       } : null,
       challenges: challenges.map(({ issuer: _i, ...c }) => c),
       segmentsDigest: b64.encode(segmentsDigest(segments)),

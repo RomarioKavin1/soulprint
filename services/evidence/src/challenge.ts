@@ -86,6 +86,8 @@ export async function evaluateChallenge(
   return late ? "expired" : "inconclusive";
 
   async function seen(f: ChallengeFrame) {
-    return norm((await ocr.words(f.jpeg)).filter((w) => w.confidence >= MIN_CONFIDENCE).map((w) => w.text).join("")).includes(want);
+    // Review M8: an image the OCR cannot read shows no code.
+    const words = await ocr.words(f.jpeg).catch(() => []);
+    return norm(words.filter((w) => w.confidence >= MIN_CONFIDENCE).map((w) => w.text).join("")).includes(want);
   }
 }

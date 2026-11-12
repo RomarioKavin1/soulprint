@@ -40,11 +40,13 @@ describe("level rules (DESIGN §5, A32: E0/E2/E3)", () => {
 });
 
 /** Live capture: each batch reaches the service right after its last frame (`live = false`: all at once at the end). */
-async function recorded(live = true) {
+async function recorded(live = true, corrupt: number[] = []) {
   // Fake clock while frames upload (capture-key signed), real clock afterwards (NEP-413 auth checks it).
   const clock: { t: number | null } = { t: 1_700_000_000_000 };
   const w = await world({ now: () => clock.t ?? Date.now() });
   const imgs = (await synthFrames(painting())).map((f) => f.jpeg);
+  // A JPEG header then garbage: hashes and chains fine, does not decode (Plan 2 review M8).
+  for (const i of corrupt) imgs[i] = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, ...new Array(64).fill(0x5a), 0xff, 0xd9]);
   const dev = w.dev;
   dev.capture(imgs.length, imgs, 5 * 60_000);
   const at = (i: number) => 1_700_000_000_000 + i * 5 * 60_000 + 5_000;
@@ -96,6 +98,25 @@ describe("report", () => {
     expect((await w.app.inject({ method: "POST", url: `/pieces/${PIECE}/frames`, payload: await w.dev.batch(w.count, w.count + 24) })).statusCode).toBe(200);
     expect(w.sender.anchors.length).toBe(sent);
   }, 60_000);
+  it("an_undecodable_frame_is_skipped_and_counted_and_the_report_still_builds (review M8)", async () => {
+    const w = await recorded(true, [5]);
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/files`, { kind: "final", name: "final.jpg", data: b64.encode(w.final) });
+    anchorAll(w);
+    const r = await w.call(w.artist, "POST", `/pieces/${PIECE}/report`, {});
+    expect(r.statusCode).toBe(200);
+    expect(r.json().public.capture).toMatchObject({ frames: w.count - 1, undecodableFrames: 1 });
+  }, 60_000);
+
+  it("ingest_flags_undecodable_frames_without_refusing_them (review M8)", async () => {
+    const w = await world();
+    const ok = await (await import("./helpers.ts")).tinyImage(3);
+    const bad = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3, 0xff, 0xd9]);
+    w.dev.capture(3, [ok, bad, ok]);
+    const r = await w.app.inject({ method: "POST", url: `/pieces/${PIECE}/frames`, payload: await w.dev.batch(0, 2) });
+    expect(r.statusCode).toBe(200);
+    expect(r.json()).toMatchObject({ stored: 3, count: 3, undecodable: [1] });
+  });
+
   it("frames uploaded in one go cannot claim the hours their timestamps say (review C2)", async () => {
     const w = await recorded(false);
     await w.call(w.artist, "POST", `/pieces/${PIECE}/files`, { kind: "final", name: "final.jpg", data: b64.encode(w.final) });

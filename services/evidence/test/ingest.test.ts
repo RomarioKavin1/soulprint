@@ -27,6 +27,27 @@ describe("frame ingest (A27)", () => {
     expect((await post(app, PIECE, await dev.batch(0, 2, (b) => { b.anchorSig = b.sig; }))).statusCode).toBe(401);
   });
 
+  it("malformed_batch_fields_are_400_not_500 (review M1)", async () => {
+    const { app, dev } = await world();
+    dev.capture(3);
+    const cases: [string, (b: any) => void][] = [
+      ["short sig", (b) => { b.sig = b64.encode(new Uint8Array(10)); }],
+      ["missing anchorSig", (b) => { delete b.anchorSig; }],
+      ["sig not base64", (b) => { b.sig = "%%%"; }],
+      ["negative index", (b) => { b.fromIndex = -1; b.frames[0].index = -1; }],
+      ["fractional index", (b) => { b.toIndex = 2.5; }],
+      ["jpegHash not base64", (b) => { b.frames[0].jpegHash = "!!"; }],
+      ["link wrong length", (b) => { b.frames[2].link = b64.encode(new Uint8Array(5)); }],
+      ["frames not objects", (b) => { b.frames = [1, 2, 3]; }],
+    ];
+    for (const [name, tamper] of cases) {
+      const r = await post(app, PIECE, await dev.batch(0, 2, tamper));
+      expect([name, r.statusCode < 500 && r.statusCode >= 400]).toEqual([name, true]);
+    }
+    // Still accepts the real batch afterwards.
+    expect((await post(app, PIECE, await dev.batch(0, 2))).statusCode).toBe(200);
+  });
+
   it("rejects_chain_break", async () => {
     const { app, dev } = await world();
     dev.capture(6);
