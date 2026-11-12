@@ -36,6 +36,7 @@ test("concurrent_accept_reject_shows_chain_result", async ({ browser }) => {
   const label = final === "Settled" ? "Complete" : "In dispute";
   for (const p of [a, b]) await expect(p.getByTestId("room-status")).toHaveText(label, { timeout: 20_000 });
   const loser = final === "Settled" ? b : a;
-  // On a public network the loser's own call can still be in flight when polling shows the outcome.
-  await expect(loser.getByTestId("race-notice")).toContainText(final === "Settled" ? "now complete" : "now in dispute", { timeout: 30_000 });
+  // On a public network the loser's own call can still be in flight when polling shows the outcome;
+  // a dropped transaction is only known after the signer's read-back (about 40 s).
+  await expect(loser.getByTestId("race-notice")).toContainText(final === "Settled" ? "now complete" : "now in dispute", { timeout: 75_000 });
 });

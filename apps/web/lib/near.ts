@@ -47,6 +47,12 @@ export class ChainError extends Error {
     super(code);
   }
 }
+/** Our transaction's nonce was used by another transaction from the same key: it can never land. */
+export class NonceTaken extends Error {
+  constructor(public txHash: string) {
+    super("NONCE_TAKEN");
+  }
+}
 
 /** First `ERR_*` code in a failed outcome, or the raw message. */
 export function chainErrorCode(e: unknown): string {
@@ -111,10 +117,12 @@ export class KeySigner implements Signer {
   readonly publicKey: string;
   private account: Account;
   private provider: Provider;
+  private rpcUrls: string[];
   constructor(readonly accountId: string, secret: string, rpc: string | string[]) {
     const raw = b58.decode(secret.replace(/^ed25519:/, ""));
     this.seed = raw.slice(0, 32);
     this.publicKey = nearPublicKey(raw.slice(32, 64));
+    this.rpcUrls = (Array.isArray(rpc) ? rpc : [rpc]).filter(Boolean);
     this.provider = rpcProvider(rpc);
     this.account = new Account(accountId, this.provider, secret as `ed25519:${string}`);
   }
@@ -138,7 +146,7 @@ export class KeySigner implements Signer {
       } catch (e) {
         if (e instanceof ChainError) throw e;
         const text = errText(e);
-        if (/InvalidNonce|Invalid nonce/i.test(text)) {
+        if (e instanceof NonceTaken || /InvalidNonce|Invalid nonce/i.test(text)) {
           // near-api-js caches the nonce and only counts up; another tab or process signing with
           // this key moved the chain's nonce ahead (E2E: "ak 27000010, tx 27000004"). Drop the
           // cache so the next signature reads the chain's nonce.
@@ -165,6 +173,61 @@ export class KeySigner implements Signer {
    * lost never landed, and the old code only waited for it.
    */
   private async sendSame(signed: any, txHash: string): Promise<any> {
+    const stop = { done: false };
+    try {
+      return await Promise.race([this.broadcast(signed, txHash), this.watchDropped(signed, txHash, stop)]);
+    } finally {
+      stop.done = true;
+    }
+  }
+  /**
+   * A transaction whose nonce another transaction from the same key already used can never land
+   * (testnet E2E: two tabs signing with one key at the same moment; the chain kept one and dropped
+   * the other while the RPC kept us waiting for minutes). Seen twice — nonce used, our hash
+   * unknown — means dropped: the caller re-signs with a fresh nonce.
+   */
+  private async watchDropped(signed: any, txHash: string, stop: { done: boolean }): Promise<never> {
+    const nonce = BigInt(signed.transaction.nonce);
+    const publicKey = signed.transaction.publicKey.toString();
+    let unknownWithNonceUsed = 0;
+    for (;;) {
+      await new Promise((res) => setTimeout(res, 3000));
+      if (stop.done) return new Promise<never>(() => undefined);
+      try {
+        const ak: any = await this.provider.query({ request_type: "view_access_key", finality: "optimistic", account_id: this.accountId, public_key: publicKey });
+        if (BigInt(ak.nonce) < nonce) { unknownWithNonceUsed = 0; continue; }
+        const known = await this.txKnown(txHash);
+        unknownWithNonceUsed = known === false ? unknownWithNonceUsed + 1 : 0;
+        if (unknownWithNonceUsed >= 2) throw new NonceTaken(txHash);
+      } catch (e) {
+        if (e instanceof NonceTaken) throw e;
+      }
+    }
+  }
+  /**
+   * One plain status request per endpoint: near-api-js retries UNKNOWN_TRANSACTION ten times and
+   * then reports only "RetriesExceeded", which cannot be told apart from an overloaded endpoint.
+   * `false` = an endpoint says it does not know the transaction; `null` = no endpoint answered.
+   */
+  private async txKnown(txHash: string): Promise<boolean | null> {
+    for (const url of this.rpcUrls) {
+      try {
+        const r = await fetch(url, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ jsonrpc: "2.0", id: "sp", method: "tx", params: { tx_hash: txHash, sender_account_id: this.accountId, wait_until: "NONE" } }),
+          signal: AbortSignal.timeout(5000),
+        });
+        const j: any = await r.json();
+        if (j?.result) return true;
+        if (j?.error?.cause?.name === "UNKNOWN_TRANSACTION") return false;
+      } catch {
+        // try the next endpoint
+      }
+    }
+    return null;
+  }
+  private async broadcast(signed: any, txHash: string): Promise<any> {
     for (let i = 0; ; i++) {
       try {
         return await this.provider.sendTransactionUntil(signed, "EXECUTED_OPTIMISTIC");

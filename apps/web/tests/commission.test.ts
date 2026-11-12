@@ -84,5 +84,9 @@ describe("commission room", () => {
     expect(m).toBe("Someone else acted first: the piece is now complete. Your step was not applied, and any amount you sent was returned.");
     expect(explainRace(new ChainError("ERR_WRONG_STATUS"), info({ status: "Disputed" }))).toMatch(/now in dispute/);
     expect(explainRace(new Error("boom"), info())).toBeNull();
+    // Not confirmed: a race only if the piece moved on since the step started.
+    expect(explainRace(new ChainError("ERR_NOT_CONFIRMED"), info({ status: "Settled" }), "Delivered")).toMatch(/now complete/);
+    expect(explainRace(new ChainError("ERR_NOT_CONFIRMED"), info({ status: "Delivered" }), "Delivered")).toBeNull();
+    expect(explainRace(new ChainError("ERR_NOT_CONFIRMED"), info({ status: "Settled" }))).toBeNull();
   });
 });

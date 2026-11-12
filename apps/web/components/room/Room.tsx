@@ -50,6 +50,7 @@ export function Room({ pieceId }: { pieceId: string }) {
   const isParty = accountId === piece.owner || accountId === piece.artist;
 
   async function step(label: string, f: () => Promise<unknown>) {
+    const before = piece.status;
     setBusy(label);
     setError(null);
     setNotice(null);
@@ -58,7 +59,7 @@ export function Room({ pieceId }: { pieceId: string }) {
       setConfirm(null);
     } catch (e) {
       const fresh: PieceInfo | null = await pieceInfo(chain, pieceId).catch(() => null);
-      const race = fresh && explainRace(e, fresh);
+      const race = fresh && explainRace(e, fresh, before);
       if (race) setNotice(race);
       else setError(e);
       setConfirm(null);
@@ -252,6 +253,8 @@ export function Room({ pieceId }: { pieceId: string }) {
           <ErrorNote error={error} />
         </Section>
       )}
+      {/* The actions box closes when the piece moves on; a failed step must still say so (testnet E2E). */}
+      {!(actions.length > 0 && t) && error ? <ErrorNote error={error} /> : null}
 
       {piece.status === "Disputed" && (
         <div className="card text-sm">

@@ -118,8 +118,17 @@ const STATUS_PHRASE: Record<Status, string> = {
   Cancelled: "now cancelled",
 };
 
-/** Review Focus 2: when two people act at once, say who won according to the chain. */
-export function explainRace(e: unknown, fresh: PieceInfo): string | null {
-  if (!(e instanceof ChainError) || !["ERR_WRONG_STATUS", "ERR_NOT_OWNER", "ERR_REVIEW_CLOSED"].includes(e.code)) return null;
+/**
+ * Review Focus 2: when two people act at once, say who won according to the chain.
+ * `before` is the status the step was started from. A step the network never confirmed, on a piece
+ * that has since moved on, can no longer apply (every step is gated on the status it started from;
+ * one that lands late is refused and its amount returned) — testnet E2E: two tabs signing with the
+ * same key, the losing transaction was dropped and only "not confirmed" was known.
+ */
+export function explainRace(e: unknown, fresh: PieceInfo, before?: Status): string | null {
+  if (!(e instanceof ChainError)) return null;
+  const lost = ["ERR_WRONG_STATUS", "ERR_NOT_OWNER", "ERR_REVIEW_CLOSED"].includes(e.code);
+  const overtaken = e.code === "ERR_NOT_CONFIRMED" && before !== undefined && fresh.status !== before;
+  if (!lost && !overtaken) return null;
   return `Someone else acted first: the piece is ${STATUS_PHRASE[fresh.status]}. Your step was not applied, and any amount you sent was returned.`;
 }

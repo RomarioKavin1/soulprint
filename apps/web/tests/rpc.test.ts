@@ -62,3 +62,47 @@ describe("errText (testnet E2E: a BigInt in an error broke error handling)", () 
     expect(chainErrorCode(Object.assign(new Error("Smart contract panicked: ERR_WRONG_STATUS"), { n: 1n }))).toBe("ERR_WRONG_STATUS");
   });
 });
+
+describe("KeySigner: a transaction dropped because another tab used its nonce", () => {
+  it("is detected while the RPC is still waiting, and re-signed with a fresh nonce", async () => {
+    const ed = await import("@noble/ed25519");
+    const { base58 } = await import("@scure/base");
+    const { KeySigner } = await import("../lib/near.ts");
+    const seed = new Uint8Array(32).fill(9);
+    const secret = "ed25519:" + base58.encode(new Uint8Array([...seed, ...(await ed.getPublicKeyAsync(seed))]));
+    let akNonce = 100;
+    const sends: number[] = [];
+    const server = createServer((q, res) => {
+      let body = "";
+      q.on("data", (c) => (body += c)).on("end", () => {
+        const { id, method, params } = JSON.parse(body);
+        const ok = (result: unknown) => res.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify({ jsonrpc: "2.0", id, result }));
+        if (method === "query") return ok({ nonce: akNonce, permission: "FullAccess", block_height: 1, block_hash: "11111111111111111111111111111111" });
+        if (method === "block") return ok({ header: { hash: "11111111111111111111111111111111", height: 1 } });
+        if (method === "tx" || method === "EXPERIMENTAL_tx_status")
+          return res.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify({ jsonrpc: "2.0", id, error: { name: "HANDLER_ERROR", cause: { name: "UNKNOWN_TRANSACTION" }, code: -32000, message: "Server error", data: "UNKNOWN_TRANSACTION" } }));
+        if (method === "send_tx") {
+          sends.push(sends.length);
+          if (sends.length === 1) {
+            akNonce = 101; // the other tab's transaction took nonce 101; ours is dropped and the RPC never answers
+            return;
+          }
+          return ok({ final_execution_status: "EXECUTED_OPTIMISTIC", status: { SuccessValue: "" }, transaction: { hash: "h2" }, transaction_outcome: { id: "h2", outcome: { logs: [], status: { SuccessValue: "" } } }, receipts_outcome: [] });
+        }
+        ok({});
+      });
+    });
+    const url = await listen(server);
+    try {
+      const s = new KeySigner("client.testnet", secret, url);
+      const t0 = Date.now();
+      const r = await s.call("p1.c.testnet", "accept", {});
+      expect(r.txHash).toBe("h2");
+      expect(sends.length).toBe(2);
+      expect(Date.now() - t0).toBeLessThan(20_000);
+    } finally {
+      server.close();
+      server.closeAllConnections();
+    }
+  }, 30_000);
+});
