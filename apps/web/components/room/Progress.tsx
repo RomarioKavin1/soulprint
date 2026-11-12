@@ -19,7 +19,7 @@ export function Progress({ pieceId }: { pieceId: string }) {
       ) : (
         <ul className="grid grid-cols-3 gap-2 sm:grid-cols-6">
           {frames.map((f) => (
-            <li key={`${f.key}${f.index}`} className="aspect-[4/3] overflow-hidden rounded-lg bg-paper-2">
+            <li key={`${f.key}${f.index}`} className="aspect-[4/3] overflow-hidden rounded-sm bg-paper-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={`data:image/jpeg;base64,${f.jpeg}`} alt={`Progress frame ${f.index + 1}`} className="h-full w-full object-cover" />
             </li>

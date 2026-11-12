@@ -1,0 +1,9 @@
+[
+  {
+    "slug": "met-204812",
+    "src": "/salon/sculpture/met-204812.webp",
+    "width": 977,
+    "height": 1279,
+    "matte": "derived from the photograph: backdrop model + colour distance, largest component, holes under 2.5% of the image filled, studio cast shadow removed, 2px erosion, 1px feather"
+  }
+]

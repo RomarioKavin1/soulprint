@@ -193,7 +193,7 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
           )}
           <div className="grid gap-2">
             {(Object.keys(GRANT_TEXT) as GrantKind[]).map((k) => (
-              <label key={k} className={`flex cursor-pointer gap-3 rounded-xl border p-3 ${offer.grant.kind === k ? "border-ink bg-paper-2" : "border-rule"}`}>
+              <label key={k} className={`flex cursor-pointer gap-3 rounded-sm border p-3 ${offer.grant.kind === k ? "border-ink bg-paper-2" : "border-rule"}`}>
                 <input type="radio" name="grant" checked={offer.grant.kind === k} onChange={() => set({ grant: { ...offer.grant, kind: k } })} />
                 <span>
                   <span className="font-medium">{GRANT_TEXT[k].title}</span>

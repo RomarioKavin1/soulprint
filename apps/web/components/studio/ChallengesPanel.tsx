@@ -37,7 +37,7 @@ export function ChallengesPanel({ pieceId, proof, onChange }: { pieceId: string;
       ) : (
         <ul className="space-y-3">
           {open.map((i) => (
-            <li key={i.chainId} className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-seal/40 bg-seal/5 p-4">
+            <li key={i.chainId} className="flex flex-wrap items-center justify-between gap-4 rounded-sm border border-seal/40 bg-seal/5 p-4">
               <div>
                 <p className="label">Code from {i.issuer}</p>
                 <p className="mt-1 font-mono text-4xl tracking-[0.3em] text-seal" data-testid="challenge-code">

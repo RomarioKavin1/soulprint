@@ -42,15 +42,15 @@ export function Workspace({ pieceId }: { pieceId: string }) {
   const link = typeof window !== "undefined" ? `${location.origin}/c/${pieceId}` : `/c/${pieceId}`;
   const recording = canRecord(piece);
   return (
-    <div className="space-y-6 pt-8">
+    <div className="space-y-8 pt-12">
       <div>
-        <p className="label">{piece.mode === "Commission" ? "Commission" : "Piece"} · {piece.piece_id}</p>
-        <div className="mt-2 flex flex-wrap items-baseline justify-between gap-4">
-          <h1 className="font-display text-4xl tracking-tight">Piece {piece.token_id}</h1>
-          <span className="rounded-full bg-ink px-4 py-1.5 text-sm text-paper" data-testid="status">
+        <div className="flex flex-wrap items-baseline justify-between gap-4">
+          <h1 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none tracking-[-0.015em]">Piece {piece.token_id}</h1>
+          <span className="chip" data-testid="status">
             {statusText(piece)}
           </span>
         </div>
+        <p className="mt-3 text-sm text-ink-3">{piece.mode === "Commission" ? "Commission" : "Your own piece"} · {piece.piece_id}</p>
       </div>
 
       <div className="card grid gap-6 sm:grid-cols-4">

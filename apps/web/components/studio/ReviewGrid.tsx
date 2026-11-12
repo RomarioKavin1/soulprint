@@ -90,7 +90,7 @@ export function ReviewGrid({ pieceId, commission = true }: { pieceId: string; co
             {frames.map((f) => (
               <li key={id(f)}>
                 <button
-                  className={`group relative block aspect-[4/3] w-full overflow-hidden rounded-lg border-2 ${sel.has(id(f)) ? "border-seal" : "border-transparent"} bg-paper-2`}
+                  className={`group relative block aspect-[4/3] w-full overflow-hidden rounded-sm border-2 ${sel.has(id(f)) ? "border-seal" : "border-transparent"} bg-paper-2`}
                   disabled={f.discarded}
                   onClick={() => setSel((s) => {
                     const n = new Set(s);

@@ -23,7 +23,7 @@ export function SignIn() {
         <span className="text-ink-3">Signed in as</span>
         <select
           aria-label="Choose who you are"
-          className="field w-auto py-1"
+          className="wall-select"
           value={accountId ?? ""}
           onChange={(e) => (e.target.value ? signIn(e.target.value) : signOut())}
         >

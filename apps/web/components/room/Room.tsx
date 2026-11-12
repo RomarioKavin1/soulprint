@@ -75,15 +75,15 @@ export function Room({ pieceId }: { pieceId: string }) {
   const stage = piece.released_milestones;
 
   return (
-    <div className="space-y-6 pt-8">
+    <div className="space-y-8 pt-12">
       <div>
-        <p className="label">Commission from {piece.artist}</p>
-        <div className="mt-2 flex flex-wrap items-baseline justify-between gap-4">
-          <h1 className="font-display text-4xl tracking-tight">Piece {piece.token_id}</h1>
-          <span className="rounded-full bg-ink px-4 py-1.5 text-sm text-paper" data-testid="room-status">
+        <div className="flex flex-wrap items-baseline justify-between gap-4">
+          <h1 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none tracking-[-0.015em]">Piece {piece.token_id}</h1>
+          <span className="chip" data-testid="room-status">
             {STATUS_TEXT[piece.status]}
           </span>
         </div>
+        <p className="mt-3 text-sm text-ink-3">Commission from {piece.artist}</p>
         {accountId === piece.artist && (
           <Link className="mt-3 inline-block text-sm underline" href={`/studio/${pieceId}`}>
             Open your workspace for this piece
@@ -99,7 +99,7 @@ export function Room({ pieceId }: { pieceId: string }) {
       </div>
 
       {notice && (
-        <p role="status" className="rounded-xl border border-amber/40 bg-amber/10 px-4 py-3 text-sm" data-testid="race-notice">
+        <p role="status" className="rounded-sm border border-amber/40 bg-amber/10 px-4 py-3 text-sm" data-testid="race-notice">
           {notice}
         </p>
       )}
@@ -283,7 +283,7 @@ export function Room({ pieceId }: { pieceId: string }) {
 
 function Confirm({ text, yes, onYes, onNo, busy, danger }: { text: string; yes: string; onYes: () => void; onNo: () => void; busy: string | null; danger?: boolean }) {
   return (
-    <div className="w-full rounded-xl border border-rule bg-paper-2/70 p-4" data-testid="confirm">
+    <div className="w-full rounded-sm border border-rule bg-paper-2/70 p-4" data-testid="confirm">
       <p className="text-sm">{text}</p>
       <div className="mt-3 flex gap-2">
         <button className={danger ? "btn-seal" : "btn-primary"} disabled={!!busy} onClick={onYes} data-testid="confirm-yes">

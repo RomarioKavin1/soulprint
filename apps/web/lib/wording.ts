@@ -20,10 +20,15 @@ export function issuerText(cls: string) {
   return cls === "Client" || cls === "client" ? "the client" : "an account the artist invited";
 }
 
+/** The active-time band in words: "<5h" reads "under 5h" (a hairline "<" vanishes in Bodoni). */
+export function bandText(b: string) {
+  return b.startsWith("<") ? `under ${b.slice(1)}` : b;
+}
+
 /** E2: "Recorded while made: 94% built up on camera, 20–30h over 9 days". */
 export function recordedSentence(c: CaptureFacts) {
   const pct = Math.round(c.coverage * 100);
-  return `Recorded while made: ${pct}% built up on ${c.source === "screen" ? "screen" : "camera"}, ${c.activeBand} over ${days(c.spanDays)}`;
+  return `Recorded while made: ${pct}% built up on ${c.source === "screen" ? "screen" : "camera"}, ${bandText(c.activeBand)} over ${days(c.spanDays)}`;
 }
 
 /** E3 suffix: "…and passed 2 live checks requested by the client". */

@@ -1,0 +1,4 @@
+{
+  "prompt": "Sourced, not generated: cut out from The Met Open Access photograph of object 204812 (CC0; see public/classics/classics.json). Matte derived from the photograph: backdrop model + colour distance, largest component, holes under 2.5% of the image filled, studio cast shadow removed, 2px erosion, 1px feather (scripts/salon-assets.py).",
+  "createdAt": "2026-11-12T21:41:59.878Z"
+}

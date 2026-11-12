@@ -39,7 +39,7 @@ export function PublishPanel({ piece }: { piece: PieceInfo }) {
     <Section
       title="The piece's page"
       aside={
-        <span className={`rounded-full px-3 py-1 text-xs ${data.published ? "bg-moss text-paper" : "border border-rule text-ink-3"}`} data-testid="publish-state">
+        <span className={data.published ? "chip" : "chip chip-quiet"} data-testid="publish-state">
           {data.published ? "Published" : "Private"}
         </span>
       }

@@ -16,7 +16,7 @@ export function History({ pieceId, currency, decimals }: { pieceId: string; curr
   return (
     <Section title="History">
       {notice && (
-        <p className="mb-3 rounded-lg border border-amber/40 bg-amber/10 px-3 py-2 text-sm" data-testid="lag-notice">
+        <p className="mb-3 rounded-sm border border-amber/40 bg-amber/10 px-3 py-2 text-sm" data-testid="lag-notice">
           {notice}
         </p>
       )}

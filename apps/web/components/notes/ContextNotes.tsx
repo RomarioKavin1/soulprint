@@ -95,7 +95,7 @@ function AddNote({ pieceId, onAdded }: { pieceId: string; onAdded: () => void })
       </button>
     );
   return (
-    <div className="mt-5 rounded-xl border border-rule bg-paper-2/50 p-4" data-testid="note-form">
+    <div className="mt-5 rounded-sm border border-rule bg-paper-2/50 p-4" data-testid="note-form">
       <p className="text-sm">
         Ask about <i>this record</i>: say which frames or details made you wonder, and what would settle it. Questions about the person, or
         guesses without details, are rated down and hidden.
@@ -169,7 +169,7 @@ export function NoteCard({ note: n, viewer, artist, canModerate = false, onChang
       onChange();
     });
   return (
-    <li className={`rounded-xl border p-4 ${tone}`} data-testid="note" data-status={n.status}>
+    <li className={`rounded-sm border p-4 ${tone}`} data-testid="note" data-status={n.status}>
       <p className="label">A reader asked</p>
       <div className="mt-1 flex flex-wrap items-baseline justify-between gap-2">
         <p className="font-display text-lg" data-testid="note-question">{CONCERN_QUESTION[n.concern]}</p>
@@ -182,7 +182,7 @@ export function NoteCard({ note: n, viewer, artist, canModerate = false, onChang
       <p className="mt-1 text-xs text-ink-3">{n.author} · {new Date(n.createdAt).toLocaleDateString()}</p>
       {req && <p className={`mt-2 text-sm ${req.met ? "text-moss" : "text-ink-2"}`} data-testid="note-request">{req.text}</p>}
       {n.response && (
-        <div className="mt-3 border-l-2 border-seal pl-3" data-testid="note-response">
+        <div className="mt-3 ml-1 border-t border-rule pt-3 pl-4" data-testid="note-response">
           <p className="label">The artist answered</p>
           <p className="mt-1 whitespace-pre-line text-sm">{n.response.body}</p>
         </div>

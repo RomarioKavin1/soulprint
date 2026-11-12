@@ -1,0 +1,833 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-13T03:30:00Z",
+  "title": "Design System: Soulprint Salon",
+  "extensions": {
+    "colorMeta": {
+      "wall": {
+        "role": "primary",
+        "displayName": "Salon Claret",
+        "canonical": "#4f161b",
+        "tonalRamp": [
+          "#331a1c",
+          "#5d282c",
+          "#90323a",
+          "#c73844",
+          "#cd6f78",
+          "#d7a2a7",
+          "#e5ccce",
+          "#f6eff0"
+        ]
+      },
+      "wall-deep": {
+        "role": "primary",
+        "displayName": "Claret Shadow",
+        "canonical": "#2b0a0d",
+        "tonalRamp": [
+          "#34181b",
+          "#60252a",
+          "#952d37",
+          "#cf303f",
+          "#d26a74",
+          "#da9fa5",
+          "#e7cbcd",
+          "#f6efef"
+        ]
+      },
+      "gilt": {
+        "role": "secondary",
+        "displayName": "Leaf Gilt",
+        "canonical": "#c9a24a",
+        "tonalRamp": [
+          "#322b1a",
+          "#5c4c29",
+          "#8e7234",
+          "#c49a3b",
+          "#cbaf71",
+          "#d6c7a3",
+          "#e5ddcd",
+          "#f5f3ef"
+        ]
+      },
+      "gilt-light": {
+        "role": "secondary",
+        "displayName": "Gilt Highlight",
+        "canonical": "#ecd18a",
+        "tonalRamp": [
+          "#362d16",
+          "#645220",
+          "#9d7c25",
+          "#dba924",
+          "#dab962",
+          "#dfcc9b",
+          "#e9e0c9",
+          "#f6f4ee"
+        ]
+      },
+      "gilt-dark": {
+        "role": "secondary",
+        "displayName": "Gilt Shade",
+        "canonical": "#6e4f17",
+        "tonalRamp": [
+          "#352a18",
+          "#614b23",
+          "#97702b",
+          "#d3972c",
+          "#d4ae68",
+          "#dcc69e",
+          "#e7ddca",
+          "#f6f3ee"
+        ]
+      },
+      "gilt-plate": {
+        "role": "secondary",
+        "displayName": "Gilt Plate",
+        "canonical": "#d9b866",
+        "tonalRamp": [
+          "#342c19",
+          "#5f4e26",
+          "#93762f",
+          "#cca033",
+          "#d0b36c",
+          "#d9c9a0",
+          "#e6decb",
+          "#f6f4ef"
+        ]
+      },
+      "seal": {
+        "role": "primary",
+        "displayName": "Wax Seal",
+        "canonical": "#7a1e26",
+        "tonalRamp": [
+          "#34191b",
+          "#5f262b",
+          "#932f37",
+          "#cd3240",
+          "#d06c75",
+          "#d9a0a5",
+          "#e6cbce",
+          "#f6efef"
+        ]
+      },
+      "seal-plate": {
+        "role": "primary",
+        "displayName": "Seal Plate",
+        "canonical": "#8a222b",
+        "tonalRamp": [
+          "#34191b",
+          "#5f262b",
+          "#932f37",
+          "#cd3240",
+          "#d06c75",
+          "#d9a0a5",
+          "#e6cbce",
+          "#f6efef"
+        ]
+      },
+      "seal-plate-ink": {
+        "role": "neutral",
+        "displayName": "Seal Lettering",
+        "canonical": "#f8e9d0",
+        "tonalRamp": [
+          "#372a16",
+          "#654b1f",
+          "#9e7023",
+          "#de9721",
+          "#dcad61",
+          "#e0c59a",
+          "#e9ddc8",
+          "#f7f3ee"
+        ]
+      },
+      "wall-ink": {
+        "role": "neutral",
+        "displayName": "Wall Lettering",
+        "canonical": "#f4e6c6",
+        "tonalRamp": [
+          "#352c17",
+          "#624f22",
+          "#997729",
+          "#d6a129",
+          "#d6b466",
+          "#ddc99d",
+          "#e8dfca",
+          "#f6f4ee"
+        ]
+      },
+      "wall-ink-2": {
+        "role": "neutral",
+        "displayName": "Wall Lettering, reading",
+        "canonical": "#dcc49b",
+        "tonalRamp": [
+          "#31291c",
+          "#59482c",
+          "#896b39",
+          "#bd9042",
+          "#c6a976",
+          "#d3c3a6",
+          "#e3dcce",
+          "#f5f3ef"
+        ]
+      },
+      "wall-ink-3": {
+        "role": "neutral",
+        "displayName": "Wall Lettering, quiet",
+        "canonical": "#bd9e75",
+        "tonalRamp": [
+          "#2e271e",
+          "#534532",
+          "#7e6544",
+          "#ac8652",
+          "#bba281",
+          "#cdbfac",
+          "#e1dad1",
+          "#f4f3f0"
+        ]
+      },
+      "wall-rule": {
+        "role": "neutral",
+        "displayName": "Wall Rule",
+        "canonical": "rgba(233, 201, 122, 0.28)",
+        "tonalRamp": [
+          "#362d16",
+          "#645120",
+          "#9c7a25",
+          "#dba624",
+          "#dab763",
+          "#dfcb9b",
+          "#e9dfc9",
+          "#f6f4ee"
+        ]
+      },
+      "wall-recess": {
+        "role": "neutral",
+        "displayName": "Wall Recess",
+        "canonical": "rgba(0, 0, 0, 0.22)",
+        "tonalRamp": [
+          "#262626",
+          "#424242",
+          "#616161",
+          "#808080",
+          "#9e9e9e",
+          "#bdbdbd",
+          "#d9d9d9",
+          "#f2f2f2"
+        ]
+      },
+      "wall-seal-2": {
+        "role": "tertiary",
+        "displayName": "Seal Tint on Wall",
+        "canonical": "#f1a08e",
+        "tonalRamp": [
+          "#381b15",
+          "#672b1e",
+          "#a23820",
+          "#e3401c",
+          "#df755d",
+          "#e1a598",
+          "#eacec7",
+          "#f7efee"
+        ]
+      },
+      "wall-moss": {
+        "role": "tertiary",
+        "displayName": "Moss on Wall",
+        "canonical": "#a9d29d",
+        "tonalRamp": [
+          "#222e1e",
+          "#395431",
+          "#508042",
+          "#66af50",
+          "#8dbd7f",
+          "#b3ceab",
+          "#d4e1d1",
+          "#f1f4f0"
+        ]
+      },
+      "wall-amber": {
+        "role": "tertiary",
+        "displayName": "Amber on Wall",
+        "canonical": "#f0c56a",
+        "tonalRamp": [
+          "#382d14",
+          "#69501c",
+          "#a5791d",
+          "#e8a517",
+          "#e2b65a",
+          "#e3cb96",
+          "#ebdfc7",
+          "#f7f4ed"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Catalogue Ivory",
+        "canonical": "#f3ead6",
+        "tonalRamp": [
+          "#322b1a",
+          "#5c4c28",
+          "#8e7234",
+          "#c59a3a",
+          "#cbaf71",
+          "#d7c6a3",
+          "#e5ddcd",
+          "#f5f3ef"
+        ]
+      },
+      "paper-2": {
+        "role": "neutral",
+        "displayName": "Ivory Well",
+        "canonical": "#e8dbbd",
+        "tonalRamp": [
+          "#312a1c",
+          "#594b2b",
+          "#897139",
+          "#bd9842",
+          "#c6ae76",
+          "#d4c6a6",
+          "#e3ddce",
+          "#f5f3ef"
+        ]
+      },
+      "sheet-ink": {
+        "role": "neutral",
+        "displayName": "Print Brown",
+        "canonical": "#2a1f17",
+        "tonalRamp": [
+          "#2d2520",
+          "#504035",
+          "#795d49",
+          "#a57a5a",
+          "#b69a86",
+          "#cabbaf",
+          "#dfd8d2",
+          "#f4f2f1"
+        ]
+      },
+      "sheet-ink-2": {
+        "role": "neutral",
+        "displayName": "Print Brown, reading",
+        "canonical": "#5a4636",
+        "tonalRamp": [
+          "#2c2621",
+          "#4e4136",
+          "#765f4c",
+          "#9f7c60",
+          "#b39c89",
+          "#c9bbb1",
+          "#ded8d3",
+          "#f4f2f1"
+        ]
+      },
+      "sheet-ink-3": {
+        "role": "neutral",
+        "displayName": "Print Brown, quiet",
+        "canonical": "#7d6650",
+        "tonalRamp": [
+          "#2b2621",
+          "#4d4238",
+          "#73604f",
+          "#9b7f64",
+          "#b09e8c",
+          "#c7bcb2",
+          "#ded9d4",
+          "#f4f2f1"
+        ]
+      },
+      "sheet-rule": {
+        "role": "neutral",
+        "displayName": "Sheet Rule",
+        "canonical": "#cdb98f",
+        "tonalRamp": [
+          "#2f291e",
+          "#544930",
+          "#816c41",
+          "#b0914f",
+          "#bea97e",
+          "#cfc3ab",
+          "#e1dcd0",
+          "#f4f3f0"
+        ]
+      },
+      "sheet-seal-2": {
+        "role": "tertiary",
+        "displayName": "Seal Tint on Sheet",
+        "canonical": "#5b141b",
+        "tonalRamp": [
+          "#34181b",
+          "#60242a",
+          "#962c36",
+          "#d12e3e",
+          "#d36974",
+          "#db9fa4",
+          "#e7cbcd",
+          "#f6eeef"
+        ]
+      },
+      "sheet-moss": {
+        "role": "tertiary",
+        "displayName": "Moss on Sheet",
+        "canonical": "#355a35",
+        "tonalRamp": [
+          "#212c21",
+          "#364f36",
+          "#4b764b",
+          "#5fa05f",
+          "#89b489",
+          "#b0c9b0",
+          "#d3ded3",
+          "#f1f4f1"
+        ]
+      },
+      "sheet-amber": {
+        "role": "tertiary",
+        "displayName": "Amber on Sheet",
+        "canonical": "#8c5e0f",
+        "tonalRamp": [
+          "#382b14",
+          "#684c1c",
+          "#a4731e",
+          "#e69b19",
+          "#e1b05b",
+          "#e3c797",
+          "#ebddc7",
+          "#f7f3ee"
+        ]
+      },
+      "plaque": {
+        "role": "neutral",
+        "displayName": "Label Card",
+        "canonical": "#efe6d2",
+        "tonalRamp": [
+          "#312a1c",
+          "#594b2c",
+          "#887039",
+          "#bc9643",
+          "#c6ad77",
+          "#d3c5a6",
+          "#e3ddce",
+          "#f5f3ef"
+        ]
+      },
+      "plaque-ink": {
+        "role": "neutral",
+        "displayName": "Label Print",
+        "canonical": "#2a1a05",
+        "tonalRamp": [
+          "#382915",
+          "#67471d",
+          "#a26a20",
+          "#e48d1b",
+          "#dfa75d",
+          "#e2c298",
+          "#eadbc7",
+          "#f7f3ee"
+        ]
+      },
+      "plaque-ink-2": {
+        "role": "neutral",
+        "displayName": "Label Print, line",
+        "canonical": "#4a3a26",
+        "tonalRamp": [
+          "#2d271f",
+          "#514433",
+          "#7c6446",
+          "#a88457",
+          "#b9a183",
+          "#ccbeae",
+          "#e0dad2",
+          "#f4f2f0"
+        ]
+      },
+      "chip-gilt": {
+        "role": "secondary",
+        "displayName": "Label Gilt",
+        "canonical": "#e3c77e",
+        "tonalRamp": [
+          "#352d18",
+          "#615024",
+          "#96792c",
+          "#d2a42d",
+          "#d3b669",
+          "#dbca9e",
+          "#e7dfca",
+          "#f6f4ee"
+        ]
+      },
+      "field": {
+        "role": "neutral",
+        "displayName": "Field White",
+        "canonical": "#fffaf0",
+        "tonalRamp": [
+          "#3c2e10",
+          "#725213",
+          "#b47d0e",
+          "#ffaa00",
+          "#f1ba4b",
+          "#eccc8d",
+          "#efe0c3",
+          "#f8f4ec"
+        ]
+      },
+      "sight": {
+        "role": "neutral",
+        "displayName": "Sight",
+        "canonical": "#1a1210",
+        "tonalRamp": [
+          "#2c2321",
+          "#4e3c37",
+          "#75554d",
+          "#9e6d61",
+          "#b2928a",
+          "#c8b6b1",
+          "#ded6d3",
+          "#f4f1f1"
+        ]
+      },
+      "mat-linen": {
+        "role": "neutral",
+        "displayName": "Linen Mat",
+        "canonical": "#ece3cd",
+        "tonalRamp": [
+          "#302a1c",
+          "#584b2d",
+          "#86713c",
+          "#b99846",
+          "#c3ae79",
+          "#d2c6a7",
+          "#e3ddcf",
+          "#f5f3f0"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Wall Lettering",
+        "purpose": "Headlines painted on the wall and the wordmark; weight 400, one italic word may be gilt."
+      },
+      "headline": {
+        "displayName": "Page Title",
+        "purpose": "Page titles on the wall; the piece title runs up to 4.4rem."
+      },
+      "title": {
+        "displayName": "Sheet Title",
+        "purpose": "Section headings and large figures inside sheets; always weight 600 on ivory."
+      },
+      "body": {
+        "displayName": "Reading",
+        "purpose": "All running text; old-style figures; 32-36ch on the wall, about 62ch on sheets."
+      },
+      "label": {
+        "displayName": "Printed Capitals",
+        "purpose": "Field labels, definition terms, navigation; always uppercase and tracked."
+      },
+      "button": {
+        "displayName": "Plate Lettering",
+        "purpose": "Button text."
+      },
+      "plaque-title": {
+        "displayName": "Wall Label Title",
+        "purpose": "Title line of a wall label; two lines at most."
+      },
+      "plaque-line": {
+        "displayName": "Wall Label Line",
+        "purpose": "Italic artist/date line on a wall label."
+      },
+      "data": {
+        "displayName": "Checkable Data",
+        "purpose": "Account names, fingerprints, hashes and codes only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "hung-frame",
+        "value": "0 26px 36px -18px rgba(8,0,0,0.85), 0 6px 10px -2px rgba(8,0,0,0.5)",
+        "purpose": "Every framed work at rest."
+      },
+      {
+        "name": "hung-frame-approached",
+        "value": "0 34px 44px -18px rgba(8,0,0,0.9), 0 8px 14px -2px rgba(8,0,0,0.55)",
+        "purpose": "Framed work on hover or focus within, with a 4px lift."
+      },
+      {
+        "name": "moulding-depth",
+        "value": "inset 0 6px 9px -4px rgba(0,0,0,0.5), inset 5px 0 8px -5px rgba(0,0,0,0.35)",
+        "purpose": "The frame shading the picture's top and left edges."
+      },
+      {
+        "name": "sheet",
+        "value": "0 1px 0 rgba(255,255,255,0.6) inset, 0 18px 40px -18px rgba(0,0,0,0.75), 0 2px 6px rgba(0,0,0,0.35)",
+        "purpose": "Catalogue sheets hung on the wall."
+      },
+      {
+        "name": "label",
+        "value": "0 2px 4px rgba(0,0,0,0.35)",
+        "purpose": "Wall labels."
+      },
+      {
+        "name": "plate",
+        "value": "0 2px 6px rgba(0,0,0,0.3)",
+        "purpose": "Gilt buttons; the seal button uses 0.4 alpha plus inset 0 0 0 1px rgba(233,201,122,0.55)."
+      },
+      {
+        "name": "sculpture",
+        "value": "drop-shadow(0 3px 2px rgba(0,0,0,0.55)) drop-shadow(0 12px 10px rgba(0,0,0,0.3))",
+        "purpose": "Filter shadow following a sculpture cut-out's silhouette."
+      },
+      {
+        "name": "cornice-light",
+        "value": "radial-gradient(140% 900px at 50% -200px, rgba(255,196,120,0.15), transparent 70%)",
+        "purpose": "The room's single light, over the 160x220px damask tile on the wall."
+      },
+      {
+        "name": "focus-wall",
+        "value": "outline: 2px solid #ecd18a; outline-offset: 3px",
+        "purpose": "Focus ring on the wall; on sheets the outline colour is #7a1e26."
+      },
+      {
+        "name": "field-focus",
+        "value": "0 0 0 3px rgba(122,30,38,0.15)",
+        "purpose": "Input focus ring on sheets, with a seal border."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-approach",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Easing for the approach and the arrival."
+      },
+      {
+        "name": "approach",
+        "value": "500ms; translateY(-4px) on the frame, wall warm-patch opacity 0 to 1",
+        "purpose": "The one authored interaction, on hover and focus within; no movement under reduced motion."
+      },
+      {
+        "name": "arrival",
+        "value": "1100ms; brightness(0.35) saturate(0.6) to none; delay calc(var(--i) * 60ms + 120ms)",
+        "purpose": "The hang comes up out of the dark once, work by work; skipped under reduced motion."
+      },
+      {
+        "name": "control",
+        "value": "200ms",
+        "purpose": "Button colour, shadow and brightness changes."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone-hang",
+        "value": "640px",
+        "purpose": "At and below: works sized by width, small works pair side by side, thinner mouldings. Above: wider gutter and sheet padding."
+      },
+      {
+        "name": "lettering-first",
+        "value": "1023px",
+        "purpose": "At and below: the welcome lettering is ordered before the first work."
+      },
+      {
+        "name": "piece-grid",
+        "value": "1024px",
+        "purpose": "From here the piece page is a 12-column grid (7 work, 5 text)."
+      },
+      {
+        "name": "page-column",
+        "value": "1400px",
+        "purpose": "Maximum page column; the home hang bleeds past it."
+      }
+    ],
+    "hang": {
+      "sizes": {
+        "s": "clamp(110px, 10.5vw, 160px)",
+        "m": "clamp(190px, 18vw, 290px)",
+        "l": "clamp(230px, 23vw, 360px)",
+        "x": "clamp(260px, 30vw, 460px)",
+        "piece": "clamp(320px, 54vh, 640px)"
+      },
+      "phoneWidths": {
+        "s": "38vw",
+        "m": "66vw",
+        "l": "76vw",
+        "x": "76vw",
+        "piece": "84vw"
+      },
+      "rhythm": [
+        "l",
+        "s",
+        "s",
+        "m",
+        "s",
+        "s",
+        "l",
+        "m",
+        "s",
+        "s",
+        "m",
+        "l",
+        "s",
+        "s"
+      ],
+      "mouldingWidth": "max(12px, 8.5% of work height); phones max(10px, 6% of work width)",
+      "mouldings": {
+        "gilt": {
+          "src": "/salon/frames/gilt.webp",
+          "slice": "133 162 166 162",
+          "repeat": "stretch"
+        },
+        "gilt-pattern": {
+          "src": "/salon/frames/gilt-pattern.webp",
+          "slice": "162 163 167 164",
+          "repeat": "stretch"
+        },
+        "walnut": {
+          "src": "/salon/frames/walnut.webp",
+          "slice": "184 199 176 213",
+          "repeat": "stretch"
+        },
+        "inlaid": {
+          "src": "/salon/frames/inlaid.webp",
+          "slice": "243 231 232 227",
+          "repeat": "round"
+        }
+      },
+      "provenance": "public/salon/frames/frames.json and per-file .webp.json records; The Metropolitan Museum of Art Open Access, CC0. Sculpture cut-outs: public/salon/sculpture/sculpture.json. Damask: authored SVG, public/salon/damask.svg."
+    }
+  },
+  "components": [
+    {
+      "name": "Seal Button",
+      "kind": "button",
+      "refersTo": "button-seal",
+      "description": "The decisive action in a view: a claret wax-seal plate with a thin gilt inner line.",
+      "html": "<div class=\"ds-wall-seal\"><button class=\"ds-btn-seal\">Walk the hang</button></div>",
+      "css": ".ds-wall-seal{background:#4f161b;padding:24px;} .ds-btn-seal{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;padding:10px 16px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.76rem;letter-spacing:0.13em;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;transition:background-color 200ms,box-shadow 200ms,color 200ms,filter 200ms;color:#f8e9d0;background:#8a222b;box-shadow:0 2px 6px rgba(0,0,0,0.4),inset 0 0 0 1px rgba(233,201,122,0.55);} .ds-btn-seal:hover{filter:brightness(1.12);} .ds-btn-seal:focus-visible{outline:2px solid #ecd18a;outline-offset:3px;} .ds-btn-seal:disabled{opacity:.45;cursor:not-allowed;}"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "A gilt-painted plate for ordinary committing actions, mostly inside sheets.",
+      "html": "<div class=\"ds-sheet-pad\"><button class=\"ds-btn-primary\">Send a tip</button></div>",
+      "css": ".ds-sheet-pad{background:#f3ead6;padding:24px;} .ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;padding:10px 16px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.76rem;letter-spacing:0.13em;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;transition:background-color 200ms,box-shadow 200ms,color 200ms,filter 200ms;color:#2a1a05;background:#d9b866;box-shadow:0 2px 6px rgba(0,0,0,0.3);} .ds-btn-primary:hover{filter:brightness(1.08);} .ds-btn-primary:focus-visible{outline:2px solid #7a1e26;outline-offset:3px;} .ds-btn-primary:disabled{opacity:.45;cursor:not-allowed;}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action; a gilt-ruled outline that reads on wall and sheet through the scoped ink.",
+      "html": "<div class=\"ds-wall-ghost\"><button class=\"ds-btn-ghost\">Start a piece</button></div>",
+      "css": ".ds-wall-ghost{background:#4f161b;padding:24px;} .ds-btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;padding:10px 16px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.76rem;letter-spacing:0.13em;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;transition:background-color 200ms,box-shadow 200ms,color 200ms,filter 200ms;color:#f4e6c6;background:transparent;border:1px solid rgba(201,162,74,0.7);} .ds-btn-ghost:hover{background:rgba(201,162,74,0.16);} .ds-btn-ghost:focus-visible{outline:2px solid #ecd18a;outline-offset:3px;}"
+    },
+    {
+      "name": "Catalogue Sheet",
+      "kind": "card",
+      "refersTo": "sheet",
+      "description": "Ivory sheet hung on the wall; carries facts, forms and reading. Inset printed hairline, square corners.",
+      "html": "<div class=\"ds-wall-sheet\"><section class=\"ds-sheet\"><h2 class=\"ds-sheet-title\">Rights</h2><p class=\"ds-sheet-body\">Personal use, with credit to the artist.</p><p class=\"ds-sheet-fine\">5% of every resale goes to the artist.</p></section></div>",
+      "css": ".ds-wall-sheet{background:#4f161b;padding:24px;} .ds-sheet{position:relative;padding:32px;color:#2a1f17;background:linear-gradient(180deg,rgba(255,252,240,0.65),rgba(255,252,240,0) 40%),#f3ead6;box-shadow:0 1px 0 rgba(255,255,255,0.6) inset,0 18px 40px -18px rgba(0,0,0,0.75),0 2px 6px rgba(0,0,0,0.35);outline:1px solid rgba(110,79,23,0.35);outline-offset:-8px;font-family:var(--font-spectral),Georgia,serif;font-size:17px;line-height:1.55;} .ds-sheet-title{margin:0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:600;font-size:1.875rem;line-height:1.2;} .ds-sheet-body{margin:12px 0 0;} .ds-sheet-fine{margin:4px 0 0;font-size:0.875rem;color:#5a4636;}"
+    },
+    {
+      "name": "Field with Label",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Text field on a sheet with its Cinzel label; focus turns the border seal claret with a soft ring.",
+      "html": "<div class=\"ds-field-sheet\"><label class=\"ds-label\" for=\"ds-amount\">Amount (USDC)</label><input id=\"ds-amount\" class=\"ds-field\" placeholder=\"5\" /></div>",
+      "css": ".ds-field-sheet{background:#f3ead6;padding:24px;max-width:280px;} .ds-label{display:block;margin-bottom:6px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:#7d6650;} .ds-field{width:100%;padding:8px 12px;font-family:var(--font-spectral),Georgia,serif;font-size:0.95rem;color:#2a1f17;background:#fffaf0;border:1px solid #cdb98f;border-radius:2px;outline:none;caret-color:#7a1e26;transition:border-color 150ms,box-shadow 150ms;} .ds-field:focus{border-color:#7a1e26;box-shadow:0 0 0 3px rgba(122,30,38,0.15);} .ds-field::placeholder{color:#7d6650;}"
+    },
+    {
+      "name": "Hung Work with Wall Label",
+      "kind": "custom",
+      "refersTo": "plaque",
+      "description": "The signature unit: a photographed cassetta frame drawn as a nine-slice plate, a dark sight edge, and a flat printed label beneath. Approaching it lifts the frame 4px and warms the wall. Plate source: /salon/frames/gilt.webp (The Met, CC0), slices from frames.json.",
+      "html": "<div class=\"ds-wall-hung\"><figure class=\"ds-hung\" tabindex=\"0\"><span class=\"ds-frame\"><span class=\"ds-sight\"><span class=\"ds-picture\"></span></span></span><figcaption class=\"ds-plaque\"><span class=\"ds-plaque-title\">The Dance Class</span><span class=\"ds-plaque-line\">Edgar Degas, 1874</span><span class=\"ds-plaque-level\">Example</span></figcaption></figure></div>",
+      "css": ".ds-wall-hung{background:#4f161b;padding:40px 24px 28px;display:flex;justify-content:center;} .ds-hung{position:relative;margin:0;display:flex;flex-direction:column;align-items:center;outline:none;} .ds-hung::before{content:'';position:absolute;inset:-14% 0 8% 0;background:radial-gradient(closest-side,rgba(255,210,150,0.22),transparent);opacity:0;pointer-events:none;transition:opacity 500ms cubic-bezier(0.16,1,0.3,1);} .ds-hung:hover::before,.ds-hung:focus-visible::before{opacity:1;} .ds-frame{position:relative;display:inline-block;border-style:solid;border-width:17px;border-image-source:url('/salon/frames/gilt.webp');border-image-slice:133 162 166 162;border-image-width:1;border-image-repeat:stretch;box-shadow:0 26px 36px -18px rgba(8,0,0,0.85),0 6px 10px -2px rgba(8,0,0,0.5);transition:transform 500ms cubic-bezier(0.16,1,0.3,1),box-shadow 500ms cubic-bezier(0.16,1,0.3,1);} .ds-hung:hover .ds-frame,.ds-hung:focus-visible .ds-frame{transform:translateY(-4px);box-shadow:0 34px 44px -18px rgba(8,0,0,0.9),0 8px 14px -2px rgba(8,0,0,0.55);} .ds-sight{position:relative;display:block;background:#1a1210;box-shadow:0 0 0 1px rgba(0,0,0,0.7);} .ds-sight::after{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 6px 9px -4px rgba(0,0,0,0.5),inset 5px 0 8px -5px rgba(0,0,0,0.35);} .ds-picture{display:block;width:240px;height:200px;background:#5a4636;} .ds-plaque{margin-top:14px;padding:8px 14px 9px;min-width:9rem;max-width:20rem;text-align:center;color:#2a1a05;background:#efe6d2;box-shadow:0 2px 4px rgba(0,0,0,0.35);font-family:var(--font-spectral),Georgia,serif;} .ds-plaque-title{display:block;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:700;font-size:0.72rem;line-height:1.3;letter-spacing:0.1em;text-transform:uppercase;} .ds-plaque-line{display:block;margin-top:1px;font-size:0.82rem;line-height:1.3;font-style:italic;color:#4a3a26;} .ds-plaque-level{display:block;margin-top:3px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:#7a1e26;} @media (prefers-reduced-motion: reduce){.ds-frame{transition:none;} .ds-hung:hover .ds-frame,.ds-hung:focus-visible .ds-frame{transform:none;}}"
+    },
+    {
+      "name": "Chips",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Small printed state labels: gilt for the current state, quiet ruled for secondary states.",
+      "html": "<div class=\"ds-wall-chip\"><span class=\"ds-chip\">Published</span> <span class=\"ds-chip ds-chip-quiet\">Draft</span></div>",
+      "css": ".ds-wall-chip{background:#4f161b;padding:24px;} .ds-chip{display:inline-block;padding:4px 12px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;color:#2a1a05;background:#e3c77e;} .ds-chip-quiet{color:#dcc49b;background:transparent;box-shadow:inset 0 0 0 1px rgba(233,201,122,0.28);}"
+    },
+    {
+      "name": "Picture Rail",
+      "kind": "nav",
+      "description": "The header: wordmark and Cinzel links above a flat 2px gilt line running the width of the room.",
+      "html": "<header class=\"ds-rail\"><div class=\"ds-rail-row\"><a class=\"ds-rail-mark\" href=\"#\"><span class=\"ds-rail-name\">Soulprint</span><span class=\"ds-rail-sub\">Salon</span></a><nav class=\"ds-rail-nav\"><a href=\"#\">The hang</a><a href=\"#\">Rate notes</a><a href=\"#\">Studio</a></nav></div><div class=\"ds-rail-line\"></div></header>",
+      "css": ".ds-rail{background:#4f161b;} .ds-rail-row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px;padding:24px 32px 16px;} .ds-rail-mark{display:flex;align-items:baseline;gap:12px;text-decoration:none;} .ds-rail-name{font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-size:2.4rem;line-height:1;letter-spacing:-0.01em;color:#f4e6c6;} .ds-rail-sub{font-family:var(--font-plaque),'Trajan Pro',serif;font-size:0.66rem;letter-spacing:0.3em;text-transform:uppercase;color:#bd9e75;} .ds-rail-nav{display:flex;flex-wrap:wrap;gap:8px 24px;font-family:var(--font-plaque),'Trajan Pro',serif;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;} .ds-rail-nav a{color:#dcc49b;text-decoration:none;} .ds-rail-nav a:hover{color:#f4e6c6;} .ds-rail-nav a:focus-visible,.ds-rail-mark:focus-visible{outline:2px solid #ecd18a;outline-offset:3px;border-radius:2px;} .ds-rail-line{height:2px;background:#c9a24a;}"
+    },
+    {
+      "name": "Pull Quote",
+      "kind": "custom",
+      "description": "The artist's words on a sheet, opened by a drawn quotation mark in seal claret.",
+      "html": "<div class=\"ds-quote-sheet\"><blockquote class=\"ds-pull-quote\">Ink first, then washes.</blockquote></div>",
+      "css": ".ds-quote-sheet{background:#f3ead6;padding:28px 24px;} .ds-pull-quote{position:relative;margin:0;padding-left:1.6em;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:600;font-style:italic;font-size:1.25rem;line-height:1.6;color:#5a4636;} .ds-pull-quote::before{content:'\\201C';position:absolute;left:0;top:-0.15em;font-size:2.4em;line-height:1;font-style:normal;color:#7a1e26;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Salon Hang",
+    "overview": "Soulprint is one room: a claret wall, lit once from the cornice, hung close with works in real period frames. Every work carries a flat printed label that states what its record shows and nothing more. The reference is a Paris Salon wall of the 1880s, where pictures touch shoulders and sizes vary, and it replaces the online-shop pattern of unframed images in a white grid.\n\nThere are two materials and they never blur. **The wall** (claret, damask, gilt, light lettering) carries the art, the headlines and navigation. **The sheet** (ivory catalogue paper with dark print) carries facts, forms and reading. The same token names (`ink`, `ink-2`, `ink-3`, `rule`, `paper-2`, `seal-2`, `moss`, `amber`) resolve to light values on the wall and dark values inside a sheet, so a component reads correctly in either place without a variant.\n\nThe physical parts are photographs, not drawings. The frames are four empty cassetta frames from The Metropolitan Museum of Art (Open Access, CC0) cut into nine-slice plates with measured slices; sculpture is cut from its museum photograph and stands on its own base. Each raster ships with a provenance record next to it. Operate screens (studio, rooms, vault, pay) live in the same room and simply use more sheet and less wall.",
+    "keyCharacteristics": [
+      "One claret wall, one light from the top, an authored tone-on-tone damask.",
+      "Photographed period frames as nine-slice border plates; four mouldings, one per work for life.",
+      "Flat ivory wall labels: Cinzel title, italic Spectral line, claret level.",
+      "Ivory catalogue sheets with an inset hairline for every fact and form.",
+      "Square forms; the only radius is 2px on controls.",
+      "One authored interaction: a work steps forward and the wall behind it warms."
+    ],
+    "rules": [
+      {
+        "name": "The Two Inks Rule",
+        "body": "Never hard-code a text colour for wall or sheet. Use `ink`, `ink-2`, `ink-3`, `rule`; the scope (`:root`/`.on-wall` versus `.card`/`.sheet`/`.on-paper`) picks the value.",
+        "section": "colors"
+      },
+      {
+        "name": "The Seal Is One Decision Rule",
+        "body": "The claret seal button marks the one decisive action in a view (walk the hang, start a piece, the committing step of a flow). Ordinary actions are gilt plates or ghosts.",
+        "section": "colors"
+      },
+      {
+        "name": "The Claret Level Rule",
+        "body": "On a label, the only coloured line is the level or the word \"Example\", in seal claret. Colour never grades a work; green, amber and red are for system state only.",
+        "section": "colors"
+      },
+      {
+        "name": "The Heavier-On-Paper Rule",
+        "body": "Bodoni's hairlines break at small sizes on ivory. Any display type inside a sheet is weight 600; weight 400 is for large lettering on the wall.",
+        "section": "typography"
+      },
+      {
+        "name": "The Capitals Are Printed Rule",
+        "body": "Cinzel is always uppercase, tracked 0.1em to 0.3em, and at or below 0.8rem. It is never used for sentences.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Light Rule",
+        "body": "Light comes from the top of the room. Shadows fall down, inner shading sits on the top and left of a picture, and nothing is lit from below or from the side.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do put the art and the headlines on the wall and every fact, form and long text on a sheet.",
+      "Do use the scoped ink tokens so the same component reads on wall and sheet.",
+      "Do frame every picture with one of the four photographed plates and its measured slices from `public/salon/frames/frames.json`; add a new moulding only as a new photographed plate with its provenance file.",
+      "Do keep works close: hang gaps stay within 14 to 28px and sizes follow the rhythm.",
+      "Do give every work a wall label and take the evidence sentence from the wording table unchanged.",
+      "Do label every public-domain work \"Example\" and link it to its museum page.",
+      "Do set display type at weight 600 inside sheets.",
+      "Do give keyboard focus the same approach response as hover, and remove movement under reduced motion.",
+      "Do keep product copy on creator and client screens free of \"NFT\", \"mint\", \"gas\" and \"wallet\"."
+    ],
+    "donts": [
+      "Don't draw a frame with CSS borders, gradients or bevels; frames are photographs.",
+      "Don't hang unframed images in an evenly spaced grid on a pale ground.",
+      "Don't round anything beyond 2px, and don't use pills or circular controls.",
+      "Don't add a second light: no side or bottom glows, no coloured shadows, no hard offset shadows.",
+      "Don't put a form field or a long paragraph directly on the wall; the wall select in the rail is the only wall control.",
+      "Don't use moss, amber or red to grade a work; a label's only colour is the claret level line.",
+      "Don't show a level, price, record or collect control on an example work.",
+      "Don't use Cinzel for sentences or in lowercase, and don't use the mono face for anything but checkable values.",
+      "Don't use a coloured side stripe for quotes or callouts.",
+      "Don't introduce cool greys, pure white or pure black; every neutral is warm."
+    ]
+  }
+}

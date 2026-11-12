@@ -55,7 +55,7 @@ test("proof page: private until published, then the facts, badge and a matching 
   await page.reload();
   await expect(page.getByTestId("evidence-sentence")).toHaveText("Declared by the artist.");
   await expect(page.getByTestId("badge")).toHaveText("Commissioned and accepted");
-  await expect(page.getByTestId("recompute")).toContainText("✓ Recomputed in your browser");
+  await expect(page.getByTestId("recompute")).toContainText("Recomputed in your browser");
   await expect(page.getByRole("img", { name: /Frame/ })).toBeVisible();
   const text = await page.locator("body").innerText();
   expect(text).not.toMatch(/25 USDC|25,000,000|25000000|price/i);

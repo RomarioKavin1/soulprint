@@ -1,10 +1,10 @@
 import { loadConfig } from "@/lib/config";
 import { loadGallery } from "@/lib/gallery";
-import { GalleryGrid } from "@/components/gallery/GalleryGrid";
+import { Hang } from "@/components/salon/Hang";
 
 export const dynamic = "force-dynamic";
 
-/** An artist's published work, newest first. */
+/** An artist's room: their published work, newest first. */
 export default async function ArtistPage({ params }: { params: Promise<{ artist: string }> }) {
   const { artist } = await params;
   const id = decodeURIComponent(artist);
@@ -13,22 +13,23 @@ export default async function ArtistPage({ params }: { params: Promise<{ artist:
   const pieces = await loadGallery(config.evidenceUrl, { artist: id, limit: 60 });
   const recorded = pieces?.filter((p) => p.level > 0).length ?? 0;
   return (
-    <div className="pt-10">
-      <p className="label">Artist</p>
-      <h1 className="mt-2 break-all font-display text-4xl tracking-tight" data-testid="artist-name">{id}</h1>
-      {pieces && pieces.length > 0 && (
-        <p className="mt-2 text-ink-2">
-          {pieces.length} published piece{pieces.length === 1 ? "" : "s"}
-          {recorded > 0 ? `, ${recorded} recorded while made` : ""}.
-        </p>
-      )}
-      <div className="mt-8">
+    <div className="pt-14 sm:pt-20">
+      <header className="mx-auto max-w-4xl text-center">
+        <h1 className="break-all font-display text-[clamp(2.2rem,5vw,4.4rem)] leading-[1.02] tracking-[-0.015em]" data-testid="artist-name">{id}</h1>
+        {pieces && pieces.length > 0 && (
+          <p className="mt-5 text-ink-2">
+            {pieces.length} published piece{pieces.length === 1 ? "" : "s"}
+            {recorded > 0 ? `, ${recorded} recorded while made` : ""}.
+          </p>
+        )}
+      </header>
+      <div className="mt-6">
         {pieces === null ? (
-          <p className="card text-ink-2">This page could not be loaded just now. Reload in a moment.</p>
+          <p className="card mx-auto mt-10 max-w-xl text-ink-2">This room could not be opened just now. Reload in a moment.</p>
         ) : pieces.length === 0 ? (
-          <p className="card text-ink-2">No published pieces yet.</p>
+          <p className="card mx-auto mt-10 max-w-xl text-ink-2">Nothing hung in this room yet.</p>
         ) : (
-          <GalleryGrid pieces={pieces} showArtist={false} />
+          <Hang items={pieces.map((piece) => ({ kind: "piece" as const, piece }))} showArtist={false} label={`Work by ${id}`} />
         )}
       </div>
     </div>

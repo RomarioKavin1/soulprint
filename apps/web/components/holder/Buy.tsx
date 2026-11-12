@@ -19,10 +19,10 @@ export function Buy({ pieceId }: { pieceId: string }) {
   const d = config.currencyDecimals;
   const bought = accountId && piece.owner === accountId;
   return (
-    <div className="space-y-6 pt-8">
+    <div className="space-y-8 pt-12">
       <div>
-        <p className="label">For sale · {piece.piece_id}</p>
-        <h1 className="mt-2 font-display text-4xl tracking-tight">Piece {piece.token_id} by {piece.artist}</h1>
+        <h1 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none tracking-[-0.015em]">Piece {piece.token_id} by {piece.artist}</h1>
+        <p className="mt-3 text-sm text-ink-3">For sale · {piece.piece_id}</p>
         <Link className="mt-2 inline-block text-sm underline" href={`/p/${pieceId}`}>See how it was made</Link>
       </div>
       {bought ? (

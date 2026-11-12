@@ -14,6 +14,9 @@ const config: NextConfig = {
   webpack: (c) => {
     // Workspace packages import siblings with explicit `.ts` extensions.
     c.resolve.extensionAlias = { ".js": [".ts", ".tsx", ".js"], ".ts": [".ts", ".tsx"] };
+    // Design-review captures land in .impeccable/; rebuilding on them made the dev server read a
+    // half-written manifest mid-request ("Unexpected end of JSON input").
+    c.watchOptions = { ...c.watchOptions, ignored: ["**/node_modules/**", "**/.git/**", "**/.impeccable/**"] };
     return c;
   },
 };

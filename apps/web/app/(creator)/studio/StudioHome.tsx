@@ -10,7 +10,7 @@ export function StudioHome() {
   return (
     <div className="pt-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="font-display text-4xl tracking-tight">Studio</h1>
+        <h1 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none tracking-[-0.015em]">Studio</h1>
         {near?.accountId && (
           <div className="flex gap-2">
             <Link href="/studio/new?mode=standalone" className="btn-seal">
@@ -49,19 +49,17 @@ function Group({ title, pieces, empty, hrefFor, decimals }: { title: string; pie
       {pieces.length === 0 ? (
         <p className="mt-3 text-ink-2">{empty}</p>
       ) : (
-        <ul className="mt-3 divide-y divide-rule rounded-2xl border border-rule bg-white/60">
+        <ul className="card mt-3 divide-y divide-rule !p-0">
           {pieces.map((p) => (
             <li key={p.piece_id}>
-              <Link href={hrefFor(p)} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 hover:bg-paper-2/60">
+              <Link href={hrefFor(p)} className="grid items-center gap-x-6 gap-y-1 px-5 py-4 no-underline hover:bg-paper-2/60 sm:grid-cols-[minmax(0,1fr)_7rem_11rem_9rem]">
                 <span>
                   <span className="font-display text-lg">Piece {p.token_id}</span>
                   <span className="ml-3 text-sm text-ink-3">{p.mode === "Commission" ? `for ${p.owner === p.artist ? "an open client" : p.owner}` : "your own piece"}</span>
                 </span>
-                <span className="text-sm text-ink-2">
-                  {p.mode === "Commission" && <span className="mr-4">{money(p.price, p.currency, decimals)}</span>}
-                  <span className="rounded-full bg-paper-2 px-3 py-1">{statusText(p)}</span>
-                  <span className="ml-4 text-ink-3">{when(p.created_at)}</span>
-                </span>
+                <span className="tabular text-sm text-ink-2 sm:text-right">{p.mode === "Commission" ? money(p.price, p.currency, decimals) : ""}</span>
+                <span><span className="chip">{statusText(p)}</span></span>
+                <span className="tabular text-sm text-ink-3 sm:text-right">{when(p.created_at)}</span>
               </Link>
             </li>
           ))}

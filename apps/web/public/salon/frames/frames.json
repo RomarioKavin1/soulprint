@@ -1,0 +1,74 @@
+{
+  "gilt": {
+    "src": "/salon/frames/gilt.webp",
+    "width": 1124,
+    "height": 1316,
+    "slice": {
+      "top": 133,
+      "right": 162,
+      "bottom": 166,
+      "left": 162
+    },
+    "title": "Cassetta frame",
+    "date": "mid-16th century",
+    "medium": "Gilt poplar",
+    "museum": "The Metropolitan Museum of Art",
+    "source": "https://www.metmuseum.org/art/collection/search/461303",
+    "licence": "CC0, public domain (Met Open Access)",
+    "image": "https://images.metmuseum.org/CRDImages/rl/original/86B_063r2m-1.jpg"
+  },
+  "gilt-pattern": {
+    "src": "/salon/frames/gilt-pattern.webp",
+    "width": 1168,
+    "height": 1301,
+    "slice": {
+      "top": 162,
+      "right": 163,
+      "bottom": 167,
+      "left": 164
+    },
+    "title": "Cassetta Frame",
+    "date": "mid-16th century",
+    "medium": "Pine",
+    "museum": "The Metropolitan Museum of Art",
+    "source": "https://www.metmuseum.org/art/collection/search/460359",
+    "licence": "CC0, public domain (Met Open Access)",
+    "image": "https://images.metmuseum.org/CRDImages/rl/original/86K_090r3.jpg"
+  },
+  "walnut": {
+    "src": "/salon/frames/walnut.webp",
+    "width": 967,
+    "height": 854,
+    "slice": {
+      "top": 184,
+      "right": 199,
+      "bottom": 176,
+      "left": 213
+    },
+    "title": "Cassetta frame",
+    "date": "mid-16th century",
+    "medium": "Pine",
+    "museum": "The Metropolitan Museum of Art",
+    "source": "https://www.metmuseum.org/art/collection/search/460550",
+    "licence": "CC0, public domain (Met Open Access)",
+    "image": "https://images.metmuseum.org/CRDImages/rl/original/DT3599.jpg"
+  },
+  "inlaid": {
+    "src": "/salon/frames/inlaid.webp",
+    "width": 1120,
+    "height": 1307,
+    "slice": {
+      "top": 243,
+      "right": 231,
+      "bottom": 232,
+      "left": 227
+    },
+    "title": "Cassetta frame",
+    "date": "1880–1900; made in style of early 17th century",
+    "medium": "Poplar back frame with applied upper moldings in walnut, ebony, and ebonized pearwood.  Half-lapped back frame.  Niello; crystal and lapis lazulipanels with silver leaf beneath; some with dragon's-blood glaze.  Frieze: niello-bordered panels with radius-ended centers and square corners.",
+    "museum": "The Metropolitan Museum of Art",
+    "source": "https://www.metmuseum.org/art/collection/search/461189",
+    "licence": "CC0, public domain (Met Open Access)",
+    "image": "https://images.metmuseum.org/CRDImages/rl/original/SF-1975-1-2292.jpg"
+  }
+}

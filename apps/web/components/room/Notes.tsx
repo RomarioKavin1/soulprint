@@ -27,7 +27,7 @@ export function Notes({ pieceId, artist }: { pieceId: string; artist: string }) 
   return (
     <Section title="Brief and messages">
       {latestBrief ? (
-        <div className="mb-5 rounded-xl bg-paper-2/70 p-4">
+        <div className="mb-5 rounded-sm bg-paper-2/70 p-4">
           <p className="label">Brief · {latestBrief.author === artist ? "artist" : "client"} · {new Date(latestBrief.at).toLocaleDateString()}</p>
           <p className="mt-2 whitespace-pre-wrap text-sm">{latestBrief.text}</p>
         </div>
@@ -50,7 +50,7 @@ export function Notes({ pieceId, artist }: { pieceId: string; artist: string }) 
       )}
       <ul className="max-h-80 space-y-3 overflow-y-auto">
         {(msgs.data?.items ?? []).map((m, i) => (
-          <li key={i} className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${m.author === accountId ? "ml-auto bg-ink text-paper" : "bg-paper-2"}`}>
+          <li key={i} className={`max-w-[80%] rounded-sm px-4 py-2 text-sm ${m.author === accountId ? "ml-auto bg-ink text-paper" : "bg-paper-2"}`}>
             <p className="whitespace-pre-wrap">{m.text}</p>
             <p className={`mt-1 text-[10px] ${m.author === accountId ? "text-paper/60" : "text-ink-3"}`}>{m.author === artist ? "artist" : m.author} · {when(String(BigInt(m.at) * 1_000_000n))}</p>
           </li>

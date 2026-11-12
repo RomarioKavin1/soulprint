@@ -133,7 +133,7 @@ export function CapturePanel({ pieceId, segments, open, onChange }: { pieceId: s
             A frame every {fast ? "5 seconds (demo timing)" : "minute for screens, two minutes for cameras"}. Each frame is signed on this device and chained to the last; nothing can be slipped in later.
           </p>
           {v?.problem && (
-            <div role="status" className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border border-amber/40 bg-amber/10 px-3 py-2 text-sm">
+            <div role="status" className="mt-3 flex flex-wrap items-center gap-3 rounded-sm border border-amber/40 bg-amber/10 px-3 py-2 text-sm">
               <span>{v.problem}</span>
               {v.showRetry && (
                 <button className="btn-ghost py-1" onClick={() => run("Retrying", () => session.current!.flush())}>

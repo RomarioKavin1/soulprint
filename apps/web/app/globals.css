@@ -1,30 +1,349 @@
 @import "tailwindcss";
 
+/*
+ * The Salon (13 Nov): a claret wall, photographed period frames, printed labels and ivory sheets.
+ * Colour tokens are scoped: on the wall `ink` is the light lettering, inside a sheet (.card,
+ * .sheet) `ink` is the dark print. Components keep using ink/paper/rule and read in both places.
+ */
 @theme {
-  --color-paper: #f6f2ea;
-  --color-paper-2: #ede7db;
-  --color-ink: #1d1a16;
-  --color-ink-2: #5a534a;
-  --color-ink-3: #8a8277;
-  --color-rule: #d9d1c3;
-  --color-seal: #b3361f;
-  --color-seal-2: #8f2a17;
-  --color-moss: #3f6b4a;
-  --color-amber: #a86a12;
-  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
-  --font-sans: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  /* sheet (paper) tokens; re-pointed on the wall below */
+  --color-paper: #f3ead6;
+  --color-paper-2: #e8dbbd;
+  --color-ink: #2a1f17;
+  --color-ink-2: #5a4636;
+  --color-ink-3: #7d6650;
+  --color-rule: #cdb98f;
+  --color-seal: #7a1e26;
+  --color-seal-2: #5b141b;
+  --color-moss: #355a35;
+  --color-amber: #8c5e0f;
+  /* the room */
+  --color-wall: #4f161b;
+  --color-wall-deep: #2b0a0d;
+  --color-gilt: #c9a24a;
+  --color-gilt-light: #ecd18a;
+  --color-gilt-dark: #6e4f17;
+  --color-brass: #b58f45;
+  --font-display: var(--font-bodoni), "Bodoni 72", Didot, serif;
+  --font-plaque: var(--font-cinzel), "Trajan Pro", serif;
+  --font-sans: var(--font-spectral), Georgia, serif;
+  --font-mono: var(--font-jbmono), ui-monospace, Menlo, monospace;
 }
 
-:root { color-scheme: light; }
-html { background: var(--color-paper); color: var(--color-ink); }
-body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
-::selection { background: var(--color-seal); color: var(--color-paper); }
+/* On the wall the lettering is light. */
+:root, .on-wall {
+  --color-ink: #f4e6c6;
+  --color-ink-2: #dcc49b;
+  --color-ink-3: #bd9e75;
+  --color-rule: rgba(233, 201, 122, 0.28);
+  --color-paper-2: rgba(0, 0, 0, 0.22);
+  --color-seal-2: #f1a08e;
+  --color-moss: #a9d29d;
+  --color-amber: #f0c56a;
+  color-scheme: dark;
+}
+/* Inside a catalogue sheet the print is dark again. */
+.card, .sheet, .on-paper {
+  --color-ink: #2a1f17;
+  --color-ink-2: #5a4636;
+  --color-ink-3: #7d6650;
+  --color-rule: #cdb98f;
+  --color-paper-2: #e8dbbd;
+  --color-seal-2: #5b141b;
+  --color-moss: #355a35;
+  --color-amber: #8c5e0f;
+  color-scheme: light;
+  color: var(--color-ink);
+}
 
-@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50; }
-@utility btn-primary { @apply btn bg-ink text-paper hover:bg-seal-2; }
-@utility btn-seal { @apply btn bg-seal text-paper hover:bg-seal-2; }
-@utility btn-ghost { @apply btn border border-rule text-ink hover:bg-paper-2; }
-@utility card { @apply rounded-2xl border border-rule bg-white/60 p-5; }
-@utility label { @apply text-xs font-medium uppercase tracking-[0.14em] text-ink-3; }
-@utility field { @apply w-full rounded-lg border border-rule bg-white px-3 py-2 text-sm outline-none focus:border-ink; }
+html {
+  background-color: var(--color-wall-deep);
+  color: var(--color-ink);
+  scroll-behavior: smooth;
+}
+body {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "kern", "liga", "onum";
+  background-color: var(--color-wall);
+  /* the wall: damask stencil, then light falling from the top and gathering at the skirting */
+  /* light falls from the cornice; the damask runs the height of the room */
+  background-image:
+    radial-gradient(140% 900px at 50% -200px, rgba(255, 196, 120, 0.15), transparent 70%),
+    url("/salon/damask.svg");
+  background-size: 100% 1400px, 160px 220px;
+  background-repeat: no-repeat, repeat;
+  min-height: 100vh;
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+::selection { background: var(--color-gilt); color: #2a1f17; }
+:focus-visible { outline: 2px solid var(--color-gilt-light); outline-offset: 3px; border-radius: 2px; }
+.card :focus-visible, .sheet :focus-visible { outline-color: var(--color-seal); }
+a { text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+input, textarea, select { caret-color: var(--color-seal); }
+* { scrollbar-color: var(--color-gilt-dark) transparent; scrollbar-width: thin; }
+code, .tabular { font-variant-numeric: tabular-nums; }
+
+/* ---------------- controls ---------------- */
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap px-4 py-2.5 text-[0.76rem] uppercase tracking-[0.13em] transition-[background-color,box-shadow,color,filter] duration-200 disabled:cursor-not-allowed disabled:opacity-45;
+  font-family: var(--font-plaque);
+  font-weight: 600;
+  border-radius: 2px;
+}
+/* a gilt-painted plate */
+@utility btn-primary {
+  @apply btn;
+  color: #2a1a05;
+  background: #d9b866;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  &:hover:not(:disabled) { filter: brightness(1.08); }
+}
+/* the wax seal: the decisive action */
+@utility btn-seal {
+  @apply btn;
+  color: #f8e9d0;
+  background: #8a222b;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(233, 201, 122, 0.55);
+  &:hover:not(:disabled) { filter: brightness(1.12); }
+}
+@utility btn-ghost {
+  @apply btn border;
+  color: var(--color-ink);
+  border-color: color-mix(in srgb, var(--color-gilt) 70%, transparent);
+  background: transparent;
+  &:hover:not(:disabled) { background: color-mix(in srgb, var(--color-gilt) 16%, transparent); }
+}
+
+/* a catalogue sheet hung on the wall */
+@utility card {
+  @apply relative p-6 sm:p-8;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 240, 0.65), rgba(255, 252, 240, 0) 40%),
+    #f3ead6;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 18px 40px -18px rgba(0, 0, 0, 0.75), 0 2px 6px rgba(0, 0, 0, 0.35);
+  outline: 1px solid rgba(110, 79, 23, 0.35);
+  outline-offset: -8px;
+}
+@utility label {
+  @apply text-[0.72rem] uppercase tracking-[0.2em];
+  font-family: var(--font-plaque);
+  font-weight: 600;
+  color: var(--color-ink-3);
+}
+@utility field {
+  @apply w-full px-3 py-2 text-[0.95rem] outline-none transition-[border-color,box-shadow];
+  background: #fffaf0;
+  color: #2a1f17;
+  border: 1px solid #cdb98f;
+  border-radius: 2px;
+  &:focus { border-color: #7a1e26; box-shadow: 0 0 0 3px rgba(122, 30, 38, 0.15); }
+  &::placeholder { color: #7d6650; }
+}
+
+/* ---------------- the salon ---------------- */
+
+/*
+ * Frames are photographs of real period cassetta frames (The Met Open Access, CC0), drawn as
+ * nine-slice border images: corners stay true, the long sides repeat their own carving.
+ * Plates and their measured slices: public/salon/frames (made by scripts/salon-assets.py).
+ */
+.frame {
+  --m: max(12px, calc(var(--h, 260px) * 0.085));
+  position: relative;
+  display: inline-block;
+  border-style: solid;
+  border-width: var(--m);
+  border-image-repeat: stretch;
+  border-image-width: 1;
+  box-shadow: 0 26px 36px -18px rgba(8, 0, 0, 0.85), 0 6px 10px -2px rgba(8, 0, 0, 0.5);
+  transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.frame[data-moulding="gilt"] { border-image-source: url("/salon/frames/gilt.webp"); border-image-slice: 133 162 166 162; }
+.frame[data-moulding="gilt-pattern"] { border-image-source: url("/salon/frames/gilt-pattern.webp"); border-image-slice: 162 163 167 164; }
+.frame[data-moulding="walnut"] { border-image-source: url("/salon/frames/walnut.webp"); border-image-slice: 184 199 176 213; }
+.frame[data-moulding="inlaid"] { border-image-repeat: round; border-image-source: url("/salon/frames/inlaid.webp"); border-image-slice: 243 231 232 227; }
+.frame-sight {
+  position: relative;
+  display: block;
+  background: #1a1210;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7);
+}
+.frame-sight[data-mat="linen"] { padding: clamp(10px, 1.6vw, 26px); background: #ece3cd; }
+.frame-sight img { display: block; }
+/* the moulding's depth shades the picture's top and left edges */
+.frame-sight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 6px 9px -4px rgba(0, 0, 0, 0.5), inset 5px 0 8px -5px rgba(0, 0, 0, 0.35);
+}
+
+/*
+ * The room has one light, from the cornice (see body). Approaching a work, it steps forward a
+ * little and the wall behind it warms: the one authored interaction.
+ */
+.hung { position: relative; display: flex; flex-direction: column; align-items: center; }
+.hung::before {
+  content: "";
+  position: absolute;
+  inset: -14% 0 8% 0;
+  background: radial-gradient(closest-side, rgba(255, 210, 150, 0.22), transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hung:hover::before, .hung:focus-within::before { opacity: 1; }
+.hung:hover .frame, .hung:focus-within .frame {
+  transform: translateY(-4px);
+  box-shadow: 0 34px 44px -18px rgba(8, 0, 0, 0.9), 0 8px 14px -2px rgba(8, 0, 0, 0.55);
+}
+/* Arrival: the hang comes out of the dark once, work by work. */
+@keyframes picture-up { from { filter: brightness(0.35) saturate(0.6); } to { filter: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .hang .hung .frame, .hang .sculpture img { animation: picture-up 1100ms cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(var(--i, 0) * 60ms + 120ms); }
+}
+@media (prefers-reduced-motion: reduce) { .hung .frame { transition: none; } .hung:hover .frame { transform: none; } }
+
+/* Museum wall labels: flat card, printed type. */
+.plaque {
+  margin-top: 14px;
+  padding: 8px 14px 9px;
+  min-width: 9rem;
+  max-width: min(100%, 20rem);
+  text-align: center;
+  color: #2a1a05;
+  background: #efe6d2;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+.plaque-title {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  font-family: var(--font-plaque);
+  font-weight: 700;
+  font-size: 0.72rem;
+  line-height: 1.3;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.plaque-line { display: block; margin-top: 1px; font-size: 0.82rem; line-height: 1.3; font-style: italic; color: #4a3a26; }
+.plaque-note { display: block; margin-top: 4px; font-size: 0.78rem; line-height: 1.35; color: #4a3a26; }
+.plaque-story { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-style: italic; }
+.plaque-level {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--font-plaque);
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7a1e26;
+}
+
+/* Sculpture: the work itself, cut from its museum photograph, standing on its own base. */
+.sculpture { display: flex; flex-direction: column; align-items: center; }
+.sculpture img {
+  display: block;
+  height: var(--h);
+  width: auto;
+  max-width: min(70vw, 420px);
+  object-fit: contain;
+  filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.55)) drop-shadow(0 12px 10px rgba(0, 0, 0, 0.3));
+}
+
+/* The hang: one centre line, frames close together, small works stacked in pairs. */
+.hang {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(18px, 2vw, 28px) clamp(14px, 1.6vw, 26px);
+  padding: clamp(20px, 2.4vw, 32px) 0 0;
+  list-style: none;
+}
+.hang-col { flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; gap: clamp(14px, 1.5vw, 22px); }
+.h-l { --h: clamp(230px, 23vw, 360px); }
+.h-m { --h: clamp(190px, 18vw, 290px); }
+.h-s { --h: clamp(110px, 10.5vw, 160px); }
+.h-x { --h: clamp(260px, 30vw, 460px); }
+.hang-item { display: flex; flex-direction: column; align-items: center; max-width: min(84vw, 580px); }
+.hang-img { display: block; height: var(--h); width: auto; max-width: min(70vw, 520px); object-fit: contain; }
+.hang-blank {
+  display: flex; align-items: center; justify-content: center; height: var(--h); aspect-ratio: 4 / 5; padding: 1rem;
+  text-align: center; font-size: 0.8rem; font-style: italic; color: #6b5843;
+}
+.hang-caption {
+  max-width: 20rem; margin-top: 8px; text-align: center; font-size: 0.84rem; line-height: 1.4;
+  color: var(--color-ink-2);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.hang-note {
+  margin-top: 8px; padding: 3px 10px; font-family: var(--font-plaque); font-size: 0.68rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--color-ink-2); border: 1px solid var(--color-rule); text-decoration: none;
+}
+.hang-note:hover { color: var(--color-ink); border-color: var(--color-gilt); }
+/* Lettering painted on the wall, hung in line with the frames. */
+.hang-lettering { flex: 0 1 clamp(18rem, 24vw, 24rem); max-width: clamp(18rem, 24vw, 24rem); padding: 0 clamp(4px, 0.8vw, 12px); text-align: left; }
+/* The hang runs past the page column, wall to wall. */
+.bleed { width: 100vw; margin-left: calc(50% - 50vw); padding-inline: clamp(16px, 3vw, 48px); }
+
+/* Phones: size works by width so a small source never collapses to a thumbnail. */
+@media (max-width: 640px) {
+  .h-l, .h-x { --w: 76vw; --h: 300px; } .h-m { --w: 66vw; --h: 240px; } .h-s { --h: 150px; }
+  .hang-col.h-s { flex-direction: row; align-items: flex-start; gap: 12px; }
+  .h-s { --w: 38vw; }
+  /* a small work with no partner hangs centred at the medium width, not as half a pair */
+  .hang-col.h-s:has(> :only-child) { --w: 66vw; justify-content: center; }
+  .hang-img { width: var(--w); height: auto; max-height: none; max-width: none; }
+  .hang-blank { width: var(--w); height: auto; }
+  .sculpture img { height: auto; width: calc(var(--w) * 0.8); max-height: 70vh; }
+  .frame { --m: max(10px, calc(var(--w, 70vw) * 0.06)); }
+}
+
+.piece-hang { --h: clamp(320px, 54vh, 640px); }
+.piece-img { display: block; height: var(--h); width: auto; max-width: min(84vw, 760px); object-fit: contain; }
+@media (max-width: 640px) {
+  .piece-hang { --w: 84vw; }
+  .piece-img { width: min(84vw, 520px); height: auto; max-height: none; }
+}
+
+/* A small printed label for states (status, published). */
+.chip {
+  display: inline-block; padding: 4px 12px; font-family: var(--font-plaque); font-weight: 600; font-size: 0.7rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: #2a1a05; background: #e3c77e;
+}
+.chip-quiet { color: var(--color-ink-2); background: transparent; box-shadow: inset 0 0 0 1px var(--color-rule); }
+
+/* The account picker in the picture rail: a quiet control on the wall, not a lit form field. */
+.wall-select {
+  max-width: 12rem;
+  padding: 4px 26px 4px 10px;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--color-ink);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--color-gilt) 55%, transparent);
+  border-radius: 2px;
+  appearance: auto;
+}
+.wall-select:hover { border-color: var(--color-gilt); }
+.wall-select option { color: #2a1f17; background: #f3ead6; }
+/* On narrow screens the welcome lettering leads, before the first work. */
+@media (max-width: 1023px) { .hang-lettering[data-key="welcome"] { order: -1; } }
+
+/* Bodoni's hairlines break below ~2rem on paper: set small display type heavier there. */
+.card .font-display, .sheet .font-display { font-weight: 600; font-optical-sizing: auto; }
+/* A pull quote opens with a drawn quotation mark, not a coloured side stripe. */
+.pull-quote { position: relative; padding-left: 1.6em; }
+.pull-quote::before {
+  content: "“"; position: absolute; left: 0; top: -0.15em;
+  font-family: var(--font-display); font-size: 2.4em; line-height: 1; color: var(--color-seal);
+}
+
+/* A label is never wider than its work needs: small works keep narrow labels. */
+.h-s .hang-item, .h-s .hung { width: min-content; }
+.h-s .plaque { width: 100%; min-width: 0; padding-inline: 8px; }

@@ -62,7 +62,7 @@ test("commission_happy_path: offer → pay → record in the browser → deliver
   await client.p.goto(`/p/${pieceId}`);
   await expect(client.p.getByTestId("evidence-sentence")).toBeVisible();
   await expect(client.p.getByTestId("badge")).toHaveText("Commissioned and accepted");
-  await expect(client.p.getByTestId("recompute")).toContainText("✓");
+  await expect(client.p.getByTestId("recompute")).toContainText("Recomputed in your browser");
 });
 
 test("refund_after_deadline: the refund button appears only once the deadline and grace have passed", async ({ browser }) => {

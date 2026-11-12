@@ -11,8 +11,7 @@ export default function NotesPage() {
   return (
     <div className="space-y-8 pt-10">
       <header>
-        <p className="label">Reader questions</p>
-        <h1 className="mt-2 max-w-3xl font-display text-4xl tracking-tight">Questions about a record are rated, not shouted.</h1>
+        <h1 className="max-w-4xl font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none tracking-[-0.015em]">Questions about a record are rated, not shouted.</h1>
       </header>
       <section className="card max-w-3xl space-y-3 text-sm">
         <p>

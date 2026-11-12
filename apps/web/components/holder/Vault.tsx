@@ -37,12 +37,11 @@ export function Vault({ pieceId }: { pieceId: string }) {
   const gate = files.error instanceof EvidenceError ? (GATE[files.error.code] ?? files.error.code) : null;
 
   return (
-    <div className="space-y-6 pt-8">
+    <div className="space-y-8 pt-12">
       <div>
-        <p className="label">{isOwner ? "Your piece" : "Piece"} · {piece.piece_id}</p>
-        <h1 className="mt-2 font-display text-4xl tracking-tight">Piece {piece.token_id}</h1>
-        <p className="mt-2 text-sm text-ink-2">
-          By {piece.artist} · <Link className="underline" href={`/p/${pieceId}`}>proof page</Link>
+        <h1 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none tracking-[-0.015em]">{isOwner ? "Your piece" : "Piece"} {piece.token_id}</h1>
+        <p className="mt-3 text-sm text-ink-2">
+          By {piece.artist} · {piece.piece_id} · <Link className="underline" href={`/p/${pieceId}`}>its page</Link>
         </p>
       </div>
       {!accountId && <div className="card">Sign in as the owner to open the files.</div>}

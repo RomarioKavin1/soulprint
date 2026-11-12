@@ -78,7 +78,7 @@ export function DeliverPanel({ piece, onChange }: { piece: PieceInfo; onChange: 
         </label>
       </div>
       {unsent > 0 && (
-        <p role="status" className="mt-4 rounded-lg border border-amber/40 bg-amber/10 px-3 py-2 text-sm">
+        <p role="status" className="mt-4 rounded-sm border border-amber/40 bg-amber/10 px-3 py-2 text-sm">
           {unsent} frame{unsent === 1 ? "" : "s"} recorded on this device {unsent === 1 ? "has" : "have"} not reached the record yet. Use “Retry upload” above, then check the record.
         </p>
       )}
@@ -87,7 +87,7 @@ export function DeliverPanel({ piece, onChange }: { piece: PieceInfo; onChange: 
           {busy ?? "Check the record"}
         </button>
       ) : (
-        <div className="mt-4 rounded-xl border border-rule bg-paper-2/60 p-4">
+        <div className="mt-4 rounded-sm border border-rule bg-paper-2/60 p-4">
           <p className="label">What the proof page will say</p>
           <p className="mt-2 font-display text-lg">{LEVEL_TEXT[report.level as 0 | 2 | 3]?.summary}</p>
           <p className="mt-1 text-sm text-ink-2">{LEVEL_TEXT[report.level as 0 | 2 | 3]?.detail}</p>
