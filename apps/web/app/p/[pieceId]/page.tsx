@@ -9,6 +9,7 @@ import { ACTIVE_TIME_LABEL, BADGE_TEXT, issuerText, levelSentence } from "@/lib/
 import { jcs } from "@/lib/jcs";
 import { RecomputeHash } from "@/components/proof/RecomputeHash";
 import { Timeline } from "@/components/proof/Timeline";
+import { Collect } from "@/components/collect/Collect";
 
 export const dynamic = "force-dynamic";
 
@@ -81,7 +82,12 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
   return (
     <article className="space-y-8 pt-10">
       <header>
-        <p className="label">Proof page · piece {m.tokenId} by {m.artist}</p>
+        <p className="label">
+          Piece {m.tokenId} by{" "}
+          <Link className="underline" href={`/a/${piece.artist}`} data-testid="artist-link">
+            {m.artist}
+          </Link>
+        </p>
         <h1 className="mt-3 max-w-3xl font-display text-3xl leading-tight sm:text-4xl" data-testid="evidence-sentence">
           {sentence}.
         </h1>
@@ -115,6 +121,8 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
         )}
       </section>
 
+      <Collect pieceId={pieceId} />
+
       {challenges.length > 0 && (
         <section className="card">
           <h2 className="font-display text-xl">Live checks</h2>
@@ -138,7 +146,7 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
       <section className="card" id="verify">
         <h2 className="font-display text-xl">Verify on-chain</h2>
         <dl className="mt-3 grid gap-4 text-sm sm:grid-cols-2">
-          <V k="Piece account (NFT)" v={piece.piece_id} />
+          <V k="Piece account" v={piece.piece_id} />
           <V k="Collection" v={config.collection} />
           <V k="Piece code hash" v={info.piece_code_hash} />
           <V k="Report fingerprint on the piece" v={piece.report_hash ?? "—"} />

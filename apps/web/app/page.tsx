@@ -1,30 +1,54 @@
 import Link from "next/link";
+import { loadConfig } from "@/lib/config";
+import { loadGallery } from "@/lib/gallery";
+import { GalleryGrid } from "@/components/gallery/GalleryGrid";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const config = loadConfig();
+  const pieces = config ? await loadGallery(config.evidenceUrl, { limit: 36 }) : null;
   return (
     <div className="pt-10 sm:pt-16">
-      <p className="label">Commissioned art, with the making on record</p>
+      <p className="label">Real art, with the making on record</p>
       <h1 className="mt-4 max-w-3xl font-display text-4xl leading-[1.05] tracking-tight sm:text-6xl">
-        Every commission gets its own account. The payment, the proof and the rights live inside it.
+        Show how your work was made. Every piece carries its own record.
       </h1>
       <p className="mt-6 max-w-2xl text-lg text-ink-2">
-        The client&apos;s payment waits in the piece until they accept. The artist records how the work was made, frame by
-        frame, signed on their device and anchored as they go. On acceptance the piece and the rights pass to the client;
-        if it is ever resold, the artist is paid again.
+        Record your process as you draw or paint, frame by frame, signed on your device and anchored as you go. Publish the
+        piece with its making and your story. People who love it can follow how it came to be, support you, or collect it —
+        and if it is ever resold, you are paid again.
       </p>
       <div className="mt-8 flex flex-wrap gap-3">
-        <Link href="/studio" className="btn-primary">
-          Open your studio
+        <Link href="/studio/new?mode=standalone" className="btn-primary">
+          Start a piece
         </Link>
         <Link href="/limits" className="btn-ghost">
           What a record does and does not show
         </Link>
       </div>
+
+      <section className="mt-16">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <h2 className="font-display text-3xl tracking-tight">Gallery</h2>
+          <p className="text-sm text-ink-3">Newest first. Each card says only what its record shows.</p>
+        </div>
+        <div className="mt-6">
+          {pieces === null ? (
+            <p className="card text-ink-2" data-testid="gallery-unavailable">The gallery could not be loaded just now. Reload in a moment.</p>
+          ) : pieces.length === 0 ? (
+            <p className="card text-ink-2" data-testid="gallery-empty">Nothing published yet. Finish a piece in your studio and publish its page to show it here.</p>
+          ) : (
+            <GalleryGrid pieces={pieces} />
+          )}
+        </div>
+      </section>
+
       <ol className="mt-16 grid gap-4 sm:grid-cols-3">
         {[
-          ["Agree", "Price, milestones, deadline, revisions and the rights the client is buying — fixed before any money moves."],
-          ["Make", "Capture your process on any screen or with a phone camera. The client can ask for a live code to appear in the work."],
-          ["Hand over", "The client accepts, the payment releases, and the piece — with its process record — becomes theirs."],
+          ["Make", "Record on any screen or with a phone camera. Anyone you invite can ask for a live code to appear in the work while you make it."],
+          ["Show", "Finish the piece and publish its page: the frames you choose, your story, and the facts the record supports — never more."],
+          ["Share", "Supporters can send you a tip. Collectors can buy what you put up for sale; the files and rights go with it, and resales pay you a royalty."],
         ].map(([t, d], i) => (
           <li key={t} className="card">
             <span className="font-display text-3xl text-seal">{i + 1}</span>
@@ -33,6 +57,9 @@ export default function Home() {
           </li>
         ))}
       </ol>
+      <p className="mt-6 text-sm text-ink-3">
+        Taking a commission instead? <Link className="underline" href="/studio/new">Set one up</Link> — the client&apos;s payment waits in the piece until they accept.
+      </p>
     </div>
   );
 }

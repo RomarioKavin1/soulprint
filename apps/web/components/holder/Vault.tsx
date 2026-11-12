@@ -1,15 +1,15 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
 import { useNear } from "@/components/NearProvider";
 import { ErrorNote, Section, Stat, useAction, usePoll } from "@/components/ui";
 import { Earnings } from "@/components/Earnings";
+import { SellPanel } from "@/components/holder/SellPanel";
 import { History } from "@/components/History";
 import { EvidenceError } from "@/lib/auth";
 import { EVIDENCE_BASE, useEvidence } from "@/lib/evidence";
 import { accounting, act, pieceInfo } from "@/lib/piece";
-import { GRANT_TEXT, toUnits } from "@/lib/terms";
-import { decimalsOf, money } from "@/lib/money";
+import { GRANT_TEXT } from "@/lib/terms";
+import { money } from "@/lib/money";
 
 const GATE: Record<string, string> = {
   not_owner: "Only the current owner of this piece can open its files.",
@@ -29,8 +29,6 @@ export function Vault({ pieceId }: { pieceId: string }) {
     240_000, // links last 300 s; refresh before they expire
     [pieceId, accountId, data?.piece.rotation_seq],
   );
-  const [price, setPrice] = useState("");
-  const [reserved, setReserved] = useState("");
   const { busy, error, run } = useAction();
   if (!data) return <p className="pt-10 text-ink-3">Loading…</p>;
   const { piece, acc, listing } = data;
@@ -92,43 +90,7 @@ export function Vault({ pieceId }: { pieceId: string }) {
         </Section>
       )}
 
-      {isOwner && piece.status === "Settled" && (
-        <Section title="Sell">
-          {listing ? (
-            <div className="flex flex-wrap items-center gap-3">
-              <span>
-                Listed at <b>{money(listing.price, acc.currency, d)}</b>
-                {listing.reserved_for ? ` for ${listing.reserved_for}` : ""}. Buy link: <code className="font-mono text-xs">/buy/{pieceId}</code>
-              </span>
-              <button className="btn-ghost" disabled={!!busy} onClick={() => run("Delisting", async () => { await act(signer!, pieceId, "delist"); await reload(); })}>
-                Take off sale
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-wrap items-end gap-3">
-              <label className="block">
-                <span className="label block">Price</span>
-                <input className="field mt-1 w-40" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} aria-label="Sale price" />
-              </label>
-              <label className="block">
-                <span className="label block">Only for (optional)</span>
-                <input className="field mt-1 w-56" value={reserved} onChange={(e) => setReserved(e.target.value.trim())} aria-label="Reserved for" />
-              </label>
-              <button
-                className="btn-seal"
-                disabled={!price || !!busy}
-                onClick={() => run("Listing", async () => {
-                  await act(signer!, pieceId, "list", { price: toUnits(price, decimalsOf(acc.currency, d)).toString(), reserved_for: reserved || null });
-                  await reload();
-                })}
-              >
-                List for sale
-              </button>
-              <span className="w-full text-xs text-ink-3">The artist receives {piece.royalty_bps / 100}% of the sale price.</span>
-            </div>
-          )}
-        </Section>
-      )}
+      {isOwner && piece.status === "Settled" && <SellPanel piece={piece} acc={acc} listing={listing} onChange={reload} />}
       <Earnings pieceId={pieceId} acc={acc} onChange={reload} />
       <History pieceId={pieceId} currency={piece.currency} decimals={d} />
       <ErrorNote error={error} />

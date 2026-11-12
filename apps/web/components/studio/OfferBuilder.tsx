@@ -181,7 +181,7 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
           </Section>
         )}
 
-        <Section title="Rights the buyer gets">
+        <Section title={mode === "commission" ? "Rights the buyer gets" : "Rights a collector would get"}>
           {mode === "standalone" && (
             <label className="mb-4 block max-w-xs">
               <span className="label">Sold in</span>
@@ -242,7 +242,7 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
             </ul>
           ) : (
             <p className="mt-3 text-sm text-ink-2">
-              A piece with no client: record your process, finish it, then list it for sale. Rights: {GRANT_TEXT[offer.grant.kind].title.toLowerCase()}. Resale royalty {offer.royaltyBps / 100}%.
+              Your own piece: record your process, finish it and publish its page. Selling it is optional — if you put it up for collectors, they get these rights: {GRANT_TEXT[offer.grant.kind].title.toLowerCase()}. Resale royalty {offer.royaltyBps / 100}%.
             </p>
           )}
           {mode === "commission" && (

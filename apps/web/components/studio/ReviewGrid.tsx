@@ -12,7 +12,7 @@ const PAGE = 60;
 const VIS: Record<Frame["visibility"], string> = { private: "Only you", client: "You and the client", public: "Everyone (proof page)" };
 
 /** Review controls only who sees each frame (A27); discarding removes the image, the chain keeps its hash. */
-export function ReviewGrid({ pieceId }: { pieceId: string }) {
+export function ReviewGrid({ pieceId, commission = true }: { pieceId: string; commission?: boolean }) {
   const { accountId } = useNear();
   const evidence = useEvidence();
   const [sel, setSel] = useState<Set<string>>(new Set());
@@ -61,9 +61,11 @@ export function ReviewGrid({ pieceId }: { pieceId: string }) {
         <>
           <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
             <span className="text-ink-3">{chosen.length} selected</span>
-            <button className="btn-ghost py-1" disabled={!chosen.length || !!busy} onClick={() => setVisibility("client")}>
-              Show to client
-            </button>
+            {commission && (
+              <button className="btn-ghost py-1" disabled={!chosen.length || !!busy} onClick={() => setVisibility("client")}>
+                Show to client
+              </button>
+            )}
             <button className="btn-ghost py-1" disabled={!chosen.length || !!busy} onClick={() => setVisibility("public")}>
               Show on proof page
             </button>

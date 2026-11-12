@@ -78,6 +78,12 @@ export const STATUS_TEXT: Record<Status, string> = {
   Cancelled: "Cancelled",
 };
 
+/** A piece without a client has no payment to wait for: it is being made, then finished. */
+export function statusText(p: Pick<PieceInfo, "mode" | "status">) {
+  if (p.mode === "Standalone") return p.status === "Settled" ? "Finished" : p.status === "Offered" ? "Being made" : STATUS_TEXT[p.status];
+  return STATUS_TEXT[p.status];
+}
+
 export async function pieceInfo(chain: ChainView, pieceId: string) {
   return chain.view<PieceInfo>(pieceId, "piece_info");
 }

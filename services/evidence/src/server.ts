@@ -638,9 +638,64 @@ export async function buildApp(d: Deps): Promise<App> {
   app.post<{ Params: { id: string } }>("/pieces/:id/publish", async (req) => {
     const p = await piece(req.params.id);
     requireRole(p, await who(req), ["artist"]);
-    const r = await db.query("UPDATE reports SET published = $1 WHERE piece_id = $2 RETURNING piece_id", [body(req).published === true, p.pieceId]);
+    const on = body(req).published === true;
+    const r = await db.query(
+      "UPDATE reports SET published = $1, artist = $3, published_at = CASE WHEN $1 THEN $4::bigint ELSE published_at END WHERE piece_id = $2 RETURNING piece_id",
+      [on, p.pieceId, p.artist, d.now()],
+    );
     if (!r.rows.length) throw new HttpError(409, "no_report");
-    return { published: body(req).published === true };
+    return { published: on };
+  });
+
+  /**
+   * Unauthenticated: published pieces, newest first (the showcase gallery), optionally one artist's.
+   * Facts only (level, coverage, sessions), the latest frame the artist made public as a cover, a
+   * story excerpt. Never the price.
+   */
+  app.get<{ Querystring: { artist?: string; limit?: string; before?: string } }>("/gallery", async (req) => {
+    const limit = Math.max(1, Math.min(Number(req.query.limit ?? 24) || 24, 60));
+    // Rows published before the gallery existed have no artist yet: fill them from the chain once.
+    for (const r of (await db.query<{ piece_id: string }>("SELECT piece_id FROM reports WHERE published AND artist IS NULL LIMIT 20")).rows) {
+      const p = await d.chain.piece(r.piece_id).catch(() => null);
+      if (p) await db.query("UPDATE reports SET artist = $1, published_at = COALESCE(published_at, built_at) WHERE piece_id = $2", [p.artist, r.piece_id]);
+    }
+    const args: unknown[] = [limit];
+    let where = "r.published AND r.artist IS NOT NULL";
+    if (req.query.artist) {
+      args.push(String(req.query.artist));
+      where += ` AND r.artist = $${args.length}`;
+    }
+    if (req.query.before) {
+      args.push(Number(req.query.before) || 0);
+      where += ` AND r.published_at < $${args.length}`;
+    }
+    const rows = (await db.query<any>(
+      `SELECT r.piece_id, r.artist, r.level, r.public_json, r.published_at,
+         (SELECT body FROM notes n WHERE n.piece_id = r.piece_id AND n.kind = 'story' ORDER BY n.id DESC LIMIT 1) AS story,
+         (SELECT count(*)::int FROM frames f WHERE f.piece_id = r.piece_id AND f.visibility = 'public' AND NOT f.discarded) AS public_frames,
+         (SELECT f.key_hex || ':' || f.idx FROM frames f WHERE f.piece_id = r.piece_id AND f.visibility = 'public' AND NOT f.discarded AND f.blob_key IS NOT NULL
+            ORDER BY f.device_ts DESC, f.idx DESC LIMIT 1) AS cover
+       FROM reports r WHERE ${where} ORDER BY r.published_at DESC NULLS LAST LIMIT $1`,
+      args,
+    )).rows;
+    return {
+      pieces: rows.map((r) => {
+        const pub = JSON.parse(r.public_json);
+        const cap = pub.capture ?? null;
+        const [keyHex, idx] = r.cover ? String(r.cover).split(":") : [];
+        return {
+          pieceId: r.piece_id as string,
+          artist: r.artist as string,
+          level: r.level as 0 | 2 | 3,
+          publishedAt: Number(r.published_at ?? 0),
+          capture: cap ? { coverage: cap.coverage, activeBand: cap.activeBand, sessions: cap.sessions, spanDays: cap.spanDays, source: cap.source } : null,
+          challengesPassed: (pub.challenges ?? []).filter((c: any) => c.result === "passed").length,
+          publicFrames: r.public_frames as number,
+          cover: keyHex ? { key: nearPublicKey(hex.decode(keyHex)), index: Number(idx) } : null,
+          story: r.story ? String(r.story).slice(0, 280) : null,
+        };
+      }),
+    };
   });
 
   /** Unauthenticated: the published report, the public frames (metadata) and the story. Never the price. */

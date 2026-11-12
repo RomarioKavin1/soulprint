@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useNear } from "@/components/NearProvider";
 import { Stat, usePoll, when } from "@/components/ui";
 import { Earnings } from "@/components/Earnings";
-import { STATUS_TEXT, accounting, pieceInfo, proofPage } from "@/lib/piece";
+import { statusText, accounting, pieceInfo, proofPage } from "@/lib/piece";
 import { money } from "@/lib/money";
 import { canRecord } from "@/lib/commission";
 import { CapturePanel } from "./CapturePanel";
@@ -12,27 +12,29 @@ import { ChallengesPanel } from "./ChallengesPanel";
 import { DeliverPanel } from "./DeliverPanel";
 import { PublishPanel } from "./PublishPanel";
 import { AttestPanel } from "./AttestPanel";
+import { SellPanel } from "@/components/holder/SellPanel";
+import type { Listing } from "@/lib/resale";
 
 
 export function Workspace({ pieceId }: { pieceId: string }) {
   const { chain, accountId, config } = useNear();
   const { data, error, reload } = usePoll(
     async () => {
-      const [piece, proof, acc] = await Promise.all([pieceInfo(chain, pieceId), proofPage(chain, pieceId), accounting(chain, pieceId)]);
-      return { piece, proof, acc };
+      const [piece, proof, acc, listing] = await Promise.all([pieceInfo(chain, pieceId), proofPage(chain, pieceId), accounting(chain, pieceId), chain.view<Listing | null>(pieceId, "listing")]);
+      return { piece, proof, acc, listing };
     },
     4000,
     [pieceId],
   );
   if (error && !data) return <p className="pt-10 text-seal-2">This piece could not be found on the network.</p>;
   if (!data) return <p className="pt-10 text-ink-3">Loading…</p>;
-  const { piece, proof, acc } = data;
+  const { piece, proof, acc, listing } = data;
   if (accountId !== piece.artist)
     return (
       <div className="pt-10">
         <p className="text-ink-2">This is the artist&apos;s workspace for piece {piece.token_id}.</p>
-        <Link className="btn-ghost mt-4" href={`/c/${pieceId}`}>
-          Open the commission room
+        <Link className="btn-ghost mt-4" href={piece.mode === "Commission" ? `/c/${pieceId}` : `/p/${pieceId}`}>
+          {piece.mode === "Commission" ? "Open the commission room" : "See the piece"}
         </Link>
       </div>
     );
@@ -45,7 +47,7 @@ export function Workspace({ pieceId }: { pieceId: string }) {
         <div className="mt-2 flex flex-wrap items-baseline justify-between gap-4">
           <h1 className="font-display text-4xl tracking-tight">Piece {piece.token_id}</h1>
           <span className="rounded-full bg-ink px-4 py-1.5 text-sm text-paper" data-testid="status">
-            {STATUS_TEXT[piece.status]}
+            {statusText(piece)}
           </span>
         </div>
       </div>
@@ -79,8 +81,14 @@ export function Workspace({ pieceId }: { pieceId: string }) {
       {recording && <ChallengesPanel pieceId={pieceId} proof={proof} onChange={reload} />}
       <DeliverPanel piece={piece} onChange={reload} />
       <AttestPanel piece={piece} proof={proof} onChange={reload} />
-      <ReviewGrid pieceId={pieceId} />
+      <ReviewGrid pieceId={pieceId} commission={piece.mode === "Commission"} />
       <PublishPanel piece={piece} />
+      {piece.mode === "Standalone" && piece.status === "Settled" && piece.owner === accountId && (
+        <SellPanel piece={piece} acc={acc} listing={listing} onChange={reload} title="Offer it to collectors (optional)" />
+      )}
+      {piece.mode === "Standalone" && piece.status === "Settled" && piece.owner !== accountId && (
+        <div className="card text-sm">Collected by {piece.owner}. Resales pay you {piece.royalty_bps / 100}%.</div>
+      )}
     </div>
   );
 }

@@ -1,11 +1,14 @@
 # Soulprint
 
-**Commissioned art with the making on record.** Each commission is its own NEAR account
-(`p<N>.<collection>`). That account holds the client's payment until they accept, the artist's
-process record (signed frame by frame on the artist's device and anchored on-chain as they work,
-plus live codes requested by the client), the rights grant the client bought, and any income the
-piece earns afterwards. On acceptance the piece passes to the client; every resale pays the
-artist a royalty.
+**Real art, with the making on record.** Artists record how a piece is made — signed frame by
+frame on their own device and anchored on NEAR as they work — then publish it with its making and
+their story. Anyone can browse the gallery and see exactly what each record shows. People who love
+a piece can tip the artist or, if the artist offers it, collect it: the files and rights go with
+it, and every resale pays the artist a royalty.
+
+Every piece is its own NEAR account (`p<N>.<collection>`) carrying its process anchors, the signed
+report, the rights grant, any income and its sale history. Artists who take commissions can use
+the same piece as an escrow: the client's payment waits inside it until they accept.
 
 NEAR hackathon, track 10 — *NFTs That Do Something* (NFTs as accounts).
 
@@ -22,7 +25,7 @@ NEAR hackathon, track 10 — *NFTs That Do Something* (NFTs as accounts).
 | `services/evidence` | Evidence service: encrypted frame store, anchoring, metrics (coverage, largest jump, active time, final match), live challenges with OCR, signed reports and attestation, holder vault with short-lived links |
 | `services/indexer` | Follows the chain, keeps every `soulprint` event from the collection and its pieces, rebuilds balances, serves history |
 | `services/relayer` | NEP-366 relayer with a strict allowlist: a signed action is submitted and paid for by the relayer (verified with a USDC payment). The web app does not route through it yet — that waits on which wallets sign delegate actions |
-| `apps/web` | Next.js app: Studio (offer builder, capture, review, deliver), Commission room, Proof page, Vault, Buy, Pay, History |
+| `apps/web` | Next.js app: Gallery and artist pages, Studio (new piece or commission, capture, review, finish/deliver, publish, sell), piece page (the making, facts, collect, tip, verify), Commission room, Vault, Buy, Pay, History |
 
 ## Run it locally (one command)
 
@@ -48,23 +51,30 @@ make e2e         # Playwright against the running demo stack (start `make demo` 
 
 ## How it works
 
-1. **Offer.** The artist sets price, payment stages, deadline, review window, revisions,
-   refusal deposit, arbitrators, rights and resale royalty. Creating the piece registers this
-   device's recording key.
-2. **Pay.** The client pays into the piece; the call carries the hash of the terms they were
-   shown, so the terms cannot be swapped underneath them.
-3. **Record.** The browser captures a frame every minute (screen) or two (camera), signs each
-   frame on the device and chains it to the previous one. Frames upload encrypted; the service
-   anchors chain heads on the piece. The client can ask for a live code; it must appear in the
-   work within minutes.
-4. **Deliver.** The service computes facts (coverage, largest jump, active time, sessions, final
-   match, challenge results), signs a report bound to the piece, file, chain heads and level;
-   the piece records it. The proof page states what the record shows (E0/E2/E3) in plain words.
-5. **Accept, refuse or let it lapse.** Accepting releases payment and passes the piece and rights.
-   Refusing posts a deposit and opens negotiation → arbitrator → fallback arbitrator → agreed split.
-6. **Afterwards.** Licence income paid into the piece belongs to whoever holds it. Resale pays
-   the seller, the artist's royalty, and moves the income pool to the buyer; the old holder's
-   vault access ends.
+**Showcase (the main path).**
+
+1. **Start a piece.** Choose the rights a collector would get and your resale royalty. This device
+   gets a recording key for the piece.
+2. **Record.** The browser captures a frame every minute (screen) or two (camera), signs each
+   frame on the device and chains it to the previous one. Frames upload encrypted; the evidence
+   service anchors chain heads on the piece. Anyone you invite can ask for a live code; it must
+   appear in the work within minutes.
+3. **Finish.** Upload the final file. The service computes facts (coverage, largest jump, active
+   time, sessions, final match, challenge results) and signs a report bound to the piece, the file,
+   the chain heads and the level; the piece records it.
+4. **Publish.** Choose which frames to show and add your story. The piece appears in the gallery
+   and on your artist page (`/a/<account>`), and its page states what the record shows (E0/E2/E3)
+   in plain words — never more.
+5. **Share.** Visitors can send you a tip from the piece's page (a token transfer straight to you,
+   the piece named in the memo). If you list the piece, anyone can collect it from the same page;
+   the buy is pinned to the listing shown. The collector gets the files and rights; resales pay you
+   a royalty and the previous holder's file access ends.
+
+**Commissions (also available).** The artist sets price, payment stages, deadline, review window,
+revisions, refusal deposit, arbitrators, rights and royalty; the client pays into the piece with
+the hash of the terms they were shown. Accepting releases payment and passes the piece and rights.
+Refusing posts a deposit and opens negotiation → arbitrator → fallback arbitrator → agreed split.
+Licence income paid into a finished piece belongs to whoever holds it.
 
 ## Transfer threat model
 

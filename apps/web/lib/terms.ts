@@ -54,16 +54,16 @@ export interface TermsJson {
 }
 
 export const GRANT_TEXT: Record<GrantKind, { title: string; plain: string }> = {
-  Personal: { title: "Personal use", plain: "The client may keep, display and share the work privately. No commercial use." },
+  Personal: { title: "Personal use", plain: "The owner may keep, display and share the work privately. No commercial use." },
   CommercialNonExclusive: {
     title: "Commercial, non-exclusive",
-    plain: "The client may use the work commercially. You may still use and license it to others.",
+    plain: "The owner may use the work commercially. The artist may still use and license it to others.",
   },
   CommercialExclusive: {
     title: "Commercial, exclusive",
-    plain: "The client may use the work commercially and you will not license it to anyone else. You keep authorship.",
+    plain: "The owner may use the work commercially and the artist will not license it to anyone else. The artist keeps authorship.",
   },
-  FullAssignment: { title: "Full assignment", plain: "Copyright passes to the client. You may keep it in your portfolio only if attribution is on." },
+  FullAssignment: { title: "Full assignment", plain: "Copyright passes to the owner. The artist may keep it in their portfolio only if attribution is on." },
 };
 
 /**

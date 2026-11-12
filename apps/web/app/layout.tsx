@@ -11,7 +11,7 @@ const plex = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], 
 
 export const metadata: Metadata = {
   title: "Soulprint",
-  description: "Commissioned art with the making on record.",
+  description: "Real art, with the making on record.",
 };
 
 export const dynamic = "force-dynamic";
@@ -46,13 +46,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 function Header({ networkBadge }: { networkBadge: string | null }) {
   return (
-    <header className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-5 sm:px-6">
+    <header className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-5 sm:px-6">
       <Link href="/" className="flex items-baseline gap-2">
         <span className="inline-block h-3 w-3 translate-y-[-1px] rounded-full bg-seal" aria-hidden />
         <span className="font-display text-xl font-semibold tracking-tight">Soulprint</span>
         {networkBadge && <span className="label rounded-full border border-rule px-2 py-0.5 text-[10px]">{networkBadge}</span>}
       </Link>
-      <nav className="flex items-center gap-3 text-sm">
+      <nav className="flex min-w-0 flex-wrap items-center gap-3 text-sm">
+        <Link href="/" className="text-ink-2 hover:text-ink">
+          Gallery
+        </Link>
         <Link href="/studio" className="text-ink-2 hover:text-ink">
           Studio
         </Link>

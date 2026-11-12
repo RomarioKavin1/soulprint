@@ -261,6 +261,27 @@ describe("public proof (Plan 3 Task 4)", () => {
     expect((await w.app.inject({ method: "GET", url: `/pieces/${PIECE}/frames/${key}/5` })).statusCode).toBe(200);
     expect((await w.app.inject({ method: "GET", url: `/pieces/${PIECE}/frames/${key}/1` })).statusCode).toBe(403);
   });
+
+  it("gallery: lists only published pieces, by artist, newest public frame as cover, never the price", async () => {
+    const w = await reported();
+    const gallery = async (q = "") => (await w.app.inject({ method: "GET", url: `/gallery${q}` })).json().pieces;
+    expect(await gallery()).toEqual([]);
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/visibility`, { indices: [0, 5, 10], level: "public" });
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/story`, { text: "Oil study, three sittings." });
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: true });
+    const [g] = await gallery();
+    expect(g).toMatchObject({ pieceId: PIECE, artist: w.artist.account, level: w.report.level, publicFrames: 3, cover: { index: 10 }, story: "Oil study, three sittings." });
+    expect(g.capture.source).toBe("camera");
+    expect(g.publishedAt).toBeGreaterThan(0);
+    expect(JSON.stringify(g)).not.toMatch(/price/i);
+    expect(await gallery(`?artist=${w.artist.account}`)).toHaveLength(1);
+    expect(await gallery("?artist=someone.else.near")).toEqual([]);
+    expect(await gallery(`?before=${g.publishedAt}`)).toEqual([]);
+    // The cover is a public frame, so it loads without sign-in.
+    expect((await w.app.inject({ method: "GET", url: `/pieces/${PIECE}/frames/${g.cover.key}/${g.cover.index}` })).statusCode).toBe(200);
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: false });
+    expect(await gallery()).toEqual([]);
+  });
 });
 
 describe("final file upload", () => {
