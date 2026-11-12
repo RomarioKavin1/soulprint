@@ -17,10 +17,15 @@ async function view(contract: string, method: string, args: object = {}) {
 
 describe.skipIf(!c)("indexer vs chain (live)", () => {
   it("history_reconstructs_balances_from_events for every piece on the network", async () => {
-    for (let i = 0; i < 120; i++) {
-      if (!(await (await fetch(`${IX}/lag`)).json()).updating && (await (await fetch(`${IX}/lag`)).json()).behindBlocks < 3) break;
-      await new Promise((r) => setTimeout(r, 1000));
+    // Wait until the indexer has passed the chain head as of now (everything that already happened).
+    // "Fewer than 3 blocks behind" rarely holds on a fast local chain and let the comparison start early.
+    const target = (await (await fetch(`${IX}/lag`)).json()).chainHeight;
+    let caughtUp = false;
+    for (let i = 0; i < 300 && !caughtUp; i++) {
+      caughtUp = (await (await fetch(`${IX}/lag`)).json()).indexedHeight >= target;
+      if (!caughtUp) await new Promise((r) => setTimeout(r, 1000));
     }
+    expect(caughtUp, `indexer did not reach block ${target}`).toBe(true);
     const total = Number(await view(c.collection, "nft_total_supply"));
     expect(total).toBeGreaterThan(0);
     for (let t = 1; t <= total; t++) {

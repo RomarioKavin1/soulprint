@@ -246,7 +246,17 @@ impl<'a, N: Network + 'static> Soak<'a, N> {
 
     /// I1 on chain: the piece holds at least its liabilities; money in = money settled + held.
     pub async fn reconcile(&self, piece: &AccountId) -> Result<()> {
-        let a = self.view(piece, "accounting", json!({})).await?;
+        // Views read final state, which trails a claim's payout callback by a few blocks on a
+        // public network (found on the testnet soak): give in-flight credits up to 60 s to settle.
+        let mut a = self.view(piece, "accounting", json!({})).await?;
+        for _ in 0..30 {
+            let busy = a["credits"].as_array().into_iter().flatten().any(|c| c["in_flight"].as_str().unwrap_or("0") != "0");
+            if !busy {
+                break;
+            }
+            tokio::time::sleep(Duration::from_secs(2)).await;
+            a = self.view(piece, "accounting", json!({})).await?;
+        }
         let n = |k: &str| -> Result<u128> { a[k].as_str().with_context(|| format!("{piece}: no {k}"))?.parse::<u128>().map_err(Into::into) };
         let held: String = self.view(&self.usdc, "ft_balance_of", json!({ "account_id": piece })).await?.as_str().unwrap_or("0").to_string();
         let held: u128 = held.parse()?;
