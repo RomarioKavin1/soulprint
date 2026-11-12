@@ -1,11 +1,13 @@
 /**
  * Block ingest (Plan 3 Task 6, A48, A55): only successful receipts executed by the collection or
  * by an account `p<N>.<collection>`; only `soulprint` events; income below the currency's minimum
- * is dropped. Idempotent per (height, position).
+ * is dropped. Idempotent per (height, position); receipts that carry an `id` (transaction-API
+ * source) are instead de-duplicated by id and appended after what that height already holds, so
+ * a transaction discovered late never collides with one ingested earlier at the same height.
  */
 import type { Db } from "./db.ts";
 
-export interface Receipt { executor: string; success: boolean; logs: string[] }
+export interface Receipt { executor: string; success: boolean; logs: string[]; id?: string }
 export interface Block { height: number; timestampMs: number; receipts: Receipt[] }
 export interface IngestConfig { collection: string; minIncome: Record<string, bigint> }
 
@@ -20,10 +22,14 @@ function currencyKey(c: unknown): string {
 }
 
 export async function ingestBlock(db: Db, cfg: IngestConfig, b: Block) {
-  let idx = 0;
+  const append = b.receipts.some((r) => r.id);
+  let idx = append
+    ? Number((await db.query<{ n: number | null }>("SELECT max(idx) + 1 AS n FROM events WHERE height = $1", [b.height])).rows[0]?.n ?? 0)
+    : 0;
   await db.query("INSERT INTO blocks (height, ts_ms) VALUES ($1, $2) ON CONFLICT DO NOTHING", [b.height, b.timestampMs]);
   for (const r of b.receipts) {
     if (!r.success || !isOurs(r.executor, cfg.collection)) continue;
+    if (r.id && (await db.query("INSERT INTO seen_receipts (rid) VALUES ($1) ON CONFLICT DO NOTHING", [r.id])).affectedRows !== 1) continue;
     for (const log of r.logs) {
       if (!log.startsWith("EVENT_JSON:")) continue;
       let e: any;
