@@ -14,6 +14,7 @@ export interface GalleryPiece {
   publicFrames: number;
   cover: { key: string; index: number } | null;
   story: string | null;
+  contextNotes?: number;
 }
 
 /** Server side: the evidence service directly. `null` means it could not be reached (not "empty"). */

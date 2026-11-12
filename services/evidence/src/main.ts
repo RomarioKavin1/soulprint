@@ -47,5 +47,7 @@ const app = await buildApp({
   network,
   collection,
   verifier: { seed: verifierSeed, keyId: Number(env.EVIDENCE_VERIFIER_KEY_ID ?? 1) },
+  // Reader notes per account per day: 5 by default; the local demo chain allows more (repeated E2E runs).
+  maxNotesPerDay: Number(env.NOTES_PER_DAY ?? (process.argv.includes("--sandbox") ? 1000 : 5)),
 });
 await app.listen({ port: Number(env.PORT ?? 8787), host: env.HOST ?? "127.0.0.1" });

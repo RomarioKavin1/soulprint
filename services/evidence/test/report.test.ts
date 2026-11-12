@@ -6,7 +6,9 @@ import { jcs } from "../src/jcs.ts";
 import { b64, hex, nobleSigner, reportMessage, segmentsDigest } from "@soulprint/proof";
 import { decideLevel, signReport, type LevelInput } from "../src/report.ts";
 import { THRESHOLDS } from "../src/metrics/thresholds.ts";
-import { Device, nep413, PIECE, world } from "./helpers.ts";
+import { Device, nep413, PIECE, user, world } from "./helpers.ts";
+import { noteStatus } from "../src/context-notes.ts";
+import type { Deps } from "../src/server.ts";
 import { frames as synthFrames, jpeg, painting, target } from "./synth.ts";
 
 const pass: LevelInput = {
@@ -40,10 +42,10 @@ describe("level rules (DESIGN §5, A32: E0/E2/E3)", () => {
 });
 
 /** Live capture: each batch reaches the service right after its last frame (`live = false`: all at once at the end). */
-async function recorded(live = true, corrupt: number[] = []) {
+async function recorded(live = true, corrupt: number[] = [], over: Partial<Deps> = {}) {
   // Fake clock while frames upload (capture-key signed), real clock afterwards (NEP-413 auth checks it).
   const clock: { t: number | null } = { t: 1_700_000_000_000 };
-  const w = await world({ now: () => clock.t ?? Date.now() });
+  const w = await world({ now: () => clock.t ?? Date.now(), ...over });
   const imgs = (await synthFrames(painting())).map((f) => f.jpeg);
   // A JPEG header then garbage: hashes and chains fine, does not decode (Plan 2 review M8).
   for (const i of corrupt) imgs[i] = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, ...new Array(64).fill(0x5a), 0xff, 0xd9]);
@@ -282,6 +284,84 @@ describe("public proof (Plan 3 Task 4)", () => {
     await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: false });
     expect(await gallery()).toEqual([]);
   });
+});
+
+describe("context notes (community notes on a record)", () => {
+  async function publishedPiece(over: Partial<Deps> = {}) {
+    const w = await recorded(true, [], over);
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/files`, { kind: "final", name: "final.jpg", data: b64.encode(w.final) });
+    anchorAll(w);
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/report`, { source: "camera" });
+    const raters = await Promise.all(["r1.test.near", "r2.test.near", "r3.test.near", "r4.test.near"].map((a, i) => user(a, 60 + i, w.chain)));
+    return { ...w, raters };
+  }
+  const NOTE = { concern: "ai_generated", body: "The hands change shape between the last two public frames with no strokes in between.", asksEvidence: true };
+
+  it("status: needs 3 ratings; shown at ≥ 2/3 helpful, hidden at ≤ 1/3, otherwise still needs ratings", () => {
+    expect([noteStatus(2, 2), noteStatus(3, 3), noteStatus(2, 3), noteStatus(1, 3), noteStatus(0, 3), noteStatus(2, 4), noteStatus(1, 4)])
+      .toEqual(["needs_ratings", "shown", "shown", "not_shown", "not_shown", "needs_ratings", "not_shown"]);
+  });
+
+  it("only on published pieces; never by the artist; one per person per piece; specific enough", async () => {
+    const w = await publishedPiece();
+    const url = `/pieces/${PIECE}/context-notes`;
+    expect((await w.call(w.stranger, "POST", url, NOTE)).json().error).toBe("not_published");
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: true });
+    expect((await w.call(w.artist, "POST", url, NOTE)).json().error).toBe("artist_cannot_note_own_piece");
+    expect((await w.call(null, "POST", url, NOTE)).statusCode).toBe(401);
+    expect((await w.call(w.stranger, "POST", url, { ...NOTE, body: "looks AI" })).json().error).toBe("note_too_short");
+    expect((await w.call(w.stranger, "POST", url, { ...NOTE, concern: "fake" })).json().error).toBe("bad_concern");
+    expect((await w.call(w.stranger, "POST", url, NOTE)).statusCode).toBe(200);
+    expect((await w.call(w.stranger, "POST", url, NOTE)).json().error).toBe("already_noted");
+  });
+
+  it("limits how many notes one account adds in a day", async () => {
+    const w = await publishedPiece({ maxNotesPerDay: 1 });
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: true });
+    expect((await w.call(w.raters[0], "POST", `/pieces/${PIECE}/context-notes`, NOTE)).statusCode).toBe(200);
+    const none = await publishedPiece({ maxNotesPerDay: 0 });
+    await none.call(none.artist, "POST", `/pieces/${PIECE}/publish`, { published: true });
+    const r = await none.call(none.raters[0], "POST", `/pieces/${PIECE}/context-notes`, NOTE);
+    expect([r.statusCode, r.json().error]).toEqual([429, "too_many_notes"]);
+  });
+
+  it("rated by others into shown; the artist answers; the gallery counts shown notes; the level is untouched", async () => {
+    const w = await publishedPiece();
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/visibility`, { indices: [0, 5], level: "public" });
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: true });
+    const { id } = (await w.call(w.stranger, "POST", `/pieces/${PIECE}/context-notes`, NOTE)).json();
+    const rate = (u: any, helpful: boolean, reason: string) => w.call(u, "POST", `/context-notes/${id}/ratings`, { helpful, reason });
+    expect((await rate(w.stranger, true, "specific_details")).json().error).toBe("cannot_rate_own_note");
+    expect((await rate(w.artist, false, "speculation")).json().error).toBe("artist_cannot_rate");
+    expect((await rate(w.raters[0], true, "speculation")).json().error).toBe("bad_reason");
+    const queue = async () => (await w.app.inject({ method: "GET", url: "/context-notes/needs-ratings" })).json().notes.map((n: any) => n.id);
+    expect(await queue()).toEqual([id]);
+    await rate(w.raters[0], true, "specific_details");
+    await rate(w.raters[1], true, "names_useful_evidence");
+    expect((await rate(w.raters[2], false, "speculation")).json().status).toBe("shown"); // 2 of 3
+    expect(await queue()).toEqual([]);
+
+    // The artist answers and makes more frames public; the response records that.
+    expect((await w.call(w.raters[0], "POST", `/context-notes/${id}/response`, { body: "x" })).statusCode).toBe(403);
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/visibility`, { indices: [1, 2, 3, 4], level: "public" });
+    expect((await w.call(w.artist, "POST", `/context-notes/${id}/response`, { body: "I redrew the hands off-camera; the sketch layer is now public." })).statusCode).toBe(200);
+    const list = (await w.call(w.raters[3], "GET", `/pieces/${PIECE}/context-notes`)).json();
+    expect(list.notes[0]).toMatchObject({ status: "shown", ratings: { helpful: 2, total: 3 }, publicFramesAtNote: 2, asksEvidence: true, myRating: null,
+      response: { body: "I redrew the hands off-camera; the sketch layer is now public.", publicFramesAtResponse: 6 } });
+
+    // Raters can change their minds once the artist answers.
+    await rate(w.raters[0], false, "artist_answered");
+    await rate(w.raters[3], false, "artist_answered");
+    expect((await w.app.inject({ method: "GET", url: `/pieces/${PIECE}/context-notes` })).json().notes[0].status).toBe("not_shown"); // 1 of 4
+
+    const g = (await w.app.inject({ method: "GET", url: "/gallery" })).json().pieces[0];
+    expect(g.contextNotes).toBe(0);
+    await rate(w.raters[0], true, "specific_details");
+    await rate(w.raters[3], true, "specific_details");
+    expect((await w.app.inject({ method: "GET", url: "/gallery" })).json().pieces[0].contextNotes).toBe(1);
+    expect((await w.app.inject({ method: "GET", url: `/pieces/${PIECE}/public` })).json().public.level).toBeDefined();
+  });
+
 });
 
 describe("final file upload", () => {

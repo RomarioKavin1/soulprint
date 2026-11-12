@@ -46,3 +46,22 @@ describe("tips", () => {
     await expect(tipCalls(fakeChain(true), "u", "a", 0n, "p")).rejects.toThrow("ERR_WRONG_AMOUNT");
   });
 });
+
+describe("reader notes wording", async () => {
+  const { addedSince, ratingLine, CONCERN_TEXT } = await import("../lib/context-notes.ts");
+  const note = { id: 1, pieceId: "p1", author: "a", concern: "ai_generated" as const, body: "", asksEvidence: true, createdAt: 0, status: "needs_ratings" as const, ratings: { helpful: 0, total: 0 }, publicFramesAtNote: 2, response: null };
+  it("says where a note stands, in counts", () => {
+    expect(ratingLine(note)).toBe("No ratings yet");
+    expect(ratingLine({ ...note, ratings: { helpful: 1, total: 2 } })).toBe("2 ratings so far — needs more before it is shown");
+    expect(ratingLine({ status: "shown", ratings: { helpful: 2, total: 3 } })).toBe("Rated helpful by 2 of 3 people");
+    expect(ratingLine({ status: "not_shown", ratings: { helpful: 1, total: 4 } })).toBe("Rated not helpful by 3 of 4 people");
+  });
+  it("credits evidence the artist added after the note", () => {
+    expect(addedSince(note)).toBeNull();
+    expect(addedSince({ ...note, response: { body: "x", at: 0, publicFramesAtResponse: 2 } })).toBeNull();
+    expect(addedSince({ ...note, response: { body: "x", at: 0, publicFramesAtResponse: 6 } })).toBe("Since this note, the artist made 4 more frames of the making public.");
+  });
+  it("never calls anything fake", () => {
+    expect(Object.values(CONCERN_TEXT).join(" ")).not.toMatch(/fake|fraud|cheat/i);
+  });
+});

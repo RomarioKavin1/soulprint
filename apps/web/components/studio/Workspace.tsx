@@ -13,6 +13,7 @@ import { DeliverPanel } from "./DeliverPanel";
 import { PublishPanel } from "./PublishPanel";
 import { AttestPanel } from "./AttestPanel";
 import { SellPanel } from "@/components/holder/SellPanel";
+import { ContextNotes } from "@/components/notes/ContextNotes";
 import type { Listing } from "@/lib/resale";
 
 
@@ -83,6 +84,7 @@ export function Workspace({ pieceId }: { pieceId: string }) {
       <AttestPanel piece={piece} proof={proof} onChange={reload} />
       <ReviewGrid pieceId={pieceId} commission={piece.mode === "Commission"} />
       <PublishPanel piece={piece} />
+      {piece.report_hash && <ContextNotes pieceId={pieceId} artist={piece.artist} />}
       {piece.mode === "Standalone" && piece.status === "Settled" && piece.owner === accountId && (
         <SellPanel piece={piece} acc={acc} listing={listing} onChange={reload} title="Offer it to collectors (optional)" />
       )}

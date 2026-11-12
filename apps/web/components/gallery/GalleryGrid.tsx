@@ -30,6 +30,11 @@ export function GalleryGrid({ pieces, showArtist = true }: { pieces: GalleryPiec
                 </Link>
               )}
               <p className="text-sm">{cardSentence(p)}.</p>
+              {(p.contextNotes ?? 0) > 0 && (
+                <Link href={`/p/${p.pieceId}#notes`} className="self-start rounded-full border border-amber/60 bg-amber/10 px-2.5 py-0.5 text-xs" data-testid="card-notes">
+                  Readers added context
+                </Link>
+              )}
               {p.story && <p className="line-clamp-3 font-display text-sm italic text-ink-2">“{p.story}”</p>}
             </div>
           </li>

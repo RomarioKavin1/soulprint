@@ -10,6 +10,7 @@ import { jcs } from "@/lib/jcs";
 import { RecomputeHash } from "@/components/proof/RecomputeHash";
 import { Timeline } from "@/components/proof/Timeline";
 import { Collect } from "@/components/collect/Collect";
+import { ContextNotes } from "@/components/notes/ContextNotes";
 
 export const dynamic = "force-dynamic";
 
@@ -120,6 +121,8 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
           <blockquote className="mt-6 border-l-2 border-seal pl-4 font-display text-lg italic text-ink-2">{pub.story}</blockquote>
         )}
       </section>
+
+      <ContextNotes pieceId={pieceId} artist={piece.artist} />
 
       <Collect pieceId={pieceId} />
 

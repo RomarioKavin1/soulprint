@@ -23,6 +23,7 @@ import { computeMetrics } from "./metrics/index.ts";
 import { band, CLOCK_SKEW_MS } from "./metrics/activity.ts";
 import { THRESHOLDS } from "./metrics/thresholds.ts";
 import { decideLevel, signReport } from "./report.ts";
+import { NOTE_RULES, NoteError, SHOWN_SQL, noteStatus, validateNote, validateRating, validateResponse } from "./context-notes.ts";
 import { nobleSigner, segmentsDigest, tokenIdOf } from "@soulprint/proof";
 
 export interface Deps {
@@ -45,6 +46,8 @@ export interface Deps {
   verifier: { seed: Uint8Array; keyId: number };
   ocr?: Ocr;
   challengeWindowMs?: number;
+  /** Reader notes one account may add per rolling 24 h (default NOTE_RULES.maxNotesPerDay). */
+  maxNotesPerDay?: number;
 }
 
 export const MAX_BATCH = 100;
@@ -115,6 +118,7 @@ export async function buildApp(d: Deps): Promise<App> {
   app.setErrorHandler((e: any, _req, reply) => {
     if (e instanceof HttpError) return reply.code(e.status).send({ error: e.code, ...e.extra });
     if (e instanceof AuthError) return reply.code(e.status).send({ error: e.code });
+    if (e instanceof NoteError) return reply.code(e.status).send({ error: e.code });
     if (e.statusCode && e.statusCode < 500) return reply.code(e.statusCode).send({ error: e.code ?? "bad_request", message: e.message });
     if (e.statusCode === 503) return reply.code(503).send({ error: e.code ?? "unavailable" });
     app.log.error(e);
@@ -673,6 +677,10 @@ export async function buildApp(d: Deps): Promise<App> {
       `SELECT r.piece_id, r.artist, r.level, r.public_json, r.published_at,
          (SELECT body FROM notes n WHERE n.piece_id = r.piece_id AND n.kind = 'story' ORDER BY n.id DESC LIMIT 1) AS story,
          (SELECT count(*)::int FROM frames f WHERE f.piece_id = r.piece_id AND f.visibility = 'public' AND NOT f.discarded) AS public_frames,
+         (SELECT count(*)::int FROM (
+            SELECT (SELECT count(*) FROM context_note_ratings x WHERE x.note_id = c.id AND x.helpful) AS h,
+                   (SELECT count(*) FROM context_note_ratings x WHERE x.note_id = c.id) AS t
+            FROM context_notes c WHERE c.piece_id = r.piece_id) q WHERE ${SHOWN_SQL("q.h", "q.t")}) AS shown_notes,
          (SELECT f.key_hex || ':' || f.idx FROM frames f WHERE f.piece_id = r.piece_id AND f.visibility = 'public' AND NOT f.discarded AND f.blob_key IS NOT NULL
             ORDER BY f.device_ts DESC, f.idx DESC LIMIT 1) AS cover
        FROM reports r WHERE ${where} ORDER BY r.published_at DESC NULLS LAST LIMIT $1`,
@@ -693,6 +701,7 @@ export async function buildApp(d: Deps): Promise<App> {
           publicFrames: r.public_frames as number,
           cover: keyHex ? { key: nearPublicKey(hex.decode(keyHex)), index: Number(idx) } : null,
           story: r.story ? String(r.story).slice(0, 280) : null,
+          contextNotes: r.shown_notes as number,
         };
       }),
     };
@@ -711,6 +720,98 @@ export async function buildApp(d: Deps): Promise<App> {
       frames: frames.map((f) => ({ key: nearPublicKey(hex.decode(f.key_hex)), index: f.idx, deviceTs: Number(f.device_ts), width: f.width, height: f.height })),
       story: story?.body ?? null,
     };
+  });
+
+  // ---------------- context notes (community notes on a published record) ----------------
+
+  const publicFrames = async (pieceId: string) =>
+    Number((await db.query<{ n: number }>("SELECT count(*)::int AS n FROM frames WHERE piece_id = $1 AND visibility = 'public' AND NOT discarded", [pieceId])).rows[0]!.n);
+  const published = async (pieceId: string) =>
+    (await db.query<{ ok: boolean }>("SELECT published AS ok FROM reports WHERE piece_id = $1", [pieceId])).rows[0]?.ok === true;
+  const NOTE_SELECT = `SELECT n.*, r.body AS response, r.at AS response_at, r.public_frames_at_response,
+      (SELECT count(*)::int FROM context_note_ratings x WHERE x.note_id = n.id AND x.helpful) AS helpful,
+      (SELECT count(*)::int FROM context_note_ratings x WHERE x.note_id = n.id) AS total
+    FROM context_notes n LEFT JOIN context_note_responses r ON r.note_id = n.id`;
+  const noteJson = (r: any, mine?: { helpful: boolean; reason: string } | null) => ({
+    id: r.id as number,
+    pieceId: r.piece_id as string,
+    author: r.author as string,
+    concern: r.concern as string,
+    body: r.body as string,
+    asksEvidence: r.asks_evidence as boolean,
+    createdAt: Number(r.created_at),
+    status: noteStatus(r.helpful, r.total),
+    ratings: { helpful: r.helpful as number, total: r.total as number },
+    publicFramesAtNote: r.public_frames_at_note as number,
+    response: r.response ? { body: r.response as string, at: Number(r.response_at), publicFramesAtResponse: r.public_frames_at_response as number } : null,
+    ...(mine !== undefined ? { myRating: mine } : {}),
+  });
+
+  /** Anyone signed in (not the artist) raises a question about a published record. */
+  app.post<{ Params: { id: string } }>("/pieces/:id/context-notes", async (req) => {
+    const p = await piece(req.params.id);
+    const author = await who(req);
+    if (author === p.artist) throw new HttpError(403, "artist_cannot_note_own_piece");
+    if (!(await published(p.pieceId))) throw new HttpError(409, "not_published");
+    const n = validateNote(body(req));
+    if ((await db.query("SELECT 1 FROM context_notes WHERE piece_id = $1 AND author = $2", [p.pieceId, author])).rows.length)
+      throw new HttpError(409, "already_noted");
+    const recent = Number((await db.query<{ n: number }>("SELECT count(*)::int AS n FROM context_notes WHERE author = $1 AND created_at > $2", [author, d.now() - 86_400_000])).rows[0]!.n);
+    if (recent >= (d.maxNotesPerDay ?? NOTE_RULES.maxNotesPerDay)) throw new HttpError(429, "too_many_notes");
+    const r = await db.query<{ id: number }>(
+      "INSERT INTO context_notes (piece_id, author, concern, body, asks_evidence, created_at, public_frames_at_note) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
+      [p.pieceId, author, n.concern, n.body, n.asksEvidence, d.now(), await publicFrames(p.pieceId)],
+    );
+    return { id: r.rows[0]!.id };
+  });
+
+  /** Public: every note on the piece with its status (visitors' pages show only `shown`). */
+  app.get<{ Params: { id: string } }>("/pieces/:id/context-notes", async (req) => {
+    const viewer = await maybeWho(req).catch(() => null);
+    const rows = (await db.query<any>(`${NOTE_SELECT} WHERE n.piece_id = $1 ORDER BY n.id`, [req.params.id])).rows;
+    const mine = new Map<number, { helpful: boolean; reason: string }>();
+    if (viewer)
+      for (const r of (await db.query<any>("SELECT note_id, helpful, reason FROM context_note_ratings WHERE rater = $1 AND note_id = ANY($2::int[])", [viewer, rows.map((x) => x.id)])).rows)
+        mine.set(r.note_id, { helpful: r.helpful, reason: r.reason });
+    return { notes: rows.map((r) => noteJson(r, viewer ? (mine.get(r.id) ?? null) : undefined)), publicFrames: await publicFrames(req.params.id), rules: NOTE_RULES };
+  });
+
+  /** Public: notes that still need ratings, newest first (the rating queue). */
+  app.get<{ Querystring: { limit?: string } }>("/context-notes/needs-ratings", async (req) => {
+    const limit = Math.max(1, Math.min(Number(req.query.limit ?? 30) || 30, 100));
+    const rows = (await db.query<any>(`${NOTE_SELECT} ORDER BY n.id DESC LIMIT 500`)).rows.filter((r) => noteStatus(r.helpful, r.total) === "needs_ratings").slice(0, limit);
+    return { notes: rows.map((r) => noteJson(r)) };
+  });
+
+  /** Rate someone else's note (not your own, not on your own piece). Changing your rating is allowed. */
+  app.post<{ Params: { nid: string } }>("/context-notes/:nid/ratings", async (req) => {
+    const note = (await db.query<any>("SELECT * FROM context_notes WHERE id = $1", [Number(req.params.nid) || 0])).rows[0];
+    if (!note) throw new HttpError(404, "unknown_note");
+    const p = await piece(note.piece_id);
+    const rater = await who(req);
+    if (rater === note.author) throw new HttpError(403, "cannot_rate_own_note");
+    if (rater === p.artist) throw new HttpError(403, "artist_cannot_rate");
+    const r = validateRating(body(req));
+    await db.query(
+      "INSERT INTO context_note_ratings (note_id, rater, helpful, reason, at) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (note_id, rater) DO UPDATE SET helpful = $3, reason = $4, at = $5",
+      [note.id, rater, r.helpful, r.reason, d.now()],
+    );
+    const row = (await db.query<any>(`${NOTE_SELECT} WHERE n.id = $1`, [note.id])).rows[0];
+    return noteJson(row, r);
+  });
+
+  /** The artist answers a note (once; may be edited). Shown next to the note wherever it appears. */
+  app.post<{ Params: { nid: string } }>("/context-notes/:nid/response", async (req) => {
+    const note = (await db.query<any>("SELECT * FROM context_notes WHERE id = $1", [Number(req.params.nid) || 0])).rows[0];
+    if (!note) throw new HttpError(404, "unknown_note");
+    const p = await piece(note.piece_id);
+    requireRole(p, await who(req), ["artist"]);
+    const text = validateResponse(body(req));
+    await db.query(
+      "INSERT INTO context_note_responses (note_id, body, at, public_frames_at_response) VALUES ($1, $2, $3, $4) ON CONFLICT (note_id) DO UPDATE SET body = $2, at = $3, public_frames_at_response = $4",
+      [note.id, text, d.now(), await publicFrames(p.pieceId)],
+    );
+    return { ok: true };
   });
 
   /** One wallet signature → a 30-minute session token. A session cannot mint another one. */
