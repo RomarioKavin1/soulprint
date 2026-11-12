@@ -19,6 +19,16 @@ interface Published {
   story: string | null;
 }
 
+function Unavailable() {
+  return (
+    <div className="pt-16" data-testid="proof-unavailable">
+      <p className="label">Proof page</p>
+      <h1 className="mt-2 font-display text-4xl">The record could not be loaded just now</h1>
+      <p className="mt-3 text-ink-2">The network is busy. Reload the page in a moment.</p>
+    </div>
+  );
+}
+
 export default async function ProofPage({ params }: { params: Promise<{ pieceId: string }> }) {
   const { pieceId } = await params;
   const config = loadConfig();
@@ -27,12 +37,25 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
   let piece: PieceInfo, proof: ProofView;
   try {
     [piece, proof] = await Promise.all([pieceInfo(chain, pieceId), proofPage(chain, pieceId)]);
-  } catch {
-    return <p className="pt-10 text-ink-2">There is no piece at {pieceId}.</p>;
+  } catch (e) {
+    // Only "that account does not exist" means there is no piece; anything else is the network.
+    if (/does not exist|UNKNOWN_ACCOUNT|AccountDoesNotExist|CodeDoesNotExist|NO_CONTRACT_CODE/i.test(`${(e as Error)?.message ?? ""} ${JSON.stringify(e)}`))
+      return <p className="pt-10 text-ink-2">There is no piece at {pieceId}.</p>;
+    return <Unavailable />;
   }
-  const pub: Published | null = await fetch(`${config.evidenceUrl}/pieces/${pieceId}/public`, { cache: "no-store" })
-    .then((r) => (r.ok ? r.json() : null))
-    .catch(() => null);
+  // 404 = not published. Anything else (503 while the network is busy, a timeout) is not "private"
+  // (testnet E2E: a published record was shown as private during an RPC rate limit).
+  let pub: Published | null = null;
+  for (let i = 0; i < 3; i++) {
+    const r = await fetch(`${config.evidenceUrl}/pieces/${pieceId}/public`, { cache: "no-store" }).catch(() => null);
+    if (r?.ok) {
+      pub = (await r.json()) as Published;
+      break;
+    }
+    if (r?.status === 404) break;
+    if (i === 2) return <Unavailable />;
+    await new Promise((res) => setTimeout(res, 1500 * (i + 1)));
+  }
   if (!pub)
     return (
       <div className="pt-16" data-testid="proof-private">

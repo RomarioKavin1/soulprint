@@ -15,6 +15,21 @@ export interface Sender {
   syncOwner(a: { collection: string; tokenId: string }): Promise<{ txHash: string }>;
 }
 
+/** Error → searchable text. Never throws: near-api-js errors carry BigInts, which JSON.stringify
+ * refuses (testnet E2E: that TypeError replaced the real error and every call read "not confirmed"). */
+export function errText(e: unknown): string {
+  const safe = (v: unknown) => {
+    try {
+      return JSON.stringify(v, (_k, x) => (typeof x === "bigint" ? x.toString() : x)) ?? "";
+    } catch {
+      return "";
+    }
+  };
+  if (typeof e === "string") return e;
+  if (e instanceof Error) return `${e.name} ${e.message} ${safe((e as any).cause ?? "")} ${safe(e)}`;
+  return safe(e) || String(e);
+}
+
 const TGAS = 1_000_000_000_000n;
 
 const TRANSIENT = /429|408|Rate limit|Exceeded \d+ providers|fetch failed|ECONNRESET|ETIMEDOUT|Timeout|Internal server error|502|503|504/i;
@@ -23,7 +38,7 @@ async function withRetry<T>(f: () => Promise<T>, waits = [1000, 2000, 4000, 8000
     try {
       return await f();
     } catch (e) {
-      if (i >= waits.length || !TRANSIENT.test(`${(e as Error)?.message ?? ""} ${JSON.stringify(e)}`)) throw e;
+      if (i >= waits.length || !TRANSIENT.test(errText(e))) throw e;
       await new Promise((res) => setTimeout(res, waits[i]!));
     }
   }
@@ -55,10 +70,15 @@ export class NearSender implements Sender {
       const txHash = this.hashOf(signed);
       let r: any;
       try {
-        r = await this.provider.sendTransactionUntil(signed, "FINAL");
+        r = await this.sendSame(signed, txHash);
       } catch (e) {
-        const text = `${(e as Error)?.message ?? ""} ${JSON.stringify(e)}`;
-        if (/InvalidNonce/i.test(text) && attempt < 3) continue;
+        const text = errText(e);
+        if (/InvalidNonce|Invalid nonce/i.test(text)) {
+          // The nonce cache only counts up; drop it so the next signature reads the chain's nonce.
+          await (this.account as any).nonceManager?.invalidate?.(signed.transaction.publicKey, signed.transaction.nonceIndex);
+          if (attempt < 5) continue;
+          throw e;
+        }
         if (/InvalidTx|NotEnoughBalance|Expired|InvalidSignature/i.test(text)) throw e;
         r = await this.readBack(txHash);
         if (!r) throw e;
@@ -68,12 +88,25 @@ export class NearSender implements Sender {
     }
   }
 
-  private async readBack(txHash: string): Promise<any | null> {
-    for (let i = 0; i < 15; i++) {
+  /** Re-broadcast the SAME signed bytes on a transport error (de-duplicated by hash; never runs twice). */
+  private async sendSame(signed: any, txHash: string): Promise<any> {
+    for (let i = 0; ; i++) {
       try {
-        return await this.provider!.viewTransactionStatus({ txHash, accountId: this.account.accountId!, waitUntil: "FINAL" });
+        return await this.provider!.sendTransactionUntil(signed, "EXECUTED_OPTIMISTIC");
       } catch (e) {
-        if (!/UNKNOWN_TRANSACTION|TIMEOUT|408|429|Rate limit|Internal|fetch failed|ECONN/i.test(`${(e as Error)?.message ?? ""} ${JSON.stringify(e)}`)) return null;
+        if (i >= 3 || !TRANSIENT.test(errText(e))) throw e;
+        const landed = await this.readBack(txHash, 2);
+        if (landed) return landed;
+        await new Promise((res) => setTimeout(res, this.readBackWaitMs * 2 ** i));
+      }
+    }
+  }
+  private async readBack(txHash: string, tries = 15): Promise<any | null> {
+    for (let i = 0; i < tries; i++) {
+      try {
+        return await this.provider!.viewTransactionStatus({ txHash, accountId: this.account.accountId!, waitUntil: "EXECUTED_OPTIMISTIC" });
+      } catch (e) {
+        if (!/UNKNOWN_TRANSACTION|TIMEOUT|408|429|Rate limit|Internal|fetch failed|ECONN/i.test(errText(e))) return null;
         await new Promise((res) => setTimeout(res, this.readBackWaitMs));
       }
     }

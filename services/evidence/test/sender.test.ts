@@ -53,4 +53,29 @@ describe("NearSender on a flaky public RPC (testnet E2E)", () => {
     };
     await expect(new NearSender(account({ signed: 0 }) as any, provider as any, 1, hash).attest({ collection: "c.testnet", argsJson: "{}" })).rejects.toThrow(/attest failed/);
   });
+
+  it("a stale nonce drops the nonce cache and re-signs (E2E: 'ak 27000010, tx 27000004')", async () => {
+    let invalidated = 0, sends = 0;
+    const acc = { ...account({ signed: 0 }), nonceManager: { invalidate: async () => { invalidated++; } } };
+    const provider = {
+      sendTransactionUntil: async () => { if (sends++ === 0) throw new Error("Invalid nonce (ak: 27000010, tx: 27000004)"); return ok; },
+      viewTransactionStatus: async () => ok,
+    };
+    await new NearSender(acc as any, provider as any, 1, hash).anchor({ pieceId: "p1.c.testnet", key: "k", head: "h", count: 1, sig: "s" });
+    expect([invalidated, sends]).toEqual([1, 2]);
+  });
+
+  it("a lost broadcast is resent as the same signed transaction (testnet E2E: a buy never landed)", async () => {
+    const n = { signed: 0 };
+    const seen: unknown[] = [];
+    let sends = 0;
+    const provider = {
+      sendTransactionUntil: async (signed: unknown) => { seen.push(signed); if (sends++ < 2) throw new Error("fetch failed"); return ok; },
+      viewTransactionStatus: async () => { throw new Error("UNKNOWN_TRANSACTION"); },
+    };
+    await new NearSender(account(n) as any, provider as any, 1, hash).attest({ collection: "c.testnet", argsJson: "{}" });
+    expect(sends).toBe(3);
+    expect(n.signed).toBe(1); // signed once; the same bytes went out three times
+    expect(new Set(seen).size).toBe(1);
+  });
 });

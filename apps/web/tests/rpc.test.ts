@@ -53,3 +53,12 @@ describe("withRetry", () => {
     expect(n).toBe(1);
   });
 });
+
+describe("errText (testnet E2E: a BigInt in an error broke error handling)", () => {
+  it("turns an error carrying BigInts into text instead of throwing", async () => {
+    const { errText, chainErrorCode } = await import("../lib/near.ts");
+    const e = Object.assign(new Error("fetch failed"), { cause: { nonce: 27000004n }, gas: 300n });
+    expect(errText(e)).toMatch(/fetch failed.*27000004/);
+    expect(chainErrorCode(Object.assign(new Error("Smart contract panicked: ERR_WRONG_STATUS"), { n: 1n }))).toBe("ERR_WRONG_STATUS");
+  });
+});

@@ -14,6 +14,21 @@ export const TGAS = 1_000_000_000_000n;
 export const STORAGE_DEPOSIT = 10_000_000_000_000_000_000_000n; // 0.01 NEAR
 export const ONE_YOCTO = 1n;
 
+/** Error → searchable text. Never throws: near-api-js errors carry BigInts, which JSON.stringify
+ * refuses (testnet E2E: that TypeError replaced the real error and every call read "not confirmed"). */
+export function errText(e: unknown): string {
+  const safe = (v: unknown) => {
+    try {
+      return JSON.stringify(v, (_k, x) => (typeof x === "bigint" ? x.toString() : x)) ?? "";
+    } catch {
+      return "";
+    }
+  };
+  if (typeof e === "string") return e;
+  if (e instanceof Error) return `${e.name} ${e.message} ${safe((e as any).cause ?? "")} ${safe(e)}`;
+  return safe(e) || String(e);
+}
+
 export interface SignedNep413 { accountId: string; publicKey: string; signature: string }
 
 export interface CallOptions { deposit?: bigint; tgas?: bigint }
@@ -35,10 +50,7 @@ export class ChainError extends Error {
 
 /** First `ERR_*` code in a failed outcome, or the raw message. */
 export function chainErrorCode(e: unknown): string {
-  let s: string;
-  if (typeof e === "string") s = e;
-  else if (e instanceof Error) s = `${e.message} ${JSON.stringify((e as any).cause ?? "")} ${JSON.stringify(e)}`;
-  else s = JSON.stringify(e) ?? String(e);
+  const s = errText(e);
   if (/NotEnoughBalance|LackBalanceForState|NotEnoughAllowance|insufficient balance/i.test(s)) return "ERR_NO_NEAR";
   return /ERR_[A-Z_a-z]+/.exec(s)?.[0] ?? /Smart contract panicked: ([^"\\]+)/.exec(s)?.[1] ?? "ERR_UNKNOWN";
 }
@@ -87,7 +99,7 @@ export async function withRetry<T>(f: () => Promise<T>, waits = [1000, 2000, 400
     try {
       return await f();
     } catch (e) {
-      if (i >= waits.length || !TRANSIENT.test(`${(e as Error)?.message ?? ""} ${JSON.stringify(e)}`)) throw e;
+      if (i >= waits.length || !TRANSIENT.test(errText(e))) throw e;
       await new Promise((res) => setTimeout(res, waits[i]! * (0.75 + Math.random() / 2)));
     }
   }
@@ -122,13 +134,20 @@ export class KeySigner implements Signer {
       const signed = await withRetry(() => this.account.createSignedTransaction({ receiverId: contractId, actions: [action] }));
       const txHash = b58.encode(sha256(encodeTransaction(signed.transaction)));
       try {
-        return outcome(await this.provider.sendTransactionUntil(signed, "FINAL"));
+        return outcome(await this.sendSame(signed, txHash));
       } catch (e) {
         if (e instanceof ChainError) throw e;
-        const text = `${(e as Error)?.message ?? ""} ${JSON.stringify(e)}`;
-        if (/InvalidNonce/i.test(text) && attempt < 3) {
-          await new Promise((res) => setTimeout(res, 500 + Math.random() * 1000));
-          continue;
+        const text = errText(e);
+        if (/InvalidNonce|Invalid nonce/i.test(text)) {
+          // near-api-js caches the nonce and only counts up; another tab or process signing with
+          // this key moved the chain's nonce ahead (E2E: "ak 27000010, tx 27000004"). Drop the
+          // cache so the next signature reads the chain's nonce.
+          await (this.account as any).nonceManager?.invalidate?.(signed.transaction.publicKey, signed.transaction.nonceIndex);
+          if (attempt < 5) {
+            await new Promise((res) => setTimeout(res, 200 + Math.random() * 600));
+            continue;
+          }
+          throw new ChainError("ERR_NONCE", txHash);
         }
         if (/^\s*(InvalidTx|InvalidNonce|NotEnoughBalance|Expired|InvalidSignature)/i.test((e as any)?.type ?? "") || /InvalidTxError|NotEnoughBalance/i.test(text))
           throw new ChainError(chainErrorCode(e), txHash);
@@ -140,12 +159,30 @@ export class KeySigner implements Signer {
       }
     }
   }
-  private async readBack(txHash: string): Promise<any | null> {
-    for (let i = 0; i < 20; i++) {
+  /**
+   * Broadcast; on a transport error, check by hash and re-broadcast the SAME signed bytes (NEAR
+   * de-duplicates by hash, so this can never run twice). Testnet E2E: a buy whose broadcast was
+   * lost never landed, and the old code only waited for it.
+   */
+  private async sendSame(signed: any, txHash: string): Promise<any> {
+    for (let i = 0; ; i++) {
       try {
-        return await this.provider.viewTransactionStatus({ txHash, accountId: this.accountId, waitUntil: "FINAL" });
+        return await this.provider.sendTransactionUntil(signed, "EXECUTED_OPTIMISTIC");
       } catch (e) {
-        if (!/UNKNOWN_TRANSACTION|TIMEOUT_ERROR|408|429|Rate limit|fetch failed|ECONN|Timeout/i.test(`${(e as Error)?.message ?? ""} ${JSON.stringify(e)}`)) return null;
+        const text = errText(e);
+        if (i >= 3 || !TRANSIENT.test(text)) throw e;
+        const landed = await this.readBack(txHash, 2);
+        if (landed) return landed;
+        await new Promise((res) => setTimeout(res, 1500 * 2 ** i));
+      }
+    }
+  }
+  private async readBack(txHash: string, tries = 20): Promise<any | null> {
+    for (let i = 0; i < tries; i++) {
+      try {
+        return await this.provider.viewTransactionStatus({ txHash, accountId: this.accountId, waitUntil: "EXECUTED_OPTIMISTIC" });
+      } catch (e) {
+        if (!/UNKNOWN_TRANSACTION|TIMEOUT_ERROR|408|429|Rate limit|fetch failed|ECONN|Timeout/i.test(errText(e))) return null;
         await new Promise((res) => setTimeout(res, 2000));
       }
     }
