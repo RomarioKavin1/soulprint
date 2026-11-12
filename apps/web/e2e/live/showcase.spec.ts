@@ -44,18 +44,21 @@ test("showcase: own piece recorded, finished, published to the gallery, collecte
   await expect(artist.p.getByTestId("status")).toHaveText("Finished", { timeout: 30_000 });
 
   // Show: publish with a story; it appears in the gallery and on the artist's page.
+  await artist.p.getByLabel("Title").fill("Harbour study");
+  await artist.p.getByLabel("Story").fill("Ink first, then washes.");
   await artist.p.getByTestId("publish").click();
-  await expect(artist.p.getByText("Published.")).toBeVisible({ timeout: 20_000 });
-  await artist.p.getByPlaceholder("How you made it, in your words.").fill("Ink first, then washes.");
-  await artist.p.getByRole("button", { name: "Save story" }).click();
-  await expect(artist.p.getByPlaceholder("How you made it, in your words.")).toHaveValue("", { timeout: 20_000 });
+  await expect(artist.p.getByTestId("publish-state")).toHaveText("Published", { timeout: 20_000 });
+  await artist.p.reload(); // the studio shows what is published (review B8)
+  await expect(artist.p.getByLabel("Story")).toHaveValue("Ink first, then washes.", { timeout: 20_000 });
+  await expect(artist.p.getByLabel("Title")).toHaveValue("Harbour study");
 
   await fan.p.goto("/");
   const card = fan.p.getByTestId("gallery-card").filter({ has: fan.p.locator(`a[href="/p/${pieceId}"]`) });
   await expect(card).toBeVisible({ timeout: 20_000 });
   await expect(card).toContainText("Declared by the artist"); // a short browser session: honest E0
   await expect(card).toContainText("Ink first, then washes.");
-  await expect(card.getByRole("img")).toBeVisible();
+  await expect(card.getByRole("img", { name: "Harbour study" })).toBeVisible(); // the finished work, not a frame (review B9)
+  await expect(card).toContainText("Harbour study");
   await card.getByTestId("card-artist").click();
   await expect(fan.p.getByTestId("artist-name")).toHaveText(artist.id);
   await expect(fan.p.locator(`a[href="/p/${pieceId}"]`).first()).toBeVisible();
@@ -70,6 +73,9 @@ test("showcase: own piece recorded, finished, published to the gallery, collecte
   const before = await usdc(artist.id);
   await fan.p.goto(`/p/${pieceId}?as=${fan.id}`);
   await expect(fan.p.getByTestId("holder")).toHaveText("Held by the artist.", { timeout: 20_000 });
+  await fan.p.getByLabel("Tip amount").fill("-1");
+  await expect(fan.p.getByTestId("tip")).toBeDisabled(); // review B6
+  await expect(fan.p.getByTestId("tip-invalid")).toBeVisible();
   await fan.p.getByLabel("Tip amount").fill("1.5");
   await fan.p.getByTestId("tip").click();
   await expect(fan.p.getByTestId("tip-sent")).toContainText(`Sent 1.5 USDC to ${artist.id}`, { timeout: 30_000 });
@@ -81,5 +87,6 @@ test("showcase: own piece recorded, finished, published to the gallery, collecte
   await buyer.p.getByTestId("collect-buy").click();
   await expect(buyer.p.getByTestId("holder")).toHaveText(`Collected by ${buyer.id}.`, { timeout: 30_000 });
   await expect(buyer.p.getByText("This piece is yours.")).toBeVisible();
+  await expect(buyer.p.getByText(`Current holder: ${buyer.id}.`)).toBeVisible({ timeout: 20_000 }); // review B7
   expect((await view(L!.rpc, pieceId, "piece_info")).owner).toBe(buyer.id);
 });

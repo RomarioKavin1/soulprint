@@ -47,21 +47,35 @@ describe("tips", () => {
   });
 });
 
-describe("reader notes wording", async () => {
-  const { addedSince, ratingLine, CONCERN_TEXT } = await import("../lib/context-notes.ts");
-  const note = { id: 1, pieceId: "p1", author: "a", concern: "ai_generated" as const, body: "", asksEvidence: true, createdAt: 0, status: "needs_ratings" as const, ratings: { helpful: 0, total: 0 }, publicFramesAtNote: 2, response: null };
-  it("says where a note stands, in counts", () => {
-    expect(ratingLine(note)).toBe("No ratings yet");
-    expect(ratingLine({ ...note, ratings: { helpful: 1, total: 2 } })).toBe("2 ratings so far — needs more before it is shown");
-    expect(ratingLine({ status: "shown", ratings: { helpful: 2, total: 3 } })).toBe("Rated helpful by 2 of 3 people");
-    expect(ratingLine({ status: "not_shown", ratings: { helpful: 1, total: 4 } })).toBe("Rated not helpful by 3 of 4 people");
+describe("reader questions wording", async () => {
+  const { requestLine, ratingLine, galleryBadge, CONCERN_TEXT, CONCERN_QUESTION, REQUEST_TEXT } = await import("../lib/context-notes.ts");
+  const { parseTip } = await import("../lib/tip.ts");
+  const note = { id: 1, pieceId: "p1", artist: "a", author: "r", concern: "ai_generated" as const, body: "", request: "more_frames" as const, requestMet: false,
+    createdAt: 0, status: "needs_ratings" as const, ratings: { helpful: 0, total: 0 }, publicFramesAtNote: 2, publicFramesNow: 2, response: null };
+  it("a shown question reads as readers finding a question useful, never as a verdict", () => {
+    expect(ratingLine(note)).toBe("No ratings yet — not shown to visitors");
+    expect(ratingLine({ ...note, ratings: { helpful: 1, total: 2 } })).toBe("2 ratings so far — not shown to visitors yet");
+    expect(ratingLine({ status: "shown", ratings: { helpful: 4, total: 5 } })).toBe("4 of 5 readers found this question useful");
+    expect(ratingLine({ status: "disagree", ratings: { helpful: 3, total: 6 } })).toBe("Readers disagree (3 of 6 found it useful) — not shown to visitors");
+    expect(CONCERN_QUESTION.ai_generated).toBe("Could this have been made with AI?");
   });
-  it("credits evidence the artist added after the note", () => {
-    expect(addedSince(note)).toBeNull();
-    expect(addedSince({ ...note, response: { body: "x", at: 0, publicFramesAtResponse: 2 } })).toBeNull();
-    expect(addedSince({ ...note, response: { body: "x", at: 0, publicFramesAtResponse: 6 } })).toBe("Since this note, the artist made 4 more frames of the making public.");
+  it("a request resolves from the record, or waits for the artist", () => {
+    expect(requestLine({ ...note, request: "none" })).toBeNull();
+    expect(requestLine(note)).toEqual({ met: false, text: "Asked for more frames of the making. Waiting for the artist." });
+    expect(requestLine({ ...note, requestMet: true, publicFramesNow: 6 })).toEqual({ met: true, text: "Asked for more frames of the making. The artist made 4 more frames public." });
+    expect(requestLine({ ...note, request: "photo", requestMet: null, response: { body: "x", at: 0, publicFramesAtResponse: 2 } })!.text).toBe("Asked for a photo of the physical work. The artist answered below.");
+  });
+  it("the gallery badge is neutral and says when the artist answered", () => {
+    expect(galleryBadge(undefined)).toBeNull();
+    expect(galleryBadge({ shown: 0, answered: 0 })).toBeNull();
+    expect(galleryBadge({ shown: 1, answered: 0 })).toBe("A reader asked a question");
+    expect(galleryBadge({ shown: 1, answered: 1 })).toBe("The artist answered a reader's question");
   });
   it("never calls anything fake", () => {
-    expect(Object.values(CONCERN_TEXT).join(" ")).not.toMatch(/fake|fraud|cheat/i);
+    expect(JSON.stringify([CONCERN_TEXT, CONCERN_QUESTION, REQUEST_TEXT])).not.toMatch(/fake|fraud|cheat|scam/i);
+  });
+  it("tips must be a positive amount the token can hold (review B6)", () => {
+    expect([parseTip("1.5", 6), parseTip("0", 6), parseTip("-1", 6), parseTip("0.0000001", 6), parseTip("abc", 6), parseTip("", 6), parseTip("0.000001", 6)])
+      .toEqual([1_500_000n, null, null, null, null, null, 1n]);
   });
 });

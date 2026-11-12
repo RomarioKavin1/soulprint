@@ -5,6 +5,7 @@
  */
 import type { Call } from "./commission.ts";
 import type { ChainView } from "./near.ts";
+import { toUnits } from "./terms.ts";
 
 export function tipMemo(pieceId: string) {
   return `Soulprint tip for ${pieceId}`;
@@ -21,4 +22,18 @@ export async function tipCalls(chain: ChainView, token: string, artist: string, 
   }
   calls.push({ contract: token, method: "ft_transfer", args: { receiver_id: artist, amount: amount.toString(), memo: tipMemo(pieceId) }, deposit: 1n, tgas: 30n });
   return calls;
+}
+
+/** A tip amount in token units, or null when it is not a positive amount the token can represent (review B6). */
+export function parseTip(text: string, decimals: number): bigint | null {
+  const t = text.trim();
+  if (!/^\d+(\.\d+)?$/.test(t)) return null;
+  const frac = t.split(".")[1] ?? "";
+  if (frac.length > decimals) return null;
+  try {
+    const units = toUnits(t, decimals);
+    return units > 0n ? units : null;
+  } catch {
+    return null;
+  }
 }

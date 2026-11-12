@@ -14,7 +14,9 @@ export interface GalleryPiece {
   publicFrames: number;
   cover: { key: string; index: number } | null;
   story: string | null;
-  contextNotes?: number;
+  title?: string | null;
+  hasPreview?: boolean;
+  notes?: { shown: number; answered: number };
 }
 
 /** Server side: the evidence service directly. `null` means it could not be reached (not "empty"). */
@@ -36,8 +38,14 @@ export function tokenOf(pieceId: string) {
   return pieceId.split(".")[0]!.replace(/^p/, "");
 }
 
-export function coverUrl(p: Pick<GalleryPiece, "pieceId" | "cover">) {
+/** The finished work when the artist shows it (review B9), else the newest public frame of the making. */
+export function coverUrl(p: Pick<GalleryPiece, "pieceId" | "cover" | "hasPreview">) {
+  if (p.hasPreview) return `/evidence/pieces/${p.pieceId}/preview`;
   return p.cover ? `/evidence/pieces/${p.pieceId}/frames/${encodeURIComponent(p.cover.key)}/${p.cover.index}` : null;
+}
+
+export function pieceName(p: { pieceId: string; title?: string | null }) {
+  return p.title || `Piece ${tokenOf(p.pieceId)}`;
 }
 
 /** The card line: the same sentence the proof page leads with (challenges counted, not itemised). */

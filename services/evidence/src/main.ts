@@ -15,6 +15,7 @@ import { buildApp } from "./server.ts";
 const env = process.env;
 let rpc = env.NEAR_RPC_URLS ?? env.NEAR_RPC_URL, accountId = env.EVIDENCE_ACCOUNT_ID, secret = env.EVIDENCE_SECRET_KEY;
 let network = env.NEAR_NETWORK, collection = env.SOULPRINT_COLLECTION;
+let sandboxGovernance: string | undefined;
 if (process.argv.includes("--sandbox")) {
   const cfg = JSON.parse(readFileSync(new URL("../../../config/networks.json", import.meta.url), "utf8")).sandbox;
   rpc = cfg.rpc_url;
@@ -22,6 +23,7 @@ if (process.argv.includes("--sandbox")) {
   secret = cfg.accounts.relayer.secret_key;
   network = cfg.network_id;
   collection = cfg.collection;
+  sandboxGovernance = cfg.accounts.governance?.account_id;
 }
 if (!network || !collection) throw new Error("NEAR_NETWORK and SOULPRINT_COLLECTION are required");
 // A7 verifier key: 32-byte ed25519 seed registered in the collection as key `EVIDENCE_VERIFIER_KEY_ID`.
@@ -49,5 +51,7 @@ const app = await buildApp({
   verifier: { seed: verifierSeed, keyId: Number(env.EVIDENCE_VERIFIER_KEY_ID ?? 1) },
   // Reader notes per account per day: 5 by default; the local demo chain allows more (repeated E2E runs).
   maxNotesPerDay: Number(env.NOTES_PER_DAY ?? (process.argv.includes("--sandbox") ? 1000 : 5)),
+  // Who may remove reader notes: NOTES_OPERATORS (comma-separated); on the local chain, the governance account.
+  noteOperators: (env.NOTES_OPERATORS ?? sandboxGovernance ?? "").split(",").map((x) => x.trim()).filter(Boolean),
 });
 await app.listen({ port: Number(env.PORT ?? 8787), host: env.HOST ?? "127.0.0.1" });

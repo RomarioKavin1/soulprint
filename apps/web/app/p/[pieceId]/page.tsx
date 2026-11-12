@@ -19,6 +19,8 @@ interface Published {
   reportHash: string;
   frames: { key: string; index: number; deviceTs: number }[];
   story: string | null;
+  title?: string | null;
+  hasPreview?: boolean;
 }
 
 function Unavailable() {
@@ -83,15 +85,20 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
   return (
     <article className="space-y-8 pt-10">
       <header>
-        <p className="label">
-          Piece {m.tokenId} by{" "}
+        <h1 className="max-w-3xl font-display text-4xl leading-tight tracking-tight sm:text-5xl" data-testid="piece-title">
+          {pub.title || `Piece ${m.tokenId}`}
+        </h1>
+        <p className="mt-2 text-ink-2">
+          by{" "}
           <Link className="underline" href={`/a/${piece.artist}`} data-testid="artist-link">
             {m.artist}
           </Link>
+          {pub.title ? <span className="text-ink-3"> · piece {m.tokenId}</span> : null}
         </p>
-        <h1 className="mt-3 max-w-3xl font-display text-3xl leading-tight sm:text-4xl" data-testid="evidence-sentence">
+        <p className="label mt-6">What the record shows</p>
+        <p className="mt-1 max-w-3xl font-display text-2xl leading-snug" data-testid="evidence-sentence">
           {sentence}.
-        </h1>
+        </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {m.badge && (
             <span className="rounded-full bg-seal px-3 py-1 text-sm text-paper" data-testid="badge">
@@ -103,12 +110,26 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
         {shown.note && <p className="mt-3 rounded-lg border border-amber/40 bg-amber/10 px-3 py-2 text-sm">{shown.note}</p>}
       </header>
 
+      {pub.hasPreview && (
+        <figure className="overflow-hidden rounded-2xl border border-rule bg-paper-2" data-testid="final-image">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={`/evidence/pieces/${pieceId}/preview`} alt={pub.title || `Piece ${m.tokenId}`} className="mx-auto max-h-[75vh] w-auto" />
+          <figcaption className="border-t border-rule px-4 py-2 text-xs text-ink-3">The finished work (a preview; the full file goes to whoever holds the piece).</figcaption>
+        </figure>
+      )}
+
       {cap && (
-        <section className="card grid gap-6 sm:grid-cols-4">
-          <Fact k="Built up gradually" v={`${Math.round(cap.coverage * 100)}%`} bar={cap.coverage} />
-          <Fact k="Largest single jump" v={`${Math.round(cap.largestJump * 100)}%`} bar={cap.largestJump} />
-          <Fact k="Active time" v={cap.activeBand} sub={ACTIVE_TIME_LABEL} />
-          <Fact k="Sessions" v={`${cap.sessions} over ${Math.max(1, Math.round(cap.spanDays))} day${Math.round(cap.spanDays) <= 1 ? "" : "s"}`} sub={`${cap.frames} frames, ${cap.anchoredCount} anchored`} />
+        <section className="card">
+          <div className="grid gap-6 sm:grid-cols-4">
+            <Fact k="Built up gradually" v={`${Math.round(cap.coverage * 100)}%`} bar={cap.coverage} sub="of the finished picture appeared step by step across the frames" />
+            <Fact k="Largest single jump" v={`${Math.round(cap.largestJump * 100)}%`} bar={cap.largestJump} sub="the most of the picture that changed between two frames" />
+            <Fact k="Active time" v={cap.activeBand} sub={ACTIVE_TIME_LABEL} />
+            <Fact k="Sessions" v={`${cap.sessions} over ${Math.max(1, Math.round(cap.spanDays))} day${Math.round(cap.spanDays) <= 1 ? "" : "s"}`} sub={`${cap.frames} frames measured, ${cap.anchoredCount} in the chain anchored on-chain`} />
+          </div>
+          <p className="mt-4 text-xs text-ink-3">
+            A long session drawn step by step reads high on the first and low on the second. Short recordings, zooming or moving the canvas
+            read as large jumps — they are facts about the recording, not a grade of the work.
+          </p>
         </section>
       )}
 
@@ -182,7 +203,7 @@ function Fact({ k, v, sub, bar }: { k: string; v: string; sub?: string; bar?: nu
       <p className="mt-1 font-display text-2xl">{v}</p>
       {bar !== undefined && (
         <div className="mt-2 h-1.5 rounded-full bg-paper-2">
-          <div className="h-1.5 rounded-full bg-seal" style={{ width: `${Math.min(100, Math.max(2, bar * 100))}%` }} />
+          <div className="h-1.5 rounded-full bg-ink-3" style={{ width: `${Math.min(100, Math.max(2, bar * 100))}%` }} />
         </div>
       )}
       {sub && <p className="mt-1 text-xs text-ink-3">{sub}</p>}

@@ -286,24 +286,28 @@ describe("public proof (Plan 3 Task 4)", () => {
   });
 });
 
-describe("context notes (community notes on a record)", () => {
-  async function publishedPiece(over: Partial<Deps> = {}) {
-    const w = await recorded(true, [], over);
+describe("reader notes (community notes on a record)", () => {
+  async function publishedPiece(over: Partial<Deps> = {}, publish = true) {
+    const w = await recorded(true, [], { noteOperators: ["operator.test.near"], ...over });
     await w.call(w.artist, "POST", `/pieces/${PIECE}/files`, { kind: "final", name: "final.jpg", data: b64.encode(w.final) });
     anchorAll(w);
     await w.call(w.artist, "POST", `/pieces/${PIECE}/report`, { source: "camera" });
-    const raters = await Promise.all(["r1.test.near", "r2.test.near", "r3.test.near", "r4.test.near"].map((a, i) => user(a, 60 + i, w.chain)));
-    return { ...w, raters };
+    if (publish) await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: true });
+    const raters = await Promise.all(["r1", "r2", "r3", "r4", "r5", "r6"].map((a, i) => user(`${a}.test.near`, 60 + i, w.chain)));
+    const operator = await user("operator.test.near", 70, w.chain);
+    return { ...w, raters, operator };
   }
-  const NOTE = { concern: "ai_generated", body: "The hands change shape between the last two public frames with no strokes in between.", asksEvidence: true };
+  const NOTE = { concern: "ai_generated", body: "The hands change shape between the last two public frames with no strokes in between.", request: "more_frames" };
+  const get = (w: any, who: any, url: string) => w.call(who, "GET", url);
+  const notesOf = async (w: any, who: any = null) => (await get(w, who, `/pieces/${PIECE}/context-notes`)).json().notes;
 
-  it("status: needs 3 ratings; shown at ≥ 2/3 helpful, hidden at ≤ 1/3, otherwise still needs ratings", () => {
-    expect([noteStatus(2, 2), noteStatus(3, 3), noteStatus(2, 3), noteStatus(1, 3), noteStatus(0, 3), noteStatus(2, 4), noteStatus(1, 4)])
-      .toEqual(["needs_ratings", "shown", "shown", "not_shown", "not_shown", "needs_ratings", "not_shown"]);
+  it("status: showing is harder than hiding; two 'about the person' ratings hide at once", () => {
+    expect([noteStatus(4, 4), noteStatus(5, 5), noteStatus(4, 5), noteStatus(3, 5), noteStatus(2, 5), noteStatus(1, 5), noteStatus(5, 5, 2), noteStatus(0, 2, 2)])
+      .toEqual(["needs_ratings", "shown", "shown", "disagree", "not_shown", "not_shown", "not_shown", "not_shown"]);
   });
 
-  it("only on published pieces; never by the artist; one per person per piece; specific enough", async () => {
-    const w = await publishedPiece();
+  it("only on published pieces; never by the artist; one per person per piece; specific enough; known request types", async () => {
+    const w = await publishedPiece({}, false);
     const url = `/pieces/${PIECE}/context-notes`;
     expect((await w.call(w.stranger, "POST", url, NOTE)).json().error).toBe("not_published");
     await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: true });
@@ -311,57 +315,115 @@ describe("context notes (community notes on a record)", () => {
     expect((await w.call(null, "POST", url, NOTE)).statusCode).toBe(401);
     expect((await w.call(w.stranger, "POST", url, { ...NOTE, body: "looks AI" })).json().error).toBe("note_too_short");
     expect((await w.call(w.stranger, "POST", url, { ...NOTE, concern: "fake" })).json().error).toBe("bad_concern");
+    expect((await w.call(w.stranger, "POST", url, { ...NOTE, request: "dna_test" })).json().error).toBe("bad_request");
     expect((await w.call(w.stranger, "POST", url, NOTE)).statusCode).toBe(200);
     expect((await w.call(w.stranger, "POST", url, NOTE)).json().error).toBe("already_noted");
   });
 
   it("limits how many notes one account adds in a day", async () => {
     const w = await publishedPiece({ maxNotesPerDay: 1 });
-    await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: true });
     expect((await w.call(w.raters[0], "POST", `/pieces/${PIECE}/context-notes`, NOTE)).statusCode).toBe(200);
     const none = await publishedPiece({ maxNotesPerDay: 0 });
-    await none.call(none.artist, "POST", `/pieces/${PIECE}/publish`, { published: true });
     const r = await none.call(none.raters[0], "POST", `/pieces/${PIECE}/context-notes`, NOTE);
     expect([r.statusCode, r.json().error]).toEqual([429, "too_many_notes"]);
   });
 
-  it("rated by others into shown; the artist answers; the gallery counts shown notes; the level is untouched", async () => {
+  it("visitors see only notes readers found useful; the queue is for signed-in raters; unpublishing hides everything (review B1, B3)", async () => {
+    const w = await publishedPiece();
+    const { id } = (await w.call(w.stranger, "POST", `/pieces/${PIECE}/context-notes`, NOTE)).json();
+    expect(await notesOf(w)).toEqual([]); // anonymous: nothing until shown
+    expect((await notesOf(w, w.raters[0])).map((n: any) => n.status)).toEqual(["needs_ratings"]);
+    expect((await get(w, null, "/context-notes/needs-ratings")).statusCode).toBe(401);
+    expect((await get(w, w.raters[0], "/context-notes/needs-ratings")).json().notes.map((n: any) => n.id)).toEqual([id]);
+    expect((await get(w, w.stranger, "/context-notes/needs-ratings")).json().notes).toEqual([]); // own note
+    expect((await get(w, w.artist, "/context-notes/needs-ratings")).json().notes).toEqual([]); // own piece
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: false });
+    expect(await notesOf(w, w.raters[0])).toEqual([]);
+    expect((await get(w, w.raters[0], "/context-notes/needs-ratings")).json().notes).toEqual([]);
+    expect((await w.call(w.raters[0], "POST", `/context-notes/${id}/ratings`, { helpful: true, reason: "specific_details" })).json().error).toBe("not_published");
+    expect((await notesOf(w, w.artist)).length).toBe(1); // the artist still sees it
+  });
+
+  it("rated into view; the artist answers and the request resolves from the record; a contested note is labelled; the level is untouched", async () => {
     const w = await publishedPiece();
     await w.call(w.artist, "POST", `/pieces/${PIECE}/visibility`, { indices: [0, 5], level: "public" });
-    await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: true });
+    const levelBefore = (await w.app.inject({ method: "GET", url: `/pieces/${PIECE}/public` })).json().public.level;
     const { id } = (await w.call(w.stranger, "POST", `/pieces/${PIECE}/context-notes`, NOTE)).json();
     const rate = (u: any, helpful: boolean, reason: string) => w.call(u, "POST", `/context-notes/${id}/ratings`, { helpful, reason });
     expect((await rate(w.stranger, true, "specific_details")).json().error).toBe("cannot_rate_own_note");
     expect((await rate(w.artist, false, "speculation")).json().error).toBe("artist_cannot_rate");
     expect((await rate(w.raters[0], true, "speculation")).json().error).toBe("bad_reason");
-    const queue = async () => (await w.app.inject({ method: "GET", url: "/context-notes/needs-ratings" })).json().notes.map((n: any) => n.id);
-    expect(await queue()).toEqual([id]);
-    await rate(w.raters[0], true, "specific_details");
-    await rate(w.raters[1], true, "names_useful_evidence");
-    expect((await rate(w.raters[2], false, "speculation")).json().status).toBe("shown"); // 2 of 3
-    expect(await queue()).toEqual([]);
+    for (const r of w.raters.slice(0, 3)) await rate(r, true, "specific_details");
+    expect((await rate(w.raters[3], true, "names_useful_evidence")).json().status).toBe("needs_ratings"); // 4 ratings: not yet
+    expect((await rate(w.raters[4], false, "speculation")).json().status).toBe("shown"); // 4 of 5
+    const [shown] = await notesOf(w);
+    expect(shown).toMatchObject({ status: "shown", request: "more_frames", requestMet: false, publicFramesAtNote: 2 });
 
-    // The artist answers and makes more frames public; the response records that.
-    expect((await w.call(w.raters[0], "POST", `/context-notes/${id}/response`, { body: "x" })).statusCode).toBe(403);
     await w.call(w.artist, "POST", `/pieces/${PIECE}/visibility`, { indices: [1, 2, 3, 4], level: "public" });
-    expect((await w.call(w.artist, "POST", `/context-notes/${id}/response`, { body: "I redrew the hands off-camera; the sketch layer is now public." })).statusCode).toBe(200);
-    const list = (await w.call(w.raters[3], "GET", `/pieces/${PIECE}/context-notes`)).json();
-    expect(list.notes[0]).toMatchObject({ status: "shown", ratings: { helpful: 2, total: 3 }, publicFramesAtNote: 2, asksEvidence: true, myRating: null,
-      response: { body: "I redrew the hands off-camera; the sketch layer is now public.", publicFramesAtResponse: 6 } });
+    expect((await w.call(w.raters[0], "POST", `/context-notes/${id}/response`, { body: "x" })).statusCode).toBe(403);
+    expect((await w.call(w.artist, "POST", `/context-notes/${id}/response`, { body: "I sketch on paper first; the early frames are public now." })).statusCode).toBe(200);
+    const [answered] = await notesOf(w);
+    expect(answered).toMatchObject({ requestMet: true, publicFramesNow: 6, response: { publicFramesAtResponse: 6 } });
 
-    // Raters can change their minds once the artist answers.
+    const g = () => w.app.inject({ method: "GET", url: "/gallery" }).then((r) => r.json().pieces[0]);
+    expect((await g()).notes).toEqual({ shown: 1, answered: 1 });
+    // Raters change their minds after the answer: 3 of 6 → readers disagree, not shown.
     await rate(w.raters[0], false, "artist_answered");
-    await rate(w.raters[3], false, "artist_answered");
-    expect((await w.app.inject({ method: "GET", url: `/pieces/${PIECE}/context-notes` })).json().notes[0].status).toBe("not_shown"); // 1 of 4
-
-    const g = (await w.app.inject({ method: "GET", url: "/gallery" })).json().pieces[0];
-    expect(g.contextNotes).toBe(0);
-    await rate(w.raters[0], true, "specific_details");
-    await rate(w.raters[3], true, "specific_details");
-    expect((await w.app.inject({ method: "GET", url: "/gallery" })).json().pieces[0].contextNotes).toBe(1);
-    expect((await w.app.inject({ method: "GET", url: `/pieces/${PIECE}/public` })).json().public.level).toBeDefined();
+    await rate(w.raters[5], false, "artist_answered");
+    expect((await notesOf(w, w.raters[1]))[0].status).toBe("disagree");
+    expect(await notesOf(w)).toEqual([]);
+    expect((await g()).notes).toEqual({ shown: 0, answered: 0 });
+    expect((await w.app.inject({ method: "GET", url: `/pieces/${PIECE}/public` })).json().public.level).toBe(levelBefore);
   });
 
+  it("two 'about the person' ratings hide a note however many found it helpful", async () => {
+    const w = await publishedPiece();
+    const { id } = (await w.call(w.stranger, "POST", `/pieces/${PIECE}/context-notes`, { ...NOTE, body: "This is obviously AI. The artist is a fraud and a scammer, do not buy." })).json();
+    const rate = (u: any, helpful: boolean, reason: string) => w.call(u, "POST", `/context-notes/${id}/ratings`, { helpful, reason });
+    for (const r of w.raters.slice(0, 4)) await rate(r, true, "fair_tone");
+    await rate(w.raters[4], false, "personal_attack");
+    expect((await rate(w.raters[5], false, "personal_attack")).json().status).toBe("not_shown");
+    expect(await notesOf(w)).toEqual([]);
+  });
+
+  it("the author withdraws; anyone reports; an operator removes, logged (review B2)", async () => {
+    const w = await publishedPiece();
+    const post = (u: any, url: string, b: unknown = {}) => w.call(u, "POST", url, b);
+    const a = (await post(w.stranger, `/pieces/${PIECE}/context-notes`, NOTE)).json().id;
+    expect((await post(w.raters[0], `/context-notes/${a}/withdraw`)).json().error).toBe("not_your_note");
+    expect((await post(w.stranger, `/context-notes/${a}/withdraw`)).statusCode).toBe(200);
+    expect(await notesOf(w, w.raters[0])).toEqual([]);
+    // Withdrawing frees the slot for a better note.
+    const b = (await post(w.stranger, `/pieces/${PIECE}/context-notes`, NOTE)).json().id;
+    expect((await post(w.raters[0], `/context-notes/${b}/report`, { reason: "nonsense" })).json().error).toBe("bad_reason");
+    expect((await post(w.raters[0], `/context-notes/${b}/report`, { reason: "personal_attack" })).statusCode).toBe(200);
+    expect((await post(w.raters[1], `/context-notes/${b}/report`, { reason: "spam" })).statusCode).toBe(200);
+    expect((await get(w, w.raters[0], "/context-notes/reported")).statusCode).toBe(403);
+    expect((await get(w, w.operator, "/context-notes/reported")).json().notes).toMatchObject([{ id: b, reports: 2 }]);
+    expect((await notesOf(w, w.operator))[0].id).toBe(b);
+    expect((await get(w, w.operator, `/pieces/${PIECE}/context-notes`)).json().canModerate).toBe(true);
+    expect((await post(w.raters[0], `/context-notes/${b}/remove`, { reason: "personal_attack" })).json().error).toBe("not_an_operator");
+    expect((await post(w.operator, `/context-notes/${b}/remove`, { reason: "personal_attack" })).statusCode).toBe(200);
+    expect(await notesOf(w, w.raters[0])).toEqual([]);
+    expect((await post(w.raters[2], `/context-notes/${b}/ratings`, { helpful: true, reason: "fair_tone" })).statusCode).toBe(404);
+  });
+
+  it("the finished image: a public preview of a published piece unless the artist turns it off; a title (review B9, B10)", async () => {
+    const w = await publishedPiece({}, false);
+    const preview = () => w.app.inject({ method: "GET", url: `/pieces/${PIECE}/preview` });
+    expect((await preview()).statusCode).toBe(404); // not published
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: true, title: "  Harbour at dusk  " });
+    const img = await preview();
+    expect([img.statusCode, img.headers["content-type"]]).toEqual([200, "image/jpeg"]);
+    const pub = (await w.app.inject({ method: "GET", url: `/pieces/${PIECE}/public` })).json();
+    expect([pub.title, pub.hasPreview]).toEqual(["Harbour at dusk", true]);
+    expect((await w.app.inject({ method: "GET", url: "/gallery" })).json().pieces[0]).toMatchObject({ title: "Harbour at dusk", hasPreview: true });
+    expect((await get(w, w.raters[0], `/pieces/${PIECE}/publication`)).statusCode).toBe(403);
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/story`, { text: "Ink first." });
+    await w.call(w.artist, "POST", `/pieces/${PIECE}/publish`, { published: true, showFinal: false });
+    expect((await get(w, w.artist, `/pieces/${PIECE}/publication`)).json()).toEqual({ hasReport: true, published: true, title: "Harbour at dusk", showFinal: false, story: "Ink first." });
+    expect((await preview()).statusCode).toBe(404);
+  });
 });
 
 describe("final file upload", () => {

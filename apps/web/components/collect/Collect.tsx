@@ -1,13 +1,14 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useNear } from "@/components/NearProvider";
 import { ErrorNote, useAction, usePoll } from "@/components/ui";
 import { accounting, pieceInfo } from "@/lib/piece";
 import { buyCall, type Listing } from "@/lib/resale";
-import { GRANT_TEXT, toUnits } from "@/lib/terms";
+import { GRANT_TEXT } from "@/lib/terms";
 import { money } from "@/lib/money";
-import { tipCalls } from "@/lib/tip";
+import { parseTip, tipCalls } from "@/lib/tip";
 
 /**
  * On the piece's public page: collect it if the holder put it up for sale, or send the artist a tip.
@@ -15,6 +16,7 @@ import { tipCalls } from "@/lib/tip";
  */
 export function Collect({ pieceId }: { pieceId: string }) {
   const { chain, accountId, signer, config } = useNear();
+  const router = useRouter();
   const { data, reload } = usePoll(async () => {
     const [piece, acc, listing] = await Promise.all([pieceInfo(chain, pieceId), accounting(chain, pieceId), chain.view<Listing | null>(pieceId, "listing")]);
     return { piece, acc, listing };
@@ -26,6 +28,7 @@ export function Collect({ pieceId }: { pieceId: string }) {
   if (!data) return null;
   const { piece, acc, listing } = data;
   const d = config.currencyDecimals;
+  const tipUnits = parseTip(amount, d);
   const mine = accountId === piece.owner;
   const isArtist = accountId === piece.artist;
   const held = piece.owner === piece.artist ? "Held by the artist" : `Collected by ${piece.owner}`;
@@ -57,6 +60,7 @@ export function Collect({ pieceId }: { pieceId: string }) {
                   const c = buyCall(pieceId, listing, acc.holder_pool, piece.currency);
                   await signer!.call(c.contract, c.method, c.args, { deposit: c.deposit, tgas: c.tgas });
                   await reload();
+                  router.refresh(); // the server-rendered parts (rights, current holder) too (review B7)
                 })}
               >
                 {buy.busy ?? (accountId ? `Collect for ${money(listing.price, acc.currency, d)}` : "Sign in to collect")}
@@ -85,9 +89,10 @@ export function Collect({ pieceId }: { pieceId: string }) {
               <button
                 className="btn-primary"
                 data-testid="tip"
-                disabled={!accountId || !amount || !!tip.busy}
+                disabled={!accountId || tipUnits === null || !!tip.busy}
                 onClick={() => tip.run("Sending", async () => {
-                  const units = toUnits(amount, d);
+                  setThanks(null);
+                  const units = tipUnits!;
                   for (const c of await tipCalls(chain, config.currencyToken, piece.artist, units, pieceId)) await signer!.call(c.contract, c.method, c.args, { deposit: c.deposit, tgas: c.tgas });
                   setThanks(`Sent ${money(units, { Ft: config.currencyToken }, d)} to ${piece.artist}. Thank you.`);
                   setAmount("");
@@ -96,6 +101,9 @@ export function Collect({ pieceId }: { pieceId: string }) {
                 {tip.busy ?? (accountId ? "Send a tip" : "Sign in to send a tip")}
               </button>
             </div>
+            {amount.trim() !== "" && tipUnits === null && (
+              <p className="mt-2 text-xs text-seal-2" data-testid="tip-invalid">Enter an amount above zero, with at most {d} decimal places.</p>
+            )}
             {thanks && <p className="mt-3 text-sm text-moss" role="status" data-testid="tip-sent">{thanks}</p>}
             <ErrorNote error={tip.error} />
           </>
@@ -104,3 +112,4 @@ export function Collect({ pieceId }: { pieceId: string }) {
     </section>
   );
 }
+
