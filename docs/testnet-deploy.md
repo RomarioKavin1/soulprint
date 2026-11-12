@@ -32,7 +32,7 @@ cd contracts && cargo run -q -p soulprint-deploy -- --owner <you>.testnet --plan
 | test USDC | 2.10 |
 | fee margin | 1 |
 | **total** | **≈ 55.1** |
-| `--demo-accounts` (artist 2, client 3, buyer 3, arbitrators 1 + 1) | + 10 |
+| `--demo-accounts` (artist 3, client 3, buyer 3, arbitrators 1 + 1) | + 11 |
 
 The global-code burn (about 39.3 NEAR) is most of it and is not refundable. The publisher call uses
 300 Tgas on purpose: near-workspaces' `max_gas()` is 1 PGas, which is prepaid at the pessimistic gas
@@ -40,7 +40,7 @@ price and locks about 0.6 NEAR (found in the dry run: `LackBalanceForState` with
 
 ## Run it
 
-1. Fund an owner account with ≈ 56 NEAR (≈ 66 with demo accounts).
+1. Fund an owner account with ≈ 56 NEAR (≈ 67 with demo accounts, which the soak needs).
 2. Give the tool its key, using one of:
    - `export OWNER_SECRET_KEY=ed25519:…` — near-cli-rs keeps keys in the macOS keychain by default;
      print it with `near account export-account <you>.testnet using-private-key network-config testnet`;
@@ -67,6 +67,25 @@ price and locks about 0.6 NEAR (found in the dry run: `LackBalanceForState` with
 Testnet sign-in uses real wallets (NEAR Connect); demo-account keys are in the state file for
 scripted rehearsals, never in `config/networks.json` or the browser.
 
+## Soak (Task 15, part 2)
+
+Random commission lifecycles — accept, changes then accept, negotiated split, arbitrator ruling,
+refund after the deadline, resale to the buyer — with the demo accounts, each followed by every
+party claiming. After each lifecycle and again at the end, every piece must hold at least its
+liabilities in USDC, satisfy funded = released + refunded + escrow, and have nothing in flight.
+
+```
+cd contracts
+cargo run -q -p soulprint-deploy --bin soulprint-soak -- \
+  --state ~/.soulprint/testnet/soulprint-v1.<you>.testnet.state.json --n 20 --minutes 60
+# then, with the indexer from scripts/testnet-stack.sh running:
+SOULPRINT_NETWORK=testnet SOULPRINT_CONFIG=$PWD/../config/networks.json \
+  pnpm -C ../services/indexer exec vitest run test/live.test.ts
+```
+
+The demo accounts pay for it: ≈ 0.08 NEAR per piece from the artist (creation + fees), USDC from
+the open faucet. `--dry-run-sandbox --n 6` runs the same on a throwaway sandbox.
+
 ## Decisions
 
 - **Time preset `fast` on testnet** (seconds-scale review/dispute windows, `common::TimeConfig::fast`)
@@ -86,4 +105,7 @@ scripted rehearsals, never in `config/networks.json` or the browser.
 - Testnet-mode services against a held dry run (`--dry-run-sandbox --hold --config <tmp>` +
   `BLOCK_SOURCE=rpc scripts/testnet-stack.sh`): evidence, indexer and relayer start from the env
   file; the indexer finds the smoke piece from the genesis block.
+- Soak on a held dry run: 12 lifecycles (every scenario) reconciled on chain, then the indexer
+  live test (`SOULPRINT_NETWORK=testnet`) matched event-derived balances to `accounting()` for all
+  13 pieces. `soak_every_scenario_reconciles_on_sandbox` runs the shortened soak in `cargo test`.
 - Not verified until it runs on testnet: neardata as the indexer source, wallet sign-in (Spike S2).

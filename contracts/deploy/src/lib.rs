@@ -16,6 +16,8 @@ use serde_json::{json, Value};
 use std::collections::BTreeMap;
 use std::path::Path;
 
+pub mod soak;
+
 pub const NEAR: u128 = 10u128.pow(24);
 /// Storage price: 10^19 yocto per byte (protocol constant since genesis).
 pub const BYTE: u128 = 10u128.pow(19);
@@ -43,6 +45,22 @@ pub struct Options {
     /// Value written into the collection (`network` field; signed messages must match it).
     pub network_id: String,
     pub rpc_url: String,
+}
+
+/// Defaults shared by the CLI and tests (testnet, v1, fast, 1 NEAR free, deploy test USDC).
+pub fn default_options() -> Options {
+    Options {
+        version: "v1".into(),
+        governance: None,
+        time_name: "fast".into(),
+        collection_free: NEAR,
+        usdc: None,
+        demo_accounts: false,
+        skip_publish: false,
+        smoke: false,
+        network_id: "testnet".into(),
+        rpc_url: "https://rpc.testnet.near.org".into(),
+    }
 }
 
 impl Options {
@@ -169,7 +187,7 @@ pub fn budget(owner: &str, o: &Options, w: &Wasms) -> Vec<Line> {
         });
     }
     if o.demo_accounts {
-        for (role, n) in [("artist", 2), ("client", 3), ("buyer", 3), ("arbitrator", 1), ("fallback_arbitrator", 1)] {
+        for (role, n) in [("artist", 3), ("client", 3), ("buyer", 3), ("arbitrator", 1), ("fallback_arbitrator", 1)] {
             lines.push(Line { role, account: name(&role.replace('_', "-")), near: n * NEAR, why: "demo account".into() });
         }
     }
@@ -197,6 +215,12 @@ fn ok(r: near_workspaces::result::ExecutionFinalResult, what: &str) -> Result<ne
 pub struct Deployed {
     pub entry: Value,
     pub state: State,
+}
+
+impl std::fmt::Debug for Deployed {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Deployed").field("collection", &self.state.collection).finish()
+    }
 }
 
 /// Run (or resume) the deploy. `save` is called after every step with the updated state.

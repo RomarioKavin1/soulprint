@@ -53,3 +53,16 @@ fn budget_covers_the_global_burn_and_collection_free_balance() {
     let skip = budget("o.testnet", &Options { skip_publish: true, ..opts() }, &w);
     assert!(skip.iter().all(|l| l.role != "publisher"), "--skip-publish drops the 40 NEAR burn");
 }
+
+/// Task 15 soak, shortened: every scenario once on a fresh dry-run deploy, each reconciled on chain.
+#[tokio::test]
+async fn soak_every_scenario_reconciles_on_sandbox() -> anyhow::Result<()> {
+    use soulprint_deploy::soak::{soak, Soak, ALL};
+    let (d, _dir, worker) = dry_run_sandbox(opts(), &|_| {}).await?;
+    let s = Soak::from_state(&worker, &d.state, &|m| eprintln!("{m}"))?;
+    let done = soak(&s, ALL.len(), 0).await?;
+    for sc in ALL {
+        assert!(done.iter().any(|(x, _)| *x == sc), "{sc:?} not run");
+    }
+    Ok(())
+}

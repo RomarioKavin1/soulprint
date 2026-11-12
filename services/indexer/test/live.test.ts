@@ -1,9 +1,12 @@
-/** Against a running sandbox + indexer (make demo): event-derived balances equal each piece's accounting. */
+/**
+ * Against a running chain + indexer (make demo, or a testnet deploy after `soulprint-soak`):
+ * event-derived balances equal each piece's accounting. SOULPRINT_NETWORK picks the config entry.
+ */
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const path = process.env.SOULPRINT_CONFIG;
-const c = path ? JSON.parse(readFileSync(path, "utf8")).sandbox : null;
+const c = path ? JSON.parse(readFileSync(path, "utf8"))[process.env.SOULPRINT_NETWORK ?? "sandbox"] : null;
 const IX = process.env.INDEXER_URL ?? "http://127.0.0.1:8788";
 
 async function view(contract: string, method: string, args: object = {}) {
@@ -13,7 +16,7 @@ async function view(contract: string, method: string, args: object = {}) {
 }
 
 describe.skipIf(!c)("indexer vs chain (live)", () => {
-  it("history_reconstructs_balances_from_events for every piece on the sandbox", async () => {
+  it("history_reconstructs_balances_from_events for every piece on the network", async () => {
     for (let i = 0; i < 120; i++) {
       if (!(await (await fetch(`${IX}/lag`)).json()).updating && (await (await fetch(`${IX}/lag`)).json()).behindBlocks < 3) break;
       await new Promise((r) => setTimeout(r, 1000));
@@ -31,5 +34,5 @@ describe.skipIf(!c)("indexer vs chain (live)", () => {
       expect({ id, funded: b.funded, escrow: b.escrow, released: b.released, refunded: b.refunded, pool: b.holderPool, credits: nonzero(b.credits), owner: b.owner, status: b.status })
         .toEqual({ id, funded: acc.funded, escrow: acc.escrow, released: acc.released, refunded: acc.refunded, pool: acc.holder_pool, credits: chainCredits, owner: info.owner, status: info.status });
     }
-  }, 180_000);
+  }, 600_000);
 });
