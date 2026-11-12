@@ -44,7 +44,8 @@ price and locks about 0.6 NEAR (found in the dry run: `LackBalanceForState` with
 2. Give the tool its key, using one of:
    - `export OWNER_SECRET_KEY=ed25519:…` — near-cli-rs keeps keys in the macOS keychain by default;
      print it with `near account export-account <you>.testnet using-private-key network-config testnet`;
-   - a legacy credentials file `~/.near-credentials/testnet/<you>.testnet.json` (or `--key-file`).
+   - a credentials file `~/.near-credentials/testnet/<you>.testnet.json` (or `--key-file`): the
+     near-cli-rs legacy keychain format (`private_key`) and near-api-js format (`secret_key`) both work.
 3. Rehearse locally (same code path on a throwaway sandbox, nothing written to `config/`):
    `cargo run -q -p soulprint-deploy -- --dry-run-sandbox`
 4. Deploy:
@@ -85,6 +86,16 @@ SOULPRINT_NETWORK=testnet SOULPRINT_CONFIG=$PWD/../config/networks.json \
 
 The demo accounts pay for it: ≈ 0.08 NEAR per piece from the artist (creation + fees), USDC from
 the open faucet. `--dry-run-sandbox --n 6` runs the same on a throwaway sandbox.
+
+## The 12 Nov 2026 deploy
+
+- Owner `soulprint-owner-12f173.testnet` (near-cli-rs faucet sponsor; six more sponsored accounts
+  deleted into it with the owner as beneficiary to reach ≈ 74 NEAR).
+- Collection `soulprint-v1.soulprint-owner-12f173.testnet`, genesis tx
+  `GH94FtbsAdDmTBNRu6F7hSdu8KdHgAzYcQwGBRPVrthw`, start block 277343482, test USDC
+  `soulprint-v1-usdc.soulprint-owner-12f173.testnet`, smoke piece `p1`.
+- `rpc.testnet.near.org` rate-limited the publish step (HTTP 429) — nothing was burnt; the run was
+  resumed with `--rpc https://test.rpc.fastnear.com`, which is now the configured RPC.
 
 ## Decisions
 

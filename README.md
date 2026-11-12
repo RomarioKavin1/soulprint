@@ -120,7 +120,7 @@ Piece code hash = sha256 of `contracts/res/piece.wasm` (base64 as `collection_in
 | Network | Collection | Piece code hash | Genesis tx |
 |---|---|---|---|
 | sandbox (local, regenerated on each run) | `soulprint.test.near` | `u4gSGFBV2VfDZSzlSoviGaoEx/LJzy3VJFd/I/nJM4A=` | — |
-| testnet | not deployed yet — see [docs/testnet-deploy.md](docs/testnet-deploy.md) | — | — |
+| testnet (`fast` time preset; [docs/testnet-deploy.md](docs/testnet-deploy.md)) | `soulprint-v1.soulprint-owner-12f173.testnet` | `u4gSGFBV2VfDZSzlSoviGaoEx/LJzy3VJFd/I/nJM4A=` | `GH94FtbsAdDmTBNRu6F7hSdu8KdHgAzYcQwGBRPVrthw` |
 
 ## Licence
 

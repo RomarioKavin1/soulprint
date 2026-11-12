@@ -121,8 +121,11 @@ async fn main() -> Result<()> {
     let owner = match std::env::var("OWNER_SECRET_KEY") {
         Ok(k) => Account::from_secret_key(owner_id.clone(), k.parse().map_err(|e| anyhow::anyhow!("OWNER_SECRET_KEY: {e:?}"))?, &worker),
         Err(_) => {
+            // near-cli-rs legacy keychain ({private_key, …}) or near-api-js ({account_id, secret_key}).
             let f = c.key_file.clone().unwrap_or_else(|| home().join(".near-credentials/testnet").join(format!("{owner_id}.json")));
-            Account::from_file(&f, &worker).with_context(|| format!("no OWNER_SECRET_KEY and cannot read {}", f.display()))?
+            let j: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(&f).with_context(|| format!("no OWNER_SECRET_KEY and cannot read {}", f.display()))?)?;
+            let k = j["private_key"].as_str().or(j["secret_key"].as_str()).with_context(|| format!("{}: no private_key/secret_key", f.display()))?;
+            Account::from_secret_key(owner_id.clone(), k.parse().map_err(|e| anyhow::anyhow!("{}: {e:?}", f.display()))?, &worker)
         }
     };
     let collection = format!("soulprint-{}.{owner_id}", c.o.version);
