@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["common", "piece", "collection", "publisher", "mock-ft", "evil-receiver", "tests", "sandbox"]
+members = ["common", "piece", "collection", "publisher", "mock-ft", "evil-receiver", "tests", "sandbox", "deploy"]
 
 [workspace.package]
 edition = "2024"

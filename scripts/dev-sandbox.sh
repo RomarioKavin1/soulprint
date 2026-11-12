@@ -6,7 +6,9 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 LOG="${LOG_DIR:-$ROOT/.superpowers/logs}"
 mkdir -p "$LOG" "$ROOT/config"
 pids=()
-cleanup() { for p in "${pids[@]}"; do kill "$p" 2>/dev/null || true; done; }
+# pnpm does not forward signals to the node it starts: stop each whole process tree.
+killtree() { local c; for c in $(pgrep -P "$1" 2>/dev/null); do killtree "$c"; done; kill "$1" 2>/dev/null || true; }
+cleanup() { for p in "${pids[@]}"; do killtree "$p"; done; }
 trap cleanup EXIT INT TERM
 
 [ -f "$ROOT/contracts/res/piece.wasm" ] || bash "$ROOT/scripts/build.sh"

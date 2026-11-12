@@ -113,10 +113,14 @@ The table is DESIGN §7; the test column names the tests as they exist in this r
 
 ## Deployed code hashes
 
-| Network | Collection | Piece code hash |
-|---|---|---|
-| sandbox (local, regenerated on each run) | `soulprint.test.near` | `nK3EQioOm+H6f49ppqy9ubchOfDyAnF/Y1HDJ62rUls=` |
-| testnet | not deployed yet | — |
+Piece code hash = sha256 of `contracts/res/piece.wasm` (base64 as `collection_info` shows it; hex in
+`config/networks.json` as `piece_code_sha256`). Collection code sha256 (hex):
+`370a5017af9dd765ce1caf6654da98416d4502f59e5e67f17fbc9aceb5a32ede`.
+
+| Network | Collection | Piece code hash | Genesis tx |
+|---|---|---|---|
+| sandbox (local, regenerated on each run) | `soulprint.test.near` | `u4gSGFBV2VfDZSzlSoviGaoEx/LJzy3VJFd/I/nJM4A=` | — |
+| testnet | not deployed yet — see [docs/testnet-deploy.md](docs/testnet-deploy.md) | — | — |
 
 ## Licence
 

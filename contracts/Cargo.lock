@@ -4013,6 +4013,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "soulprint-deploy"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "common",
+ "ed25519-dalek",
+ "hex",
+ "near-workspaces",
+ "rand 0.8.8",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "tests",
+ "tokio",
+]
+
+[[package]]
 name = "soulprint-sandbox"
 version = "0.1.0"
 dependencies = [

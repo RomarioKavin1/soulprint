@@ -1,6 +1,7 @@
 /**
  * Indexer entry. `--sandbox`: RPC block source and settings from config/networks.json.
- * Otherwise env: NEAR_RPC_URL, NEARDATA_URL, SOULPRINT_COLLECTION, START_BLOCK, MIN_INCOME_JSON.
+ * Otherwise env: NEAR_RPC_URL, NEARDATA_URL, SOULPRINT_COLLECTION, START_BLOCK, MIN_INCOME_JSON,
+ * BLOCK_SOURCE (neardata | rpc; default neardata — rpc is for a local chain, e.g. the deploy dry run).
  */
 import { readFileSync } from "node:fs";
 import { buildApi } from "./api.ts";
@@ -21,7 +22,7 @@ if (process.argv.includes("--sandbox")) {
   src = new RpcBlockSource(rpc);
 } else {
   minIncome = Object.fromEntries(Object.entries(JSON.parse(env.MIN_INCOME_JSON ?? "{}")).map(([k, v]) => [k, BigInt(v as string)]));
-  src = new NeardataBlockSource(env.NEARDATA_URL ?? "https://testnet.neardata.xyz", rpc);
+  src = env.BLOCK_SOURCE === "rpc" ? new RpcBlockSource(rpc) : new NeardataBlockSource(env.NEARDATA_URL ?? "https://testnet.neardata.xyz", rpc);
 }
 if (!rpc || !collection) throw new Error("NEAR_RPC_URL and SOULPRINT_COLLECTION are required");
 const db = await openDb(env.INDEXER_DATA_DIR ?? undefined);
