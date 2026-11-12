@@ -124,4 +124,4 @@ Piece code hash = sha256 of `contracts/res/piece.wasm` (base64 as `collection_in
 
 ## Licence
 
-To be chosen before submission (Romario).
+MIT — see [LICENSE](LICENSE).
