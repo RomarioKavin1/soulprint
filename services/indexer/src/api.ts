@@ -2,6 +2,7 @@
 import Fastify from "fastify";
 import type { Db } from "./db.ts";
 import { history } from "./history.ts";
+import { market } from "./market.ts";
 
 /** History labels itself "updating" past this (Review Focus 4). */
 export const LAG_UPDATING_MS = 30_000;
@@ -45,6 +46,11 @@ export async function buildApi(d: ApiDeps) {
       "SELECT p.piece_id, p.token_id, p.mode, p.artist, h.owner FROM holders h JOIN pieces p USING (piece_id) WHERE h.owner = $1 ORDER BY p.created_height DESC", [req.params.id],
     )).rows;
     return { pieces: rows.map((r) => ({ pieceId: r.piece_id, tokenId: r.token_id, owner: r.owner, mode: r.mode, artist: r.artist })), lag: await lag() };
+  });
+  /** Listings, holders and sales for the showcase; `ids` (comma-separated) narrows it. */
+  app.get<{ Querystring: { ids?: string } }>("/market", async (req) => {
+    const ids = req.query.ids ? String(req.query.ids).split(",").map((x) => x.trim()).filter(Boolean).slice(0, 500) : undefined;
+    return { pieces: await market(d.db, ids), lag: await lag() };
   });
   app.get("/health", async () => ({ ok: true }));
   return app;

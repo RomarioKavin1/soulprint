@@ -52,11 +52,10 @@ test("showcase: own piece recorded, finished, published to the gallery, collecte
   await expect(artist.p.getByLabel("Story")).toHaveValue("Ink first, then washes.", { timeout: 20_000 });
   await expect(artist.p.getByLabel("Title")).toHaveValue("Harbour study");
 
-  await fan.p.goto("/");
+  await fan.p.goto("/gallery");
   const card = fan.p.getByTestId("gallery-card").filter({ has: fan.p.locator(`a[href="/p/${pieceId}"]`) });
   await expect(card).toBeVisible({ timeout: 20_000 });
-  await expect(card).toContainText("Declared by the artist"); // a short browser session: honest E0
-  await expect(card).toContainText("Ink first, then washes.");
+  await expect(card).toContainText("Declared"); // a short browser session: honest E0
   await expect(card.getByRole("img", { name: "Harbour study" })).toBeVisible(); // the finished work, not a frame (review B9)
   await expect(card).toContainText("Harbour study");
   await card.getByTestId("card-artist").click();

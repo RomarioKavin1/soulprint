@@ -2,27 +2,24 @@
 version: 1
 slug: "app-page-tsx"
 primary_target: "app/page.tsx"
-related_targets: ["app/p/[pieceId]/page.tsx","app/a/[artist]/page.tsx","app/layout.tsx"]
+related_targets: []
 ---
 
-# Surface brief: Soulprint web (whole app, led by the gallery)
+# Surface brief: the landing page (/)
 
-Scope: every route of apps/web, redesigned from scratch (owner, 13 Nov). Mode: Experience for gallery, artist and piece pages; Operate for studio, room, vault, buy/pay (same world, quieter).
-Audience: visitors and collectors first; artists second. Job: see real work and its making, trust the record's wording, tip or collect.
-Classic public-domain works (Met Open Access, CC0, `public/classics/classics.json`) fill the hang as labelled examples: the label says "Example · public domain", links to the museum, never a level, price or collect button.
-Unresolved: real artworks from the owner replace the examples and the synthetic test pieces as they arrive.
+Mode: Persuade. Audience: first-time visitors and collectors (artists second). Action: Enter the gallery (/gallery); secondary: Start a piece. World: DESIGN.md (the Salon) — unchanged. The showcase moved to /gallery (its own brief).
 
 ## Direction contract
 
-THESIS: Soulprint is a salon hang — every work in a real period frame, hung close together on a lit claret wall, each with a printed label saying exactly what its record shows. Refuses the online-shop default of unframed images in a staggered white grid.
+THESIS: The landing opens on the paint itself — Van Gogh's sky in Wheat Field with Cypresses so close that every stroke shows — because up close a picture shows how it was made, which is the whole idea of Soulprint. Then four rooms explain it, and a last doorway opens onto the gallery. Refuses the split hero and the row of three feature cards.
 
-OWN-WORLD: Claret wall (#4f161b, warmed at the top by one cornice light) with an authored tone-on-tone damask. Frames are photographs of empty 15th–18th-century cassetta frames (The Met, CC0) drawn as nine-slice plates: gilt, patterned gilt, walnut-and-gilt, stone inlay. Flat ivory printed labels (Cinzel title, Spectral line, claret level). Sculpture cut from its museum photograph, standing on its own base. Ivory catalogue sheets carry forms and facts. Bodoni Moda display, Cinzel labels, Spectral reading; a flat 2px gilt picture rail.
+OWN-WORLD: The Salon (DESIGN.md): claret damask wall, photographed cassetta frames, flat printed labels, Bodoni Moda / Cinzel / Spectral, ivory sheets. The hero is the one unframed, full-bleed picture: a museum photograph of real paint, with the whole work framed small beside it; a claret scrim in the wall colour carries the type.
 
-STORY: Visitors walk into the hang, read labels, step up to one work, follow its making on the timeline, read readers' questions, then tip or collect. Artists hang their own work in the same room.
+STORY: A visitor understands in one look that this is real art hung with its making, sees the three things a label can say (Declared, Recorded while made, Live checks passed), learns that readers ask questions instead of passing verdicts and that collecting pays the artist again, and walks through the last doorway into the gallery.
 
-FIRST VIEWPORT: The hang begins under the rail, wall to wall: two small classics stacked, then the headline lettered on the wall ("Real art, hung with its making.") with "Walk the hang" (primary) and "Start a piece", then the newest recorded piece at eye level (the Vermeer in patterned gilt when none exists), then two more small classics stacked — five whole works at 1440x900.
+FIRST VIEWPORT: Full-bleed close-up of the brushwork (Met CC0, cropped from the full-resolution image), a claret scrim from the left; headline "Real art, hung with its making." set large at left with one sentence and "Enter the gallery" (primary) / "Start a piece"; the whole painting framed small at bottom right with its printed label ("Example · the sky above, up close").
 
-FORM: Salon hang (Paris Salon, 1880s), candidate 1 of 7 on my list, chosen as IMPECCABLE'S PICK; seed:7855476ff83dbd2e. Revised after two finish reviews (photographed frames, flat labels, one room light, free-standing sculpture, tighter hang).
-Signature interaction: approaching a work (hover/focus), it steps forward a few pixels and the wall behind it warms; on arrival the hang comes up out of the dark work by work (reduced motion: no movement).
+FORM: Enfilade was dealt and built first (seed:52463b95f2316358), then rejected by the owner on sight ("the landing page hero section just looks really bad"); the owner then chose "The Brushwork (Recommended)" from three built variants (brushwork, wordmark, great painting) — seed: none (pinned) for the hero.
+Signature interaction: scrolling leans in — the paint scales up slightly as the page scrolls (scroll-driven; still with reduced motion or without support).
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

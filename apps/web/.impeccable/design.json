@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-13T03:30:00Z",
+  "generatedAt": "2026-11-13T12:00:00Z",
   "title": "Design System: Soulprint Salon",
   "extensions": {
     "colorMeta": {
@@ -32,7 +32,8 @@
           "#da9fa5",
           "#e7cbcd",
           "#f6efef"
-        ]
+        ],
+        "purpose": "Root behind the wall; also the scrim over the landing's paint photograph."
       },
       "gilt": {
         "role": "secondary",
@@ -507,7 +508,7 @@
       },
       "headline": {
         "displayName": "Page Title",
-        "purpose": "Page titles on the wall; the piece title runs up to 4.4rem."
+        "purpose": "Page titles on the wall; piece title and artist name run up to 4.4rem, the gallery title to 4rem; landing room titles use it at line-height 1.05."
       },
       "title": {
         "displayName": "Sheet Title",
@@ -536,6 +537,10 @@
       "data": {
         "displayName": "Checkable Data",
         "purpose": "Account names, fingerprints, hashes and codes only."
+      },
+      "hero": {
+        "displayName": "Hero Lettering",
+        "purpose": "The landing headline only, over the scrim; the largest type in the system, used once."
       }
     },
     "shadows": [
@@ -588,6 +593,21 @@
         "name": "field-focus",
         "value": "0 0 0 3px rgba(122,30,38,0.15)",
         "purpose": "Input focus ring on sheets, with a seal border."
+      },
+      {
+        "name": "finding-aid",
+        "value": "0 14px 30px -18px rgba(0,0,0,0.75)",
+        "purpose": "The ivory strip of showcase controls; with a 1px rgba(110,79,23,0.35) hairline inset 6px."
+      },
+      {
+        "name": "doorway",
+        "value": "inset 0 0 30px rgba(0,0,0,0.55), 0 10px 30px rgba(0,0,0,0.45)",
+        "purpose": "The room seen through the last doorway; lit only by radial-gradient(70% 45% at 50% 0%, rgba(255,205,140,0.1), transparent 70%) at its top."
+      },
+      {
+        "name": "paint-scrim",
+        "value": "linear-gradient(90deg, rgba(43,10,13,0.92) 0%, rgba(43,10,13,0.78) 34%, rgba(43,10,13,0.15) 62%, transparent 75%), linear-gradient(0deg, rgba(43,10,13,0.6), transparent 30%)",
+        "purpose": "Claret Shadow over the landing hero photograph, left to right. To 760px: linear-gradient(180deg, rgba(43,10,13,0.92) 0%, rgba(43,10,13,0.84) 46%, rgba(43,10,13,0.12) 70%, transparent)."
       }
     ],
     "motion": [
@@ -610,18 +630,43 @@
         "name": "control",
         "value": "200ms",
         "purpose": "Button colour, shadow and brightness changes."
+      },
+      {
+        "name": "showcase-arrival",
+        "value": "900ms cubic-bezier(0.16, 1, 0.3, 1); brightness(0.35) saturate(0.6) to none; delay calc(min(var(--i), 12) * 40ms)",
+        "purpose": "Showcase cells come up from the dark, stagger capped at the twelfth cell; skipped under reduced motion."
+      },
+      {
+        "name": "lean-in",
+        "value": "animation-timeline: scroll(root); animation-range: 0 100vh; to transform: scale(1.08) translateY(2%); transform-origin: 70% 30%",
+        "purpose": "The landing hero paint leans in as the first screen scrolls; only where scroll-driven animation is supported, still under reduced motion."
+      },
+      {
+        "name": "re-hang",
+        "value": "opacity 0.7, 200ms",
+        "purpose": "The finding aid while the showcase fetches a new view."
       }
     ],
     "breakpoints": [
       {
+        "name": "finding-aid-narrow",
+        "value": "520px",
+        "purpose": "At and below: the finding aid tightens to 14px padding."
+      },
+      {
         "name": "phone-hang",
         "value": "640px",
-        "purpose": "At and below: works sized by width, small works pair side by side, thinner mouldings. Above: wider gutter and sheet padding."
+        "purpose": "At and below: works sized by width, small works pair side by side, thinner mouldings. Above: wider gutter and sheet padding. The showcase becomes two columns."
+      },
+      {
+        "name": "hero-phone",
+        "value": "760px",
+        "purpose": "At and below: hero type at the top, scrim top-down, framed whole 84px tall."
       },
       {
         "name": "lettering-first",
         "value": "1023px",
-        "purpose": "At and below: the welcome lettering is ordered before the first work."
+        "purpose": "At and below: the welcome lettering is ordered before the first work. (Hang lettering; from 1024px landing rooms go two-column and the last doorway's works stay on one line.)"
       },
       {
         "name": "piece-grid",
@@ -629,9 +674,14 @@
         "purpose": "From here the piece page is a 12-column grid (7 work, 5 text)."
       },
       {
+        "name": "finding-aid-two-column",
+        "value": "1100px",
+        "purpose": "At and below: the finding aid is two columns with search across the top."
+      },
+      {
         "name": "page-column",
         "value": "1400px",
-        "purpose": "Maximum page column; the home hang bleeds past it."
+        "purpose": "Maximum page column; bleed sections (landing hero, last doorway) run past it."
       }
     ],
     "hang": {
@@ -688,7 +738,55 @@
           "repeat": "round"
         }
       },
-      "provenance": "public/salon/frames/frames.json and per-file .webp.json records; The Metropolitan Museum of Art Open Access, CC0. Sculpture cut-outs: public/salon/sculpture/sculpture.json. Damask: authored SVG, public/salon/damask.svg."
+      "provenance": "public/salon/frames/frames.json and per-file .webp.json records; The Metropolitan Museum of Art Open Access, CC0. Sculpture cut-outs: public/salon/sculpture/sculpture.json. Damask: authored SVG, public/salon/damask.svg. Landing hero: public/salon/hero/wheat-field-brushwork.webp.json."
+    },
+    "pictureSizing": {
+      "rule": "width: min(var(--cap), calc(var(--h) * var(--ar))); height: auto",
+      "beforeProportionsKnown": "height: var(--h); width: auto; max-width: 100%; object-fit: contain",
+      "ar": "Set inline from width/height when known; read from naturalWidth/naturalHeight on load by components/salon/FitImg.tsx when not (artists' previews).",
+      "layouts": {
+        "showcase": {
+          "h": "clamp(170px, 15vw, 230px)",
+          "cap": "clamp(150px, 17.5vw, 260px)"
+        },
+        "showcase-phone": {
+          "h": "150px",
+          "cap": "calc(50vw - 46px)"
+        },
+        "room": {
+          "h": "clamp(260px, 30vw, 420px)",
+          "cap": "min(80vw, 560px)"
+        }
+      }
+    },
+    "showcase": {
+      "grid": "repeat(auto-fill, minmax(min(100%, 15.5rem), 1fr)); phones repeat(2, minmax(0, 1fr))",
+      "gap": "clamp(36px, 3.6vw, 56px) clamp(20px, 2.4vw, 36px); phones 28px 14px",
+      "artHeight": "calc(var(--h) + 2 * max(12px, var(--h) * 0.085) + 8px), frames bottom-aligned",
+      "sculpture": "unframed, calc(var(--h) + 30px) tall",
+      "labelMaxWidth": "17rem",
+      "findingAidColumns": "minmax(14rem, 1.6fr) repeat(4, minmax(9rem, 1fr)) auto auto; gap 14px 16px"
+    },
+    "landing": {
+      "hero": {
+        "height": "max(640px, calc(100svh - 70px)); to 760px max(560px, calc(100svh - 150px))",
+        "copyColumn": "46rem",
+        "paintPosition": "object-fit: cover; object-position: 60% 40% (72% 30% to 760px)",
+        "framedWhole": "clamp(120px, 13vw, 190px) tall, bottom right; 84px to 760px",
+        "src": "/salon/hero/wheat-field-brushwork.webp"
+      },
+      "room": {
+        "gap": "clamp(96px, 12vw, 168px)",
+        "numeral": "display 2.4rem, gilt-light",
+        "textMeasure": "60ch at 1.06rem"
+      },
+      "lastDoor": {
+        "gapAbove": "clamp(110px, 13vw, 180px)",
+        "width": "min(100%, 1180px)",
+        "casing": "gilt-pattern plate, border clamp(18px, 2.4vw, 32px)",
+        "worksHeight": "clamp(100px, 9vw, 135px); 70px to 640px"
+      },
+      "provenance": "public/salon/hero/wheat-field-brushwork.webp.json: detail of Wheat Field with Cypresses, Vincent van Gogh, 1889, The Metropolitan Museum of Art Open Access, CC0."
     }
   },
   "components": [
@@ -751,8 +849,8 @@
     {
       "name": "Picture Rail",
       "kind": "nav",
-      "description": "The header: wordmark and Cinzel links above a flat 2px gilt line running the width of the room.",
-      "html": "<header class=\"ds-rail\"><div class=\"ds-rail-row\"><a class=\"ds-rail-mark\" href=\"#\"><span class=\"ds-rail-name\">Soulprint</span><span class=\"ds-rail-sub\">Salon</span></a><nav class=\"ds-rail-nav\"><a href=\"#\">The hang</a><a href=\"#\">Rate notes</a><a href=\"#\">Studio</a></nav></div><div class=\"ds-rail-line\"></div></header>",
+      "description": "The header: wordmark (links to the landing) and Cinzel links, the first to the gallery, above a flat 2px gilt line running the width of the room.",
+      "html": "<header class=\"ds-rail\"><div class=\"ds-rail-row\"><a class=\"ds-rail-mark\" href=\"#\"><span class=\"ds-rail-name\">Soulprint</span><span class=\"ds-rail-sub\">Salon</span></a><nav class=\"ds-rail-nav\"><a href=\"#\">The gallery</a><a href=\"#\">Rate notes</a><a href=\"#\">Studio</a></nav></div><div class=\"ds-rail-line\"></div></header>",
       "css": ".ds-rail{background:#4f161b;} .ds-rail-row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px;padding:24px 32px 16px;} .ds-rail-mark{display:flex;align-items:baseline;gap:12px;text-decoration:none;} .ds-rail-name{font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-size:2.4rem;line-height:1;letter-spacing:-0.01em;color:#f4e6c6;} .ds-rail-sub{font-family:var(--font-plaque),'Trajan Pro',serif;font-size:0.66rem;letter-spacing:0.3em;text-transform:uppercase;color:#bd9e75;} .ds-rail-nav{display:flex;flex-wrap:wrap;gap:8px 24px;font-family:var(--font-plaque),'Trajan Pro',serif;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;} .ds-rail-nav a{color:#dcc49b;text-decoration:none;} .ds-rail-nav a:hover{color:#f4e6c6;} .ds-rail-nav a:focus-visible,.ds-rail-mark:focus-visible{outline:2px solid #ecd18a;outline-offset:3px;border-radius:2px;} .ds-rail-line{height:2px;background:#c9a24a;}"
     },
     {
@@ -761,18 +859,50 @@
       "description": "The artist's words on a sheet, opened by a drawn quotation mark in seal claret.",
       "html": "<div class=\"ds-quote-sheet\"><blockquote class=\"ds-pull-quote\">Ink first, then washes.</blockquote></div>",
       "css": ".ds-quote-sheet{background:#f3ead6;padding:28px 24px;} .ds-pull-quote{position:relative;margin:0;padding-left:1.6em;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:600;font-style:italic;font-size:1.25rem;line-height:1.6;color:#5a4636;} .ds-pull-quote::before{content:'\\201C';position:absolute;left:0;top:-0.15em;font-size:2.4em;line-height:1;font-style:normal;color:#7a1e26;}"
+    },
+    {
+      "name": "Finding Aid",
+      "kind": "custom",
+      "refersTo": "finding-aid",
+      "description": "The showcase's controls: one ivory strip with a printed hairline. Every change rewrites the address; the Clear filters slot is always reserved.",
+      "html": "<div class=\"ds-fa-wall\"><form class=\"ds-fa\" role=\"search\"><label class=\"ds-fa-search\"><span class=\"ds-fa-label\">Search</span><input class=\"ds-fa-field\" placeholder=\"Title or artist\" /></label><label><span class=\"ds-fa-label\">Record</span><select class=\"ds-fa-field\"><option>Any record</option><option>Declared</option><option>Recorded while made</option><option>Live checks passed</option></select></label><label><span class=\"ds-fa-label\">Sort</span><select class=\"ds-fa-field\"><option>Newest first</option><option>Price, low to high</option><option>Strongest record first</option></select></label><label class=\"ds-fa-toggle\"><input type=\"checkbox\" checked /><span>Show examples</span></label><div class=\"ds-fa-actions\"><button type=\"button\" class=\"ds-fa-btn\">Search</button><button type=\"button\" class=\"ds-fa-reset\">Clear filters</button></div></form></div>",
+      "css": ".ds-fa-wall{background:#4f161b;padding:24px;} .ds-fa{display:grid;grid-template-columns:minmax(10rem,1.6fr) repeat(2,minmax(8rem,1fr)) auto auto;align-items:end;gap:14px 16px;padding:18px 20px;background:#f3ead6;color:#2a1f17;box-shadow:0 14px 30px -18px rgba(0,0,0,0.75);outline:1px solid rgba(110,79,23,0.35);outline-offset:-6px;font-family:var(--font-spectral),Georgia,serif;font-size:17px;} .ds-fa label{display:flex;flex-direction:column;gap:4px;min-width:0;} .ds-fa-label{font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:#7d6650;} .ds-fa-field{width:100%;padding:7px 10px;font-family:var(--font-spectral),Georgia,serif;font-size:0.95rem;color:#2a1f17;background:#fffaf0;border:1px solid #cdb98f;border-radius:2px;outline:none;transition:border-color 150ms,box-shadow 150ms;} .ds-fa-field:focus{border-color:#7a1e26;box-shadow:0 0 0 3px rgba(122,30,38,0.15);} .ds-fa-field::placeholder{color:#7d6650;} .ds-fa label.ds-fa-toggle{flex-direction:row;align-items:center;gap:8px;padding-bottom:9px;white-space:nowrap;} .ds-fa-toggle input{accent-color:#7a1e26;width:16px;height:16px;} .ds-fa-actions{display:flex;align-items:center;gap:12px;} .ds-fa-btn{padding:8px 16px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.76rem;letter-spacing:0.13em;text-transform:uppercase;color:#2a1f17;background:transparent;border:1px solid rgba(201,162,74,0.7);border-radius:2px;cursor:pointer;transition:background-color 200ms;} .ds-fa-btn:hover{background:rgba(201,162,74,0.16);} .ds-fa-btn:focus-visible,.ds-fa-reset:focus-visible{outline:2px solid #7a1e26;outline-offset:3px;} .ds-fa-reset{font-family:var(--font-spectral),Georgia,serif;font-size:0.82rem;color:#7a1e26;background:none;border:none;padding:0;text-decoration:underline;text-underline-offset:0.2em;cursor:pointer;white-space:nowrap;} @media (max-width:1100px){.ds-fa{grid-template-columns:repeat(2,minmax(0,1fr));} .ds-fa-search{grid-column:1 / -1;}}"
+    },
+    {
+      "name": "Showcase Cell",
+      "kind": "card",
+      "refersTo": "showcase-label",
+      "description": "A framed work in an equal showcase cell, sized from its aspect ratio, with a printed label: title, artist, the level in claret and the price or status in dark print.",
+      "html": "<div class=\"ds-sc-wall\"><div class=\"ds-sc-cell\"><a class=\"ds-sc-art\" href=\"#\"><span class=\"ds-sc-frame\"><span class=\"ds-sc-sight\"><span class=\"ds-sc-picture\" style=\"--ar:1.25\"></span></span></span></a><div class=\"ds-sc-label\"><p class=\"ds-sc-title\">Harbour Study</p><p class=\"ds-sc-line\">artist.test.near</p><div class=\"ds-sc-meta\"><span class=\"ds-sc-level\">Declared</span><span class=\"ds-sc-price\">Not for sale</span></div></div></div></div>",
+      "css": ".ds-sc-wall{background:#4f161b;padding:32px 24px 28px;display:flex;justify-content:center;} .ds-sc-cell{--h:200px;--cap:230px;display:flex;flex-direction:column;align-items:center;width:17rem;} .ds-sc-art{display:flex;align-items:flex-end;justify-content:center;width:100%;height:calc(var(--h) + 42px);text-decoration:none;} .ds-sc-frame{display:inline-block;border-style:solid;border-width:17px;border-image-source:url('/salon/frames/walnut.webp');border-image-slice:184 199 176 213;border-image-width:1;border-image-repeat:stretch;box-shadow:0 26px 36px -18px rgba(8,0,0,0.85),0 6px 10px -2px rgba(8,0,0,0.5);transition:transform 500ms cubic-bezier(0.16,1,0.3,1),box-shadow 500ms cubic-bezier(0.16,1,0.3,1);} .ds-sc-art:hover .ds-sc-frame,.ds-sc-art:focus-visible .ds-sc-frame{transform:translateY(-4px);box-shadow:0 34px 44px -18px rgba(8,0,0,0.9),0 8px 14px -2px rgba(8,0,0,0.55);} .ds-sc-art:focus-visible{outline:2px solid #ecd18a;outline-offset:3px;} .ds-sc-sight{position:relative;display:block;background:#1a1210;box-shadow:0 0 0 1px rgba(0,0,0,0.7);} .ds-sc-sight::after{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 6px 9px -4px rgba(0,0,0,0.5),inset 5px 0 8px -5px rgba(0,0,0,0.35);} .ds-sc-picture{display:block;width:min(var(--cap),calc(var(--h) * var(--ar)));aspect-ratio:var(--ar);background:#5a4636;} .ds-sc-label{width:100%;max-width:17rem;margin-top:14px;padding:9px 12px 10px;text-align:center;background:#efe6d2;color:#2a1a05;box-shadow:0 2px 4px rgba(0,0,0,0.35);font-family:var(--font-spectral),Georgia,serif;} .ds-sc-title{margin:0;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:700;font-size:0.72rem;line-height:1.3;letter-spacing:0.1em;text-transform:uppercase;} .ds-sc-line{margin:1px 0 0;font-size:0.82rem;line-height:1.3;font-style:italic;color:#4a3a26;} .ds-sc-meta{display:flex;justify-content:center;align-items:baseline;gap:10px;margin-top:4px;flex-wrap:wrap;} .ds-sc-level{font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:#7a1e26;} .ds-sc-price{font-size:0.82rem;font-weight:600;font-variant-numeric:tabular-nums;color:#2a1a05;} @media (prefers-reduced-motion: reduce){.ds-sc-frame{transition:none;} .ds-sc-art:hover .ds-sc-frame,.ds-sc-art:focus-visible .ds-sc-frame{transform:none;}}"
+    },
+    {
+      "name": "Paint Hero",
+      "kind": "custom",
+      "description": "The landing's first screen: a full-bleed museum photograph of paint under a Claret Shadow scrim, hero lettering with one gilt italic word, and the whole painting framed small with its label. Source: /salon/hero/wheat-field-brushwork.webp (The Met, CC0).",
+      "html": "<section class=\"ds-hero\"><img class=\"ds-hero-paint\" src=\"/salon/hero/wheat-field-brushwork.webp\" alt=\"\" /><div class=\"ds-hero-copy\"><h1 class=\"ds-hero-title\">Real art, hung with its <em>making</em>.</h1><p class=\"ds-hero-text\">Up close, every stroke shows how a picture was made.</p></div></section>",
+      "css": ".ds-hero{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;min-height:420px;padding:32px;background:#2b0a0d;} .ds-hero-paint{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 40%;z-index:-2;} .ds-hero::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(43,10,13,0.92) 0%,rgba(43,10,13,0.78) 34%,rgba(43,10,13,0.15) 62%,transparent 75%),linear-gradient(0deg,rgba(43,10,13,0.6),transparent 30%);} .ds-hero-copy{max-width:46rem;} .ds-hero-title{margin:0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:400;font-size:clamp(3rem,6.2vw,6rem);line-height:0.94;letter-spacing:-0.025em;color:#f4e6c6;text-wrap:balance;} .ds-hero-title em{color:#ecd18a;} .ds-hero-text{margin:24px 0 0;max-width:38ch;font-family:var(--font-spectral),Georgia,serif;font-size:1.125rem;line-height:1.55;color:#dcc49b;}"
+    },
+    {
+      "name": "Room",
+      "kind": "custom",
+      "description": "One idea of the landing: a roman room number in gilt display type, a headline-size title and wall text held to 60ch.",
+      "html": "<section class=\"ds-room\"><p class=\"ds-room-numeral\">II</p><h2 class=\"ds-room-title\">A label says only what the record shows</h2><p class=\"ds-room-text\">Nobody can prove from a picture that no machine was involved, and Soulprint never claims to. Each label states one of three things, in the same words every time.</p></section>",
+      "css": ".ds-room{background:#4f161b;padding:40px 32px;color:#f4e6c6;} .ds-room-numeral{margin:0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-size:2.4rem;line-height:1;color:#ecd18a;} .ds-room-title{margin:10px 0 0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:400;font-size:clamp(2.2rem,4vw,3.4rem);line-height:1.05;letter-spacing:-0.01em;} .ds-room-text{margin:18px 0 0;max-width:60ch;font-family:var(--font-spectral),Georgia,serif;font-size:1.06rem;line-height:1.55;color:#dcc49b;}"
     }
   ],
   "narrative": {
     "northStar": "The Salon Hang",
-    "overview": "Soulprint is one room: a claret wall, lit once from the cornice, hung close with works in real period frames. Every work carries a flat printed label that states what its record shows and nothing more. The reference is a Paris Salon wall of the 1880s, where pictures touch shoulders and sizes vary, and it replaces the online-shop pattern of unframed images in a white grid.\n\nThere are two materials and they never blur. **The wall** (claret, damask, gilt, light lettering) carries the art, the headlines and navigation. **The sheet** (ivory catalogue paper with dark print) carries facts, forms and reading. The same token names (`ink`, `ink-2`, `ink-3`, `rule`, `paper-2`, `seal-2`, `moss`, `amber`) resolve to light values on the wall and dark values inside a sheet, so a component reads correctly in either place without a variant.\n\nThe physical parts are photographs, not drawings. The frames are four empty cassetta frames from The Metropolitan Museum of Art (Open Access, CC0) cut into nine-slice plates with measured slices; sculpture is cut from its museum photograph and stands on its own base. Each raster ships with a provenance record next to it. Operate screens (studio, rooms, vault, pay) live in the same room and simply use more sheet and less wall.",
+    "overview": "Soulprint is one room: a claret wall, lit once from the cornice, hung close with works in real period frames. Every work carries a flat printed label that states what its record shows and nothing more. The reference is a Paris Salon wall of the 1880s, where pictures touch shoulders and sizes vary, and it replaces the online-shop pattern of unframed images in a white grid.\n\nThere are two materials and they never blur. **The wall** (claret, damask, gilt, light lettering) carries the art, the headlines and navigation. **The sheet** (ivory catalogue paper with dark print) carries facts, forms and reading. The same token names (`ink`, `ink-2`, `ink-3`, `rule`, `paper-2`, `seal-2`, `moss`, `amber`) resolve to light values on the wall and dark values inside a sheet, so a component reads correctly in either place without a variant.\n\nThe physical parts are photographs, not drawings. The frames are four empty cassetta frames from The Metropolitan Museum of Art (Open Access, CC0) cut into nine-slice plates with measured slices; sculpture is cut from its museum photograph and stands on its own base. Each raster ships with a provenance record next to it. Operate screens (studio, rooms, vault, pay) live in the same room and simply use more sheet and less wall.\n\nThe room has three ways of showing work. **The hang** is the close salon wall of mixed sizes (artist pages). **The showcase** (`/gallery`) is the catalogue room: an even wall of equal cells, every work framed, under a printed finding aid. **The landing** (`/`) opens on the one unframed, full-bleed picture in the system, a museum photograph of real paint seen close, then walks through four numbered rooms to a doorway into the gallery.",
     "keyCharacteristics": [
       "One claret wall, one light from the top, an authored tone-on-tone damask.",
       "Photographed period frames as nine-slice border plates; four mouldings, one per work for life.",
       "Flat ivory wall labels: Cinzel title, italic Spectral line, claret level.",
       "Ivory catalogue sheets with an inset hairline for every fact and form.",
       "Square forms; the only radius is 2px on controls.",
-      "One authored interaction: a work steps forward and the wall behind it warms."
+      "One authored interaction: a work steps forward and the wall behind it warms.",
+      "Pictures are sized from their own proportions, so every picture fills its frame.",
+      "One full-bleed photograph of paint on the landing; everywhere else a picture is framed."
     ],
     "rules": [
       {
@@ -801,6 +931,16 @@
         "section": "typography"
       },
       {
+        "name": "The Proportion Rule",
+        "body": "A picture is sized from its own aspect ratio, never forced into a box: `width: min(var(--cap), calc(var(--h) * var(--ar))); height: auto`. Each layout sets `--h` (the height a picture aims for) and `--cap` (the widest it may be); `--ar` is set inline when the proportions are known and read from the image on load when they are not (artists' previews). So a wide picture narrows to the cap and gets shorter, a tall one keeps the height, and the frame always closes on the picture with no bands. Until the proportions are known the picture hangs at `--h` with `object-fit: contain`.",
+        "section": "layout"
+      },
+      {
+        "name": "The One Unframed Painting Rule",
+        "body": "The landing hero is the only place a painting appears without a frame, and it earns that by being a close detail: the whole work hangs framed and labelled inside the same view, linked to its museum page. Sculpture stands without a frame everywhere because it is an object, not a picture.",
+        "section": "layout"
+      },
+      {
         "name": "The One Light Rule",
         "body": "Light comes from the top of the room. Shadows fall down, inner shading sits on the top and left of a picture, and nothing is lit from below or from the side.",
         "section": "elevation"
@@ -809,17 +949,21 @@
     "dos": [
       "Do put the art and the headlines on the wall and every fact, form and long text on a sheet.",
       "Do use the scoped ink tokens so the same component reads on wall and sheet.",
-      "Do frame every picture with one of the four photographed plates and its measured slices from `public/salon/frames/frames.json`; add a new moulding only as a new photographed plate with its provenance file.",
-      "Do keep works close: hang gaps stay within 14 to 28px and sizes follow the rhythm.",
+      "Do frame every picture with one of the four photographed plates and its measured slices from `public/salon/frames/frames.json`; add a new moulding only as a new photographed plate with its provenance file. The landing hero is the single exception (The One Unframed Painting Rule).",
+      "Do keep works close on the hang: gaps stay within 14 to 28px and sizes follow the rhythm. On the showcase keep cells equal and labels on one line per row.",
       "Do give every work a wall label and take the evidence sentence from the wording table unchanged.",
       "Do label every public-domain work \"Example\" and link it to its museum page.",
       "Do set display type at weight 600 inside sheets.",
       "Do give keyboard focus the same approach response as hover, and remove movement under reduced motion.",
-      "Do keep product copy on creator and client screens free of \"NFT\", \"mint\", \"gas\" and \"wallet\"."
+      "Do keep product copy on creator and client screens free of \"NFT\", \"mint\", \"gas\" and \"wallet\".",
+      "Do size a picture from its aspect ratio with `--h`, `--cap` and `--ar` (The Proportion Rule), and give every new layout its own `--h` and `--cap`.",
+      "Do put filters and sorting on an ivory strip, never loose on the wall, and make every filtered view a link.",
+      "Do keep a scrim between a photograph and any type set over it, in Claret Shadow, strong enough that wall lettering keeps its contrast.",
+      "Do ship every new photograph with its provenance record beside it."
     ],
     "donts": [
       "Don't draw a frame with CSS borders, gradients or bevels; frames are photographs.",
-      "Don't hang unframed images in an evenly spaced grid on a pale ground.",
+      "Don't hang unframed images in an evenly spaced grid on a pale ground. The showcase is an even grid, but every work in it is framed, labelled and on the claret wall.",
       "Don't round anything beyond 2px, and don't use pills or circular controls.",
       "Don't add a second light: no side or bottom glows, no coloured shadows, no hard offset shadows.",
       "Don't put a form field or a long paragraph directly on the wall; the wall select in the rail is the only wall control.",
@@ -827,7 +971,11 @@
       "Don't show a level, price, record or collect control on an example work.",
       "Don't use Cinzel for sentences or in lowercase, and don't use the mono face for anything but checkable values.",
       "Don't use a coloured side stripe for quotes or callouts.",
-      "Don't introduce cool greys, pure white or pure black; every neutral is warm."
+      "Don't introduce cool greys, pure white or pure black; every neutral is warm.",
+      "Don't crop, stretch or letterbox a picture to fit a cell; change `--h` or `--cap` instead.",
+      "Don't add a second full-bleed or unframed painting; the landing hero is the only one.",
+      "Don't use the Hero size anywhere but the landing headline.",
+      "Don't let the finding aid change height or shift when a filter is set or cleared."
     ]
   }
 }

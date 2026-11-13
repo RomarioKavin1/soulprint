@@ -24,7 +24,7 @@ Every artwork is its own NEAR account that carries its own making: signed frames
 
 ## Operating Context
 
-- Routes: `/` gallery, `/a/<account>` artist page, `/p/<piece>` piece page (making timeline, facts, reader questions, collect/tip, rights, verify on-chain), `/notes` reader questions, `/studio` + `/studio/new` + `/studio/<piece>` artist workspace (record, review frames, finish, publish, sell), `/capture/<piece>` phone capture, `/c/<piece>` commission room, `/vault/<piece>` holder vault, `/buy/<piece>`, `/pay/<piece>`, `/limits`.
+- Routes: `/` landing (the idea, then "Enter the gallery"), `/gallery` the showcase (sort, filters, search; every view is a URL), `/a/<account>` artist page, `/p/<piece>` piece page (making timeline, facts, reader questions, collect/tip, rights, verify on-chain), `/notes` reader questions, `/studio` + `/studio/new` + `/studio/<piece>` artist workspace (record, review frames, finish, publish, sell), `/capture/<piece>` phone capture, `/c/<piece>` commission room, `/vault/<piece>` holder vault, `/buy/<piece>`, `/pay/<piece>`, `/limits`.
 - Local demo signs in with demo accounts (`?as=` / "Signed in as" menu); testnet uses a wallet.
 - Data: chain views (piece accounts, collection), evidence service (frames, reports, gallery, reader questions), indexer (history).
 

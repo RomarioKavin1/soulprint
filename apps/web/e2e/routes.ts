@@ -18,6 +18,8 @@ export const CREATOR_CLIENT_ROUTES: string[] = [
   "/c/p1.soulprint.test.near?as=artist.test.near",
   // Showcase pivot: the artist page and a piece page with Collect / Support.
   "/a/artist.test.near",
+  "/gallery",
+  "/gallery?sort=price-asc&availability=for-sale",
   "/notes",
   "/notes?as=buyer.test.near",
   "/p/p1.soulprint.test.near?as=buyer.test.near",

@@ -79,3 +79,45 @@ describe("reader questions wording", async () => {
       .toEqual([1_500_000n, null, null, null, null, null, 1n]);
   });
 });
+
+describe("showcase: sorting and filtering", async () => {
+  const { applyQuery, buildItems, parseQuery, queryString, artistsOf } = await import("../lib/showcase.ts");
+  const g = (id: string, level: 0 | 2 | 3, at: number, title: string, artist = "a.near") =>
+    ({ pieceId: id, artist, level, publishedAt: at, capture: null, challengesPassed: 0, publicFrames: 0, cover: null, story: null, title, hasPreview: false, notes: { shown: 0, answered: 0 } });
+  const gallery = [g("p1.c", 0, 10, "Harbour"), g("p2.c", 2, 30, "Atelier"), g("p3.c", 3, 20, "Dune", "b.near")];
+  const market = [
+    { pieceId: "p1.c", artist: "a.near", currency: "Near" as const, owner: "a.near", listing: { price: "500", reservedFor: null }, sales: 0, lastSale: null },
+    { pieceId: "p2.c", artist: "a.near", currency: "Near" as const, owner: "buyer.near", listing: null, sales: 1, lastSale: { price: "9", atMs: 1 } },
+    { pieceId: "p3.c", artist: "b.near", currency: "Near" as const, owner: "b.near", listing: { price: "100", reservedFor: null }, sales: 0, lastSale: null },
+  ];
+  const classics = [{ slug: "met-1", src: "/classics/met-1.webp", width: 10, height: 10, title: "Zebra (detail)", artist: "Old Master", date: "1600", medium: "", kind: "painting" as const, museum: "The Met", source: "https://example.org/1", licence: "CC0", credit: "" }];
+  const items = buildItems(gallery as any, market as any, classics);
+  const run = (sp: Record<string, string>) => applyQuery(items, parseQuery(sp)).map((i) => i.id);
+
+  it("newest first by default, examples after every real piece", () => {
+    expect(run({})).toEqual(["p2.c", "p3.c", "p1.c", "met-1"]);
+  });
+  it("sorts by price both ways, unpriced works last", () => {
+    expect(run({ sort: "price-asc" })).toEqual(["p3.c", "p1.c", "p2.c", "met-1"]);
+    expect(run({ sort: "price-desc" })).toEqual(["p1.c", "p3.c", "p2.c", "met-1"]);
+  });
+  it("sorts by strongest record and by title", () => {
+    expect(run({ sort: "record" })).toEqual(["p3.c", "p2.c", "p1.c", "met-1"]);
+    expect(run({ sort: "title" })).toEqual(["p2.c", "p3.c", "p1.c", "met-1"]);
+  });
+  it("filters by record level, availability, artist, search and examples", () => {
+    expect(run({ level: "checked" })).toEqual(["p3.c"]);
+    expect(run({ level: "declared" })).toEqual(["p1.c"]);
+    expect(run({ availability: "for-sale" })).toEqual(["p3.c", "p1.c"]);
+    expect(run({ availability: "collected" })).toEqual(["p2.c"]);
+    expect(run({ artist: "b.near" })).toEqual(["p3.c"]);
+    expect(run({ q: "zeb" })).toEqual(["met-1"]);
+    expect(run({ examples: "hide" })).toEqual(["p2.c", "p3.c", "p1.c"]);
+    expect(artistsOf(items)).toEqual(["a.near", "b.near"]);
+  });
+  it("ignores nonsense in the address bar and keeps links short", () => {
+    expect(parseQuery({ sort: "drop table", level: "x", availability: ["for-sale", "y"] })).toMatchObject({ sort: "newest", level: "any", availability: "for-sale" });
+    expect(queryString({ sort: "newest", level: "any", examples: true })).toBe("");
+    expect(queryString({ sort: "price-asc", examples: false, q: "dune" })).toBe("?sort=price-asc&q=dune&examples=hide");
+  });
+});

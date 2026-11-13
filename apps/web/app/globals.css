@@ -274,7 +274,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 .hang-img { display: block; height: var(--h); width: auto; max-width: min(70vw, 520px); object-fit: contain; }
 .hang-blank {
   display: flex; align-items: center; justify-content: center; height: var(--h); aspect-ratio: 4 / 5; padding: 1rem;
-  text-align: center; font-size: 0.8rem; font-style: italic; color: #6b5843;
+  text-align: center; font-size: 0.8rem; font-style: italic; color: #7d6650;
 }
 .hang-caption {
   max-width: 20rem; margin-top: 8px; text-align: center; font-size: 0.84rem; line-height: 1.4;
@@ -282,7 +282,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .hang-note {
-  margin-top: 8px; padding: 3px 10px; font-family: var(--font-plaque); font-size: 0.68rem; letter-spacing: 0.12em;
+  margin-top: 8px; padding: 3px 10px; font-family: var(--font-plaque); font-size: 0.72rem; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--color-ink-2); border: 1px solid var(--color-rule); text-decoration: none;
 }
 .hang-note:hover { color: var(--color-ink); border-color: var(--color-gilt); }
@@ -347,3 +347,152 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 /* A label is never wider than its work needs: small works keep narrow labels. */
 .h-s .hang-item, .h-s .hung { width: min-content; }
 .h-s .plaque { width: 100%; min-width: 0; padding-inline: 8px; }
+
+/* ---------------- the showcase (/gallery) ---------------- */
+
+/* The finding aid: one printed bar of controls on an ivory strip. */
+.finding-aid {
+  display: grid;
+  grid-template-columns: minmax(14rem, 1.6fr) repeat(4, minmax(9rem, 1fr)) auto auto;
+  align-items: end;
+  gap: 14px 16px;
+  padding: 18px 20px;
+  background: #f3ead6;
+  color: #2a1f17;
+  box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.75);
+  outline: 1px solid rgba(110, 79, 23, 0.35);
+  outline-offset: -6px;
+  --color-ink: #2a1f17; --color-ink-2: #5a4636; --color-ink-3: #7d6650; --color-rule: #cdb98f;
+  transition: opacity 200ms;
+}
+.finding-aid[data-pending] { opacity: 0.7; }
+.finding-aid label { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.finding-aid .field { padding: 7px 10px; }
+.fa-toggle { flex-direction: row !important; align-items: center; gap: 8px !important; padding-bottom: 9px; white-space: nowrap; }
+.fa-toggle input { accent-color: #7a1e26; width: 16px; height: 16px; }
+.fa-actions { display: flex; align-items: center; gap: 12px; }
+.fa-actions .btn-ghost { color: #2a1f17; padding-block: 8px; }
+.fa-reset { font-size: 0.82rem; color: #7a1e26; text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; white-space: nowrap; }
+@media (max-width: 1100px) { .finding-aid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fa-search { grid-column: 1 / -1; } }
+@media (max-width: 520px) { .finding-aid { padding: 14px; gap: 10px 12px; } .fa-toggle { padding-bottom: 0; align-self: center; } .fa-actions { justify-content: flex-end; } }
+
+/* The even wall: equal cells, each work framed and centred in its cell, label beneath. */
+.showcase {
+  --h: clamp(170px, 15vw, 230px);
+  /* widest a picture may hang inside its cell (cell less the frame's moulding) */
+  --cap: clamp(150px, 17.5vw, 260px);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15.5rem), 1fr));
+  gap: clamp(36px, 3.6vw, 56px) clamp(20px, 2.4vw, 36px);
+  margin-top: clamp(32px, 3.4vw, 48px);
+  list-style: none;
+}
+.showcase-cell { display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.showcase-art {
+  display: flex; align-items: flex-end; justify-content: center;
+  width: 100%; height: calc(var(--h) + 2 * max(12px, calc(var(--h) * 0.085)) + 8px);
+  text-decoration: none;
+}
+.showcase-art .frame { transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 500ms cubic-bezier(0.16, 1, 0.3, 1); }
+/* Unknown proportions (artists' previews): hang at the cell height. Known proportions (width and
+   height given): size from the aspect ratio so the picture scales up or down and fills its frame. */
+.showcase-art img { display: block; height: var(--h); width: auto; max-width: 100%; object-fit: contain; }
+.showcase-art img[style*="--ar"], .room-img[style*="--ar"] { width: min(var(--cap), calc(var(--h) * var(--ar))); max-width: none; height: auto; max-height: none; object-fit: fill; }
+.showcase-art .frame { max-width: 100%; }
+.showcase-art .frame img { max-width: calc(100% - 0px); }
+.showcase-art:hover .frame, .showcase-art:focus-visible .frame { transform: translateY(-4px); box-shadow: 0 34px 44px -18px rgba(8, 0, 0, 0.9), 0 8px 14px -2px rgba(8, 0, 0, 0.55); }
+.showcase-sculpture img { filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.55)) drop-shadow(0 12px 10px rgba(0, 0, 0, 0.3)); height: calc(var(--h) + 30px); }
+.showcase-blank { display: flex; align-items: center; justify-content: center; height: var(--h); aspect-ratio: 4 / 5; padding: 1rem; text-align: center; font-size: 0.8rem; font-style: italic; color: #7d6650; }
+.showcase-label {
+  width: 100%; max-width: 17rem; margin-top: 14px; padding: 9px 12px 10px; text-align: center;
+  background: #efe6d2; color: #2a1a05; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+.showcase-label a { color: inherit; text-decoration: none; }
+.showcase-label a:hover { text-decoration: underline; }
+.showcase-meta { display: flex; justify-content: center; align-items: baseline; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+.showcase-meta .plaque-level { display: inline; margin-top: 0; }
+.showcase-price { font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600; color: #2a1a05; }
+@media (prefers-reduced-motion: no-preference) {
+  .showcase-cell { animation: picture-up 900ms cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(min(var(--i, 0), 12) * 40ms); }
+}
+@media (max-width: 640px) {
+  .showcase { --h: 150px; --cap: calc(50vw - 46px); grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 14px; }
+  .showcase-label { padding-inline: 8px; }
+}
+
+/* ---------------- the landing (/) ---------------- */
+
+/* Plate slices for doorway casings (same measurements as the frames above). */
+:root {
+  --slice-gilt: 133 162 166 162;
+  --slice-gilt-pattern: 162 163 167 164;
+  --slice-walnut: 184 199 176 213;
+  --slice-inlaid: 243 231 232 227;
+}
+
+
+/* Doorway casings (the last doorway): a photographed frame plate drawn as a border image. */
+.door {
+  --t: calc(1 - var(--d, 0) * 0.17);
+  position: absolute;
+  left: 50%;
+  bottom: calc((1 - var(--t)) * 30%);
+  width: calc(100% * var(--t));
+  height: calc(100% * var(--t) * (0.55 + 0.45 * var(--t)));
+  transform: translateX(-50%);
+  border-style: solid;
+  border-width: calc(30px * var(--t));
+  border-image-repeat: stretch;
+  border-image-width: 1;
+  /* each room beyond is darker; the cornice light falls on the far wall */
+  background:
+    radial-gradient(70% 45% at 50% 0%, rgba(255, 205, 140, calc(0.1 - var(--d, 0) * 0.015)), transparent 70%),
+    color-mix(in srgb, #4f161b calc(100% - var(--d, 0) * 13%), #12030a);
+  box-shadow: inset 0 0 calc(30px + var(--d, 0) * 10px) rgba(0, 0, 0, 0.55), 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+.door[data-moulding="gilt"] { border-image-source: url("/salon/frames/gilt.webp"); border-image-slice: var(--slice-gilt); }
+.door[data-moulding="gilt-pattern"] { border-image-source: url("/salon/frames/gilt-pattern.webp"); border-image-slice: var(--slice-gilt-pattern); }
+.door[data-moulding="walnut"] { border-image-source: url("/salon/frames/walnut.webp"); border-image-slice: var(--slice-walnut); }
+/* The rooms below: one idea each, generous wall between them. */
+.room { margin-top: clamp(96px, 12vw, 168px); }
+.room-numeral { font-family: var(--font-display); font-size: 2.4rem; line-height: 1; color: var(--color-gilt-light); }
+.room-title { margin-top: 10px; font-family: var(--font-display); font-size: clamp(2.2rem, 4vw, 3.4rem); line-height: 1.05; letter-spacing: -0.01em; }
+.room-text { margin-top: 18px; max-width: 60ch; font-size: 1.06rem; color: var(--color-ink-2); }
+.room-work, .room-img { --h: clamp(260px, 30vw, 420px); --cap: min(80vw, 560px); }
+.room-img { display: block; height: var(--h); width: auto; max-width: min(80vw, 560px); object-fit: contain; }
+
+/* The last doorway: a casing that frames a glimpse of the gallery. */
+.last-door { margin-top: clamp(110px, 13vw, 180px); padding-bottom: 20px; }
+.last-door-casing {
+  cursor: pointer;
+  position: relative; left: auto; top: auto; transform: none; --d: 0;
+  width: min(100%, 1180px); height: auto; margin: 0 auto;
+  border-width: clamp(18px, 2.4vw, 32px);
+}
+.last-door-view { padding: clamp(28px, 4vw, 56px) clamp(16px, 3vw, 40px); }
+.last-door-hang { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: clamp(16px, 2vw, 28px); list-style: none; --h: clamp(100px, 9vw, 135px); }
+@media (min-width: 1024px) { .last-door-hang { flex-wrap: nowrap; } }
+.last-door-img { height: var(--h); width: auto; display: block; }
+@media (max-width: 640px) { .last-door-hang { --h: 70px; gap: 12px; } }
+
+/* The hero: Van Gogh's sky up close; scrolling leans in a little closer. */
+.hero-brush { position: relative; height: max(640px, calc(100svh - 70px)); overflow: hidden; isolation: isolate; display: flex; align-items: center; }
+.hero-brush-paint { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 40%; z-index: -2; }
+.hero-brush::before { content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(90deg, rgba(43, 10, 13, 0.92) 0%, rgba(43, 10, 13, 0.78) 34%, rgba(43, 10, 13, 0.15) 62%, transparent 75%), linear-gradient(0deg, rgba(43, 10, 13, 0.6), transparent 30%); }
+.hero-brush-copy { max-width: 46rem; padding-left: clamp(8px, 2vw, 32px); }
+.hero-brush-whole { position: absolute; right: clamp(16px, 3vw, 48px); bottom: clamp(20px, 4vh, 44px); --h: clamp(120px, 13vw, 190px); }
+.hero-brush-whole-img { height: var(--h); width: auto; display: block; }
+@media (max-width: 760px) {
+  /* the phone header is taller; keep the framed whole and its full label inside the first screen */
+  .hero-brush { height: max(560px, calc(100svh - 150px)); align-items: flex-start; padding-top: 28px; }
+  .hero-brush-paint { object-position: 72% 30%; }
+  .hero-brush::before { background: linear-gradient(180deg, rgba(43, 10, 13, 0.92) 0%, rgba(43, 10, 13, 0.84) 46%, rgba(43, 10, 13, 0.12) 70%, transparent); }
+  .hero-brush-whole { --h: 84px; bottom: 16px; }
+}
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes lean-in { to { transform: scale(1.08) translateY(2%); } }
+    .hero-brush-paint { animation: lean-in linear both; animation-timeline: scroll(root); animation-range: 0 100vh; transform-origin: 70% 30%; }
+  }
+}

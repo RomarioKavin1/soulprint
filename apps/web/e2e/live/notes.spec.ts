@@ -142,7 +142,7 @@ test("reader questions: rated into view only by a clear majority, answered with 
   expect(await visitor.locator("body").innerText()).not.toMatch(/\bfake\b/i);
 
   // The gallery badge is neutral and says the artist answered; the evidence level is untouched.
-  await visitor.goto("/");
+  await visitor.goto("/gallery");
   const card = visitor.getByTestId("gallery-card").filter({ has: visitor.locator(`a[href="/p/${pieceId}"]`) });
   await expect(card.getByTestId("card-notes")).toHaveText("The artist answered a reader's question", { timeout: 20_000 });
   expect((await view(L!.rpc, pieceId, "piece_info")).evidence_level).toBe(levelBefore);

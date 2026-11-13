@@ -54,3 +54,23 @@ describe("owner pieces (review minor 14)", () => {
     expect((await app.inject({ method: "GET", url: "/owners/client.near/pieces" })).json().pieces).toEqual([]);
   });
 });
+
+describe("market (showcase)", () => {
+  it("tracks the listing, holder and sales from events: listed → sold → listed → delisted", async () => {
+    const db = await openDb();
+    const ev = (event: string, data: object) => `EVENT_JSON:${JSON.stringify({ standard: "soulprint", version: "1.0.0", event, data: [{ piece_id: P, ...data }] })}`;
+    await ingestBlock(db, cfg, { height: 100, timestampMs: 1, receipts: [{ executor: C, success: true, logs: [created] }] });
+    const app = await buildApi({ db, head: async () => ({ height: 106, timestampMs: 6 }) });
+    const m = async () => (await app.inject({ method: "GET", url: `/market?ids=${P}` })).json().pieces[0];
+    expect(await m()).toMatchObject({ owner: "artist.near", listing: null, sales: 0, lastSale: null });
+    await ingestBlock(db, cfg, { height: 101, timestampMs: 2, receipts: [{ executor: P, success: true, logs: [ev("listed", { seller: "artist.near", price: "3000000", nonce: "1", reserved_for: null })] }] });
+    expect((await m()).listing).toEqual({ price: "3000000", reservedFor: null });
+    await ingestBlock(db, cfg, { height: 102, timestampMs: 3, receipts: [{ executor: P, success: true, logs: [ev("sold", { seller: "artist.near", buyer: "buyer.near", price: "3000000", royalty: "0", nonce: "1" }), ev("owner_changed", { old_owner: "artist.near", new_owner: "buyer.near", seq: "1", cause: "sale" })] }] });
+    expect(await m()).toMatchObject({ owner: "buyer.near", listing: null, sales: 1, lastSale: { price: "3000000", atMs: 3 } });
+    await ingestBlock(db, cfg, { height: 103, timestampMs: 4, receipts: [{ executor: P, success: true, logs: [ev("listed", { seller: "buyer.near", price: "9000000", nonce: "2", reserved_for: "x.near" })] }] });
+    expect((await m()).listing).toEqual({ price: "9000000", reservedFor: "x.near" });
+    await ingestBlock(db, cfg, { height: 104, timestampMs: 5, receipts: [{ executor: P, success: true, logs: [ev("delisted", { nonce: "2" })] }] });
+    expect((await m()).listing).toBeNull();
+    expect((await app.inject({ method: "GET", url: "/market" })).json().pieces).toHaveLength(1);
+  });
+});
