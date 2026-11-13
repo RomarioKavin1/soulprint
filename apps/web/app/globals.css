@@ -368,11 +368,21 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 .fold > summary::before { content: ""; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform 160ms; }
 .fold[open] > summary::before { transform: rotate(45deg) translate(-2px, -1px); }
 .fold > summary:hover { color: var(--color-ink); }
+/* links out to the public explorer: underlined ink with a drawn arrow */
+.chain-link { display: inline-flex; align-items: baseline; gap: 4px; color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-rule); text-underline-offset: 0.22em; overflow-wrap: anywhere; }
+.chain-link:hover { text-decoration-color: currentColor; color: var(--color-seal); }
+.chain-link svg { flex: none; align-self: center; }
+.chain-rows { display: grid; }
+.copy-compact { font-size: 0.82rem; color: var(--color-ink-2); text-decoration: underline; text-decoration-color: var(--color-rule); text-underline-offset: 0.22em; }
+.copy-compact:hover { color: var(--color-seal); text-decoration-color: currentColor; }
+.chain-row { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 4px 20px; padding-block: 12px; border-bottom: 1px solid var(--color-rule); }
+.chain-row:first-child { border-top: 1px solid var(--color-rule); }
+@media (max-width: 640px) { .chain-row { grid-template-columns: minmax(0, 1fr); } }
 /* provenance: one dated ledger */
 .ledger { display: grid; }
 .ledger li { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 16px; padding-block: 11px; border-bottom: 1px solid var(--color-rule); }
 .ledger li:first-child { border-top: 1px solid var(--color-rule); }
-.ledger time { color: var(--color-ink-3); font-size: 0.82rem; font-variant-numeric: tabular-nums lining-nums; }
+.ledger time, .ledger-when { color: var(--color-ink-3); font-size: 0.82rem; font-variant-numeric: tabular-nums lining-nums; }
 @media (min-width: 1100px) {
   .piece-record { grid-template-columns: minmax(0, 1.3fr) minmax(400px, 1fr); gap: 72px; align-items: start; }
   .piece-wall { position: sticky; top: 28px; }

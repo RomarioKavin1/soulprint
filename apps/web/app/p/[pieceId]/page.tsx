@@ -8,6 +8,9 @@ import { displayLevel, proofModel } from "@/lib/proof";
 import { ACTIVE_TIME_LABEL, BADGE_TEXT, bandText, issuerText, levelSentence } from "@/lib/wording";
 import { jcs } from "@/lib/jcs";
 import { levelReasons } from "@/lib/levelReason";
+import { accountUrl, explorerFor, tokenUrl } from "@/lib/explorer";
+import { ChainLink } from "@/components/piece/ChainLink";
+import { CopyButton } from "@/components/studio/CopyButton";
 import { RecomputeHash } from "@/components/proof/RecomputeHash";
 import { Collect } from "@/components/collect/Collect";
 import { ContextNotes } from "@/components/notes/ContextNotes";
@@ -103,6 +106,10 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
     .then((d) => d?.notes.filter((n) => n.status === "shown").length ?? 0)
     .catch(() => 0);
 
+  const ex = explorerFor(config.network, config.explorerUrl);
+  const exName = ex ? (ex.base.includes("nearblocks") ? "NearBlocks" : "the explorer") : null;
+  const tokenHref = tokenUrl(ex, config.collection, m.tokenId);
+
   const header = (
     <header>
       <h1 className="title-display piece-title" data-testid="piece-title">{name}</h1>
@@ -116,6 +123,10 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
         <span className="font-plaque border border-rule px-3 py-1 text-[0.7rem] uppercase tracking-[0.16em] text-ink-2">Level E{shown.level}</span>
         {m.badge && <span className="chip" data-testid="badge">{BADGE_TEXT}</span>}
       </div>
+      <p className="mt-3 text-sm text-ink-2" data-testid="token-line">
+        Token #{m.tokenId} of the Manmade collection, on NEAR&rsquo;s NEP-171 token standard
+        {exName ? <> · <ChainLink href={tokenHref}>See it on {exName}</ChainLink></> : null}
+      </p>
       {shown.note && <p className="mt-4 border border-[color:var(--color-amber)] px-3 py-2 text-sm">{shown.note}</p>}
       {reasons.map((t) => <p key={t} className="mt-4 max-w-[60ch] text-ink-2" data-testid="level-reason">{t}</p>)}
     </header>
@@ -166,15 +177,39 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
         <RecomputeHash report={pub.public} onChain={piece.report_hash} />
         <details className="fold mt-4" id="verify">
           <summary>On-chain details</summary>
-          <dl className="mt-4 grid gap-5 text-sm sm:grid-cols-2">
-            <V k="Piece account" v={piece.piece_id} />
-            <V k="Collection" v={config.collection} />
-            <V k="Piece code hash" v={info.piece_code_hash} />
-            <V k="Report fingerprint on the piece" v={piece.report_hash ?? "—"} />
-            <V k="Final file fingerprint" v={piece.final_file_hash ?? "—"} />
-            <V k="Attesting key" v={`#${proof.attestation.key_id}${revokedIds.includes(proof.attestation.key_id) ? " (withdrawn)" : ""}, thresholds ${pub.public.thresholds}`} />
-            {proof.segments.map((s, i) => (
-              <V key={s.key} k={`Recording device ${i + 1}`} v={`${s.key} — ${plural(s.count, "frame")} anchored, head ${s.head}`} />
+          <p className="mt-3 text-sm text-ink-2">
+            Every value here is read from the chain. Open the accounts and the token on {exName ?? "a NEAR explorer"}, or ask the chain yourself:
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <code className="break-all bg-paper-2 px-2 py-1 font-mono text-xs">near view {piece.piece_id} piece_info --networkId {config.network === "sandbox" ? "localnet" : config.network}</code>
+            <CopyButton value={`near view ${piece.piece_id} piece_info --networkId ${config.network === "sandbox" ? "localnet" : config.network}`} label="Copy" compact />
+          </div>
+          <dl className="chain-rows mt-5">
+            <Row k="Piece account" note="Its own NEAR account: the record, rights and income live here.">
+              <ChainLink href={accountUrl(ex, piece.piece_id)}>{piece.piece_id}</ChainLink>
+            </Row>
+            <Row k="Token" note={`#${m.tokenId} in the collection's NEP-171 index (nft_token).`}>
+              <ChainLink href={tokenHref}>{config.collection} · #{m.tokenId}</ChainLink>
+            </Row>
+            <Row k="Collection" note="Creates every piece from one shared contract.">
+              <ChainLink href={accountUrl(ex, config.collection)}>{config.collection}</ChainLink>
+            </Row>
+            <Row k="Piece code hash" note="The contract every piece runs; the piece account's code hash must equal it." copy={info.piece_code_hash}>
+              {info.piece_code_hash}
+            </Row>
+            <Row k="Report fingerprint" note="report_hash in piece_info; recomputed in your browser above." copy={piece.report_hash ?? undefined}>
+              {piece.report_hash ?? "—"}
+            </Row>
+            <Row k="Final file fingerprint" note="final_file_hash in piece_info: the SHA-256 of the file a collector receives." copy={piece.final_file_hash ?? undefined}>
+              {piece.final_file_hash ?? "—"}
+            </Row>
+            <Row k="Attesting key" note="The evidence service key that signed the report.">
+              #{proof.attestation.key_id}{revokedIds.includes(proof.attestation.key_id) ? " (withdrawn)" : ""}, thresholds {pub.public.thresholds}
+            </Row>
+            {proof.segments.map((sg, i) => (
+              <Row key={sg.key} k={`Recording device ${i + 1}`} note={`${plural(sg.count, "frame")} anchored on the piece account; the chain head below.`} copy={sg.key}>
+                {sg.key} · head {sg.head}
+              </Row>
             ))}
           </dl>
           <details className="fold mt-4 text-xs">
@@ -238,11 +273,16 @@ function Fact({ k, v, sub, bar }: { k: string; v: string; sub?: string; bar?: nu
     </div>
   );
 }
-function V({ k, v }: { k: string; v: string }) {
+function Row({ k, note, copy, children }: { k: string; note?: string; copy?: string; children: React.ReactNode }) {
   return (
-    <div>
+    <div className="chain-row">
       <dt className="label">{k}</dt>
-      <dd className="mt-1 break-all font-mono text-xs">{v}</dd>
+      <dd>
+        <span className="block break-all font-mono text-xs leading-relaxed">{children}</span>
+        {note && <span className="mt-1 block text-[0.82rem] text-ink-3">{note}</span>}
+        {copy && <span className="mt-1 block"><CopyButton value={copy} label="Copy" compact /></span>}
+      </dd>
     </div>
   );
 }
+

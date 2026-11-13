@@ -7,6 +7,7 @@ import "server-only";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { publicDemoAccounts } from "./demo.ts";
+import { explorerFor } from "./explorer.ts";
 
 export type NetworkId = "sandbox" | "testnet" | "mainnet";
 
@@ -26,6 +27,8 @@ export interface PublicConfig {
   demoAccounts: DemoAccount[];
   /** Sandbox only: hex seed of the demo capture key the contracts were set up with. */
   captureTestKey: string | null;
+  /** Public block explorer base URL (NearBlocks on testnet/mainnet); null on the local chain. */
+  explorerUrl: string | null;
 }
 
 export function configPath(): string {
@@ -58,5 +61,6 @@ export function loadConfig(): PublicConfig | null {
     evidenceRecipient: process.env.EVIDENCE_RECIPIENT ?? c.evidence_recipient ?? "soulprint-evidence",
     demoAccounts,
     captureTestKey: network === "sandbox" ? (c.capture_test_key ?? null) : null,
+    explorerUrl: explorerFor(network, process.env.EXPLORER_URL ?? c.explorer_url ?? null)?.base ?? null,
   };
 }
