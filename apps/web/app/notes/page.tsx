@@ -9,9 +9,9 @@ import type { ContextNote } from "@/lib/context-notes";
 export default function NotesPage() {
   const { accountId } = useNear();
   return (
-    <div className="space-y-8 pt-10">
+    <div className="space-y-8 page-top">
       <header>
-        <h1 className="max-w-4xl font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none tracking-[-0.015em]">Questions about a record are rated, not shouted.</h1>
+        <h1 className="max-w-4xl title-page">Questions about a record are rated, not shouted.</h1>
       </header>
       <section className="card max-w-3xl space-y-3 text-sm">
         <p>
@@ -46,7 +46,7 @@ function Queue({ accountId }: { accountId: string }) {
   const { data, reload } = usePoll(() => evidence<{ notes: ContextNote[] }>("GET", "/context-notes/needs-ratings"), 10_000, [accountId]);
   return (
     <section>
-      <h2 className="font-display text-2xl">Waiting for ratings</h2>
+      <h2 className="title-section">Waiting for ratings</h2>
       <p className="mt-1 text-sm text-ink-3">Questions on other people&apos;s work that need more ratings. None of these are shown to visitors yet.</p>
       {!data ? (
         <p className="mt-4 text-ink-3">Loading…</p>

@@ -244,6 +244,10 @@ A light, warm palette: gallery white, near-black ink and one ultramarine accent.
 
 ## Layout
 
+**The One Edge Rule.** Every page shares one width and one gutter: `--page-max` 1680px, `--gutter` clamp(16px, 3vw, 48px), applied by the `page` utility to the header, `<main>` and the footer. Full-bleed sections (the landing hero, the last doorway) pad their content to `--edge`, so the logo, every page title, the hero copy and the hero's framed example all start or end on the same line at every width. Pages are left-aligned on that edge; nothing is centred in a narrower column except reading text capped by its measure. Every page's first block starts `page-top` (clamp(40px, 4.5vw, 64px)) below the header; only the landing hero sits flush. Titles come in three sizes only: `title-display` (gallery, artist, piece, limits), `title-page` (studio and working pages), `title-section` (headings inside sheets).
+
+The wall is lime plaster: a seamless 512px procedurally generated tile (`public/salon/wall/plaster.webp`, ±3% around #f6f4ef) under the wall colour, so the white reads as a surface, never as a blank screen.
+
 The page column is 1400px wide with a 16px gutter (32px from 640px) and 112px of wall left under the content. The header is the rail: wordmark lower-left, navigation lower-right, and a 1px rule line running the full width beneath them.
 
 **The hang** is the main layout. It is a wrapping, centred flex row with one centre line, tight gaps (14 to 26px across, 18 to 28px down), and four sizes set by height: small clamp(110px, 10.5vw, 160px), medium clamp(190px, 18vw, 290px), large clamp(230px, 23vw, 360px), extra clamp(260px, 30vw, 460px). Sizes follow a fixed rhythm (large, two small, medium, two small, large, medium ...), and two consecutive small works stack in one column. Sculpture and works taller than 1.45:1 never hang small. Lettering blocks (18 to 24rem wide, left-aligned) hang in line with the frames as if painted on the wall. A section may bleed wall to wall, past the page column, with clamp(16px, 3vw, 48px) of side padding; the landing hero and its last doorway do. The hang now serves artist pages, inside the page column.

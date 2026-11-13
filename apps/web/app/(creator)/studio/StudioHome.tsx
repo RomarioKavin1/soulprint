@@ -8,9 +8,9 @@ import { money } from "@/lib/money";
 export function StudioHome() {
   const near = useNearOptional();
   return (
-    <div className="pt-8">
+    <div className="page-top">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none tracking-[-0.015em]">Studio</h1>
+        <h1 className="title-page">Studio</h1>
         {near?.accountId && (
           <div className="flex gap-2">
             <Link href="/studio/new?mode=standalone" className="btn-seal">

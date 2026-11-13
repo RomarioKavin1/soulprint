@@ -27,12 +27,12 @@ export function Workspace({ pieceId }: { pieceId: string }) {
     4000,
     [pieceId],
   );
-  if (error && !data) return <p className="pt-10 text-seal-2">This piece could not be found on the network.</p>;
-  if (!data) return <p className="pt-10 text-ink-3">Loading…</p>;
+  if (error && !data) return <p className="page-top text-seal-2">This piece could not be found on the network.</p>;
+  if (!data) return <p className="page-top text-ink-3">Loading…</p>;
   const { piece, proof, acc, listing } = data;
   if (accountId !== piece.artist)
     return (
-      <div className="pt-10">
+      <div className="page-top">
         <p className="text-ink-2">This is the artist&apos;s workspace for piece {piece.token_id}.</p>
         <Link className="btn-ghost mt-4" href={piece.mode === "Commission" ? `/c/${pieceId}` : `/p/${pieceId}`}>
           {piece.mode === "Commission" ? "Open the commission room" : "See the piece"}
@@ -42,10 +42,10 @@ export function Workspace({ pieceId }: { pieceId: string }) {
   const link = typeof window !== "undefined" ? `${location.origin}/c/${pieceId}` : `/c/${pieceId}`;
   const recording = canRecord(piece);
   return (
-    <div className="space-y-8 pt-12">
+    <div className="space-y-8 page-top">
       <div>
         <div className="flex flex-wrap items-baseline justify-between gap-4">
-          <h1 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none tracking-[-0.015em]">Piece {piece.token_id}</h1>
+          <h1 className="title-page">Piece {piece.token_id}</h1>
           <span className="chip" data-testid="status">
             {statusText(piece)}
           </span>

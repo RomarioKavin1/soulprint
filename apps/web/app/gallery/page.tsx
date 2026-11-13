@@ -37,9 +37,9 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
   ];
 
   return (
-    <div className="pt-12 sm:pt-16">
+    <div className="page-top">
       <header className="flex flex-wrap items-end justify-between gap-x-10 gap-y-3">
-        <h1 className="font-display text-[clamp(2.4rem,4.4vw,4rem)] leading-none tracking-[-0.015em]">The gallery</h1>
+        <h1 className="title-display">The gallery</h1>
         <p className="tabular text-ink-2" data-testid="result-count">
           {shown.length} {shown.length === 1 ? "work" : "works"}
           {filtered ? ` of ${all.length}` : ""} · {realCount} by artists on Soulprint

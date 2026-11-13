@@ -26,8 +26,8 @@ interface Published {
 
 function Unavailable() {
   return (
-    <div className="pt-16" data-testid="proof-unavailable">
-      <h1 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none tracking-[-0.015em]">The record could not be loaded just now</h1>
+    <div className="page-top" data-testid="proof-unavailable">
+      <h1 className="title-page">The record could not be loaded just now</h1>
       <p className="mt-3 text-ink-2">The network is busy. Reload the page in a moment.</p>
     </div>
   );
@@ -36,7 +36,7 @@ function Unavailable() {
 export default async function ProofPage({ params }: { params: Promise<{ pieceId: string }> }) {
   const { pieceId } = await params;
   const config = loadConfig();
-  if (!config) return <p className="pt-10">Not set up yet.</p>;
+  if (!config) return <p className="page-top">Not set up yet.</p>;
   const chain = new ChainView(config.rpcUrls);
   let piece: PieceInfo, proof: ProofView;
   try {
@@ -44,7 +44,7 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
   } catch (e) {
     // Only "that account does not exist" means there is no piece; anything else is the network.
     if (/does not exist|UNKNOWN_ACCOUNT|AccountDoesNotExist|CodeDoesNotExist|NO_CONTRACT_CODE/i.test(`${(e as Error)?.message ?? ""} ${JSON.stringify(e)}`))
-      return <p className="pt-10 text-ink-2">There is no piece at {pieceId}.</p>;
+      return <p className="page-top text-ink-2">There is no piece at {pieceId}.</p>;
     return <Unavailable />;
   }
   // 404 = not published. Anything else (503 while the network is busy, a timeout) is not "private"
@@ -62,8 +62,8 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
   }
   if (!pub)
     return (
-      <div className="pt-16" data-testid="proof-private">
-        <h1 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none tracking-[-0.015em]">This page is private</h1>
+      <div className="page-top" data-testid="proof-private">
+        <h1 className="title-page">This page is private</h1>
         <p className="mt-3 text-ink-2">The artist hasn&apos;t published the record for this piece.</p>
       </div>
     );
@@ -90,7 +90,7 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
       : null;
 
   return (
-    <article className="pt-12 sm:pt-16">
+    <article className="page-top">
       <div className="grid items-start gap-x-14 gap-y-14 lg:grid-cols-12">
         <div className="piece-hang flex justify-center lg:col-span-7 lg:pt-6">
           <Hung
@@ -109,7 +109,7 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
         </div>
 
         <header className="lg:col-span-5">
-          <h1 className="font-display text-[clamp(2.4rem,4.6vw,4.4rem)] leading-[1] tracking-[-0.015em]" data-testid="piece-title">{name}</h1>
+          <h1 className="title-display" data-testid="piece-title">{name}</h1>
           <p className="mt-4 text-lg text-ink-2">
             by{" "}
             <Link className="text-ink underline" href={`/a/${piece.artist}`} data-testid="artist-link">{m.artist}</Link>
@@ -136,9 +136,9 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
         </header>
       </div>
 
-      <div className="mx-auto mt-24 max-w-5xl space-y-12">
+      <div className="mt-20 space-y-8">
         <section className="card">
-          <h2 className="font-display text-3xl">The making</h2>
+          <h2 className="title-section">The making</h2>
           <div className="mt-6">
             <Timeline pieceId={pieceId} frames={pub.frames} />
           </div>
@@ -149,11 +149,12 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
 
         <Collect pieceId={pieceId} />
 
+        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <ContextNotes pieceId={pieceId} artist={piece.artist} />
-
+        <div className="space-y-8">
         {challenges.length > 0 && (
           <section className="card">
-            <h2 className="font-display text-3xl">Live checks</h2>
+            <h2 className="title-section">Live checks</h2>
             <ul className="mt-4 space-y-2 text-sm">
               {challenges.map((c, i) => (
                 <li key={i}>
@@ -166,13 +167,15 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
         )}
 
         <section className="card">
-          <h2 className="font-display text-3xl">Rights</h2>
+          <h2 className="title-section">Rights</h2>
           <p className="mt-3">{m.rights}</p>
           <p className="mt-1 text-sm text-ink-2">{m.royalty} Current holder: {m.owner}.</p>
         </section>
+        </div>
+        </div>
 
         <section className="card" id="verify">
-          <h2 className="font-display text-3xl">Verify on-chain</h2>
+          <h2 className="title-section">Verify on-chain</h2>
           <dl className="mt-5 grid gap-5 text-sm sm:grid-cols-2">
             <V k="Piece account" v={piece.piece_id} />
             <V k="Collection" v={config.collection} />
@@ -193,7 +196,7 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
           </details>
         </section>
 
-        <p className="text-center text-sm text-ink-2">
+        <p className="text-sm text-ink-2">
           This is evidence, not proof. <Link className="text-ink underline" href="/limits">What a record does and does not show</Link>.
         </p>
       </div>

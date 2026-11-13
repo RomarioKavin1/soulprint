@@ -9,13 +9,13 @@ export default async function ArtistPage({ params }: { params: Promise<{ artist:
   const { artist } = await params;
   const id = decodeURIComponent(artist);
   const config = loadConfig();
-  if (!config) return <p className="pt-10">Not set up yet.</p>;
+  if (!config) return <p className="page-top">Not set up yet.</p>;
   const pieces = await loadGallery(config.evidenceUrl, { artist: id, limit: 60 });
   const recorded = pieces?.filter((p) => p.level > 0).length ?? 0;
   return (
-    <div className="pt-14 sm:pt-20">
-      <header className="mx-auto max-w-4xl text-center">
-        <h1 className="break-all font-display text-[clamp(2.2rem,5vw,4.4rem)] leading-[1.02] tracking-[-0.015em]" data-testid="artist-name">{id}</h1>
+    <div className="page-top">
+      <header className="max-w-5xl">
+        <h1 className="break-all title-display" data-testid="artist-name">{id}</h1>
         {pieces && pieces.length > 0 && (
           <p className="mt-5 text-ink-2">
             {pieces.length} published piece{pieces.length === 1 ? "" : "s"}

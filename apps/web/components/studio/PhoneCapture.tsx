@@ -33,7 +33,7 @@ export function PhoneCapture({ pieceId }: { pieceId: string }) {
 
   const paired = proof && pairing && proof.segments.some((s) => s.key === pairing);
   return (
-    <div className="mx-auto max-w-lg space-y-6 pt-6">
+    <div className="mx-auto max-w-lg space-y-6 page-top">
       <h1 className="font-display text-3xl">Record piece {pieceId.split(".")[0]?.slice(1)}</h1>
       {!proof ? (
         <p className="text-ink-3">Loading…</p>

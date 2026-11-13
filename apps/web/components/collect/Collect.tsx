@@ -36,7 +36,7 @@ export function Collect({ pieceId }: { pieceId: string }) {
   return (
     <section className="card grid gap-8 sm:grid-cols-2" data-testid="collect">
       <div>
-        <h2 className="font-display text-xl">Collect</h2>
+        <h2 className="title-section">Collect</h2>
         <p className="mt-1 text-sm text-ink-2" data-testid="holder">{held}.</p>
         {mine ? (
           <p className="mt-3 text-sm">
@@ -75,7 +75,7 @@ export function Collect({ pieceId }: { pieceId: string }) {
       </div>
 
       <div>
-        <h2 className="font-display text-xl">Support the artist</h2>
+        <h2 className="title-section">Support the artist</h2>
         <p className="mt-1 text-sm text-ink-2">A tip goes straight to {piece.artist}, whether or not the piece is for sale.</p>
         {isArtist ? (
           <p className="mt-3 text-sm text-ink-3">People who visit this page can send you tips here.</p>

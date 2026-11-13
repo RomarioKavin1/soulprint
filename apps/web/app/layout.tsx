@@ -26,13 +26,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {config ? (
           <NearProvider config={config}>
             <Header networkBadge={config.network !== "mainnet" ? config.network : null} />
-            <main className="mx-auto max-w-[1400px] px-4 pb-28 sm:px-8">{children}</main>
+            <main className="page pb-28">{children}</main>
             <Footer />
           </NearProvider>
         ) : (
           <>
             <Header networkBadge={null} />
-            <main className="mx-auto max-w-[1400px] px-4 pb-28 sm:px-8">
+            <main className="page pb-28">
               <div className="card mx-auto mt-16 max-w-xl">
                 <p className="font-display text-3xl">The salon is closed</p>
                 <p className="mt-2 text-ink-2">
@@ -51,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 function Header({ networkBadge }: { networkBadge: string | null }) {
   return (
     <header className="relative">
-      <div className="mx-auto flex max-w-[1400px] flex-wrap items-end justify-between gap-x-8 gap-y-3 px-4 pb-4 pt-6 sm:px-8">
+      <div className="page flex flex-wrap items-end justify-between gap-x-8 gap-y-3 pb-4 pt-6">
         <Link href="/" className="group flex items-baseline gap-3 no-underline">
           <span className="font-display text-[2rem] leading-none tracking-[-0.01em] text-ink sm:text-[2.4rem]">Soulprint</span>
           <span className="font-plaque text-[0.66rem] uppercase tracking-[0.3em] text-ink-3">Salon</span>
@@ -74,7 +74,7 @@ function Header({ networkBadge }: { networkBadge: string | null }) {
 function Footer() {
   return (
     <footer className="border-t border-rule">
-      <div className="mx-auto flex max-w-[1400px] flex-wrap items-baseline justify-between gap-6 px-4 py-10 text-sm text-ink-3 sm:px-8">
+      <div className="page flex flex-wrap items-baseline justify-between gap-6 py-10 text-sm text-ink-3">
         <p className="max-w-2xl">
           Works labelled <i>Example</i> are public-domain classics from The Metropolitan Museum of Art Open Access (CC0), hung to show the
           room. They were not recorded on Soulprint.

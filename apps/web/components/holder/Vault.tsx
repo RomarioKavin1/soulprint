@@ -30,16 +30,16 @@ export function Vault({ pieceId }: { pieceId: string }) {
     [pieceId, accountId, data?.piece.rotation_seq],
   );
   const { busy, error, run } = useAction();
-  if (!data) return <p className="pt-10 text-ink-3">Loading…</p>;
+  if (!data) return <p className="page-top text-ink-3">Loading…</p>;
   const { piece, acc, listing } = data;
   const d = config.currencyDecimals;
   const isOwner = accountId === piece.owner;
   const gate = files.error instanceof EvidenceError ? (GATE[files.error.code] ?? files.error.code) : null;
 
   return (
-    <div className="space-y-8 pt-12">
+    <div className="space-y-8 page-top">
       <div>
-        <h1 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none tracking-[-0.015em]">{isOwner ? "Your piece" : "Piece"} {piece.token_id}</h1>
+        <h1 className="title-page">{isOwner ? "Your piece" : "Piece"} {piece.token_id}</h1>
         <p className="mt-3 text-sm text-ink-2">
           By {piece.artist} · {piece.piece_id} · <Link className="underline" href={`/p/${pieceId}`}>its page</Link>
         </p>

@@ -14,13 +14,13 @@ export function Pay({ pieceId }: { pieceId: string }) {
   const [amount, setAmount] = useState("");
   const [done, setDone] = useState<string | null>(null);
   const { busy, error, run } = useAction();
-  if (!data) return <p className="pt-10 text-ink-3">Loading…</p>;
+  if (!data) return <p className="page-top text-ink-3">Loading…</p>;
   const { piece, acc } = data;
   const d = config.currencyDecimals;
   return (
-    <div className="space-y-8 pt-12">
+    <div className="space-y-8 page-top">
       <div>
-        <h1 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none tracking-[-0.015em]">Pay piece {piece.token_id} by {piece.artist}</h1>
+        <h1 className="title-page">Pay piece {piece.token_id} by {piece.artist}</h1>
         <p className="mt-2 text-ink-2">Payments for using this work (licences, prints) go into the piece and belong to whoever holds it.</p>
       </div>
       {piece.grant.kind === "Personal" || !piece.grant_active ? (

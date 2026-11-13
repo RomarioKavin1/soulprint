@@ -7,7 +7,7 @@ export function Section({ title, aside, children }: { title: string; aside?: Rea
   return (
     <section className="card">
       <div className="mb-4 flex items-baseline justify-between gap-4">
-        <h2 className="font-display text-xl">{title}</h2>
+        <h2 className="title-section">{title}</h2>
         {aside}
       </div>
       {children}

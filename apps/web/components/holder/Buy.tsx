@@ -14,14 +14,14 @@ export function Buy({ pieceId }: { pieceId: string }) {
     return { piece, acc, listing };
   }, 5000, [pieceId]);
   const { busy, error, run } = useAction();
-  if (!data) return <p className="pt-10 text-ink-3">Loading…</p>;
+  if (!data) return <p className="page-top text-ink-3">Loading…</p>;
   const { piece, acc, listing } = data;
   const d = config.currencyDecimals;
   const bought = accountId && piece.owner === accountId;
   return (
-    <div className="space-y-8 pt-12">
+    <div className="space-y-8 page-top">
       <div>
-        <h1 className="font-display text-[clamp(2.2rem,4vw,3.4rem)] leading-none tracking-[-0.015em]">Piece {piece.token_id} by {piece.artist}</h1>
+        <h1 className="title-page">Piece {piece.token_id} by {piece.artist}</h1>
         <p className="mt-3 text-sm text-ink-3">For sale · {piece.piece_id}</p>
         <Link className="mt-2 inline-block text-sm underline" href={`/p/${pieceId}`}>See how it was made</Link>
       </div>
