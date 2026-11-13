@@ -14,8 +14,8 @@ import { parseTip, tipCalls } from "@/lib/tip";
  * On the piece's public page: collect it if the holder put it up for sale, or send the artist a tip.
  * Everything is read from the piece account; the buy is pinned to the listing shown.
  */
-export function Collect({ pieceId }: { pieceId: string }) {
-  const { chain, accountId, signer, config } = useNear();
+export function Collect({ pieceId, inline = false }: { pieceId: string; inline?: boolean }) {
+  const { chain, accountId, signer, config, signIn } = useNear();
   const router = useRouter();
   const { data, reload } = usePoll(async () => {
     const [piece, acc, listing] = await Promise.all([pieceInfo(chain, pieceId), accounting(chain, pieceId), chain.view<Listing | null>(pieceId, "listing")]);
@@ -25,6 +25,7 @@ export function Collect({ pieceId }: { pieceId: string }) {
   const tip = useAction();
   const [amount, setAmount] = useState("");
   const [thanks, setThanks] = useState<string | null>(null);
+  const [tipOpen, setTipOpen] = useState(false);
   if (!data) return null;
   const { piece, acc, listing } = data;
   const d = config.currencyDecimals;
@@ -32,6 +33,78 @@ export function Collect({ pieceId }: { pieceId: string }) {
   const mine = accountId === piece.owner;
   const isArtist = accountId === piece.artist;
   const held = piece.owner === piece.artist ? "Held by the artist" : `Collected by ${piece.owner}`;
+
+  const sendTip = () => tip.run("Sending", async () => {
+    setThanks(null);
+    const units = tipUnits!;
+    for (const c of await tipCalls(chain, config.currencyToken, piece.artist, units, pieceId)) await signer!.call(c.contract, c.method, c.args, { deposit: c.deposit, tgas: c.tgas });
+    setThanks(`Sent ${money(units, { Ft: config.currencyToken }, d)} to ${piece.artist}. Thank you.`);
+    setAmount("");
+  });
+
+  if (inline) {
+    const forSale = !!listing && piece.status === "Settled";
+    const reservedElsewhere = forSale && listing!.reserved_for && listing!.reserved_for !== accountId;
+    return (
+      <section data-testid="collect" aria-label="Collect or support">
+        <p className="text-ink-2">
+          <span data-testid="holder">{piece.owner === piece.artist ? "Held by the artist." : forSale ? `Offered by ${piece.owner}.` : `Collected by ${piece.owner}.`}</span>
+          {!mine && !forSale && <span> Not for sale right now.</span>}
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          {mine ? (
+            <p className="text-sm">This piece is yours. <Link className="underline" href={`/vault/${pieceId}`}>Open your files and sale settings</Link></p>
+          ) : forSale && !reservedElsewhere ? (
+            <button
+              className="btn-seal"
+              data-testid="collect-buy"
+              disabled={!!buy.busy}
+              onClick={() => (accountId ? buy.run("Collecting", async () => {
+                const c = buyCall(pieceId, listing!, acc.holder_pool, piece.currency);
+                await signer!.call(c.contract, c.method, c.args, { deposit: c.deposit, tgas: c.tgas });
+                await reload();
+                router.refresh();
+              }) : signIn())}
+            >
+              {buy.busy ?? <span>{accountId ? "Collect" : "Sign in to collect"} · <span data-testid="collect-price">{money(listing!.price, acc.currency, d)}</span></span>}
+            </button>
+          ) : null}
+          {!isArtist && !tipOpen && (
+            <button className="btn-ghost" data-testid="tip-open" onClick={() => (accountId ? setTipOpen(true) : signIn())}>
+              {accountId ? "Tip the artist" : "Sign in to tip the artist"}
+            </button>
+          )}
+          {!isArtist && tipOpen && (
+            <form className="flex flex-wrap items-center gap-2" onSubmit={(e) => { e.preventDefault(); if (tipUnits !== null) sendTip(); }}>
+              <span className="flex items-center gap-2">
+                <input className="field w-24" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} aria-label="Tip amount" autoFocus />
+                <span className="text-ink-2" aria-hidden>USDC</span>
+              </span>
+              <button className="btn-primary" data-testid="tip" disabled={tipUnits === null || !!tip.busy}>
+                {tip.busy ?? (tipUnits !== null ? `Send ${money(tipUnits, { Ft: config.currencyToken }, d)}` : "Send")}
+              </button>
+              <button type="button" className="text-sm text-ink-2 underline" onClick={() => { setTipOpen(false); setAmount(""); }}>Cancel</button>
+            </form>
+          )}
+        </div>
+        {forSale && reservedElsewhere && <p className="mt-2 text-sm text-seal-2">This sale is reserved for {listing!.reserved_for}.</p>}
+        {forSale && !mine && (
+          <p className="mt-3 text-sm text-ink-3">
+            Comes with the files and {GRANT_TEXT[piece.grant.kind].title.toLowerCase()} rights
+            {BigInt(acc.holder_pool) > 0n ? `, plus ${money(acc.holder_pool, acc.currency, d)} of income held in the piece` : ""}. {piece.royalty_bps / 100}% of any resale goes to the artist.
+          </p>
+        )}
+        {isArtist && <p className="mt-2 text-sm text-ink-3">Visitors can send you tips from this page.</p>}
+        {tipOpen && amount.trim() !== "" && tipUnits === null && (
+          <p className="mt-2 text-xs text-seal-2" data-testid="tip-invalid">Enter an amount above zero, with at most {d} decimal places.</p>
+        )}
+        {tipOpen && <p className="mt-2 text-xs text-ink-3">A tip goes straight to {piece.artist}, whether or not the piece is for sale.</p>}
+        {thanks && <p className="mt-3 text-sm text-moss" role="status" data-testid="tip-sent">{thanks}</p>}
+        <ErrorNote error={buy.error} />
+        <ErrorNote error={tip.error} />
+      </section>
+    );
+  }
 
   return (
     <section className="card grid gap-8 sm:grid-cols-2" data-testid="collect">

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-13T18:00:00Z",
+  "generatedAt": "2026-11-13T23:30:00Z",
   "title": "Design System: Manmade Salon",
   "extensions": {
     "colorMeta": {
@@ -300,11 +300,11 @@
       },
       "headline": {
         "displayName": "Page Title",
-        "purpose": "Page titles on the wall; piece title and artist name run up to 4.4rem, the gallery title to 4rem; landing room titles use it at line-height 1.05."
+        "purpose": "Page titles on the wall; the artist name runs up to 4.4rem, the gallery title to 4rem; landing room titles use it at line-height 1.05. The piece title has its own step (piece-title)."
       },
       "title": {
         "displayName": "Sheet Title",
-        "purpose": "Section headings and large figures inside sheets; always weight 600 on paper."
+        "purpose": "Section headings inside sheets; always weight 600 on paper."
       },
       "body": {
         "displayName": "Reading",
@@ -333,6 +333,22 @@
       "hero": {
         "displayName": "Hero Lettering",
         "purpose": "The landing headline only, over the scrim; the largest type in the system, used once."
+      },
+      "piece-title": {
+        "displayName": "Piece Title",
+        "purpose": "The title of the one work on a piece page, on the wall at the head of its record; only the landing Hero is larger."
+      },
+      "level-sentence": {
+        "displayName": "Level Sentence",
+        "purpose": "Italic, ultramarine, held to 30ch: the one sentence from the evidence wording table under the piece title."
+      },
+      "fact-figure": {
+        "displayName": "Fact Figure",
+        "purpose": "Figures of the piece record's ledger facts, on the wall, lining figures."
+      },
+      "tab": {
+        "displayName": "Record Tab",
+        "purpose": "Cinzel capitals for the piece record's tab labels."
       }
     },
     "shadows": [
@@ -432,6 +448,16 @@
         "name": "re-hang",
         "value": "opacity 0.7, 200ms",
         "purpose": "The finding aid while the showcase fetches a new view."
+      },
+      {
+        "name": "re-hang-cross-fade",
+        "value": "opacity 0 to 1, 420ms cubic-bezier(0.16, 1, 0.3, 1); previous picture kept beneath (absolute, inset 0) until animationend",
+        "purpose": "Piece page: a picked frame of the making fades in over the picture it replaces; picture only. Under reduced motion no animation and the previous picture is not kept."
+      },
+      {
+        "name": "record-control",
+        "value": "160ms",
+        "purpose": "Piece record tabs (colour, underline), making thumbnails (outline) and fold chevrons (angle)."
       }
     ],
     "breakpoints": [
@@ -443,7 +469,7 @@
       {
         "name": "phone-hang",
         "value": "640px",
-        "purpose": "At and below: works sized by width, small works pair side by side, thinner mouldings. Above: wider gutter and sheet padding. The showcase becomes two columns."
+        "purpose": "At and below: works sized by width, small works pair side by side, thinner mouldings. Above: wider gutter and sheet padding. The showcase becomes two columns. On the piece page: --h 56vh, tabs wrap to two rows, ledger facts and provenance rows stack."
       },
       {
         "name": "hero-phone",
@@ -456,14 +482,14 @@
         "purpose": "At and below: the welcome lettering is ordered before the first work. (Hang lettering; from 1024px landing rooms go two-column and the last doorway's works stay on one line.)"
       },
       {
-        "name": "piece-grid",
-        "value": "1024px",
-        "purpose": "From here the piece page is a 12-column grid (7 work, 5 text)."
-      },
-      {
         "name": "finding-aid-two-column",
         "value": "1100px",
         "purpose": "At and below: the finding aid is two columns with search across the top."
+      },
+      {
+        "name": "piece-record",
+        "value": "1100px",
+        "purpose": "From here the piece page is two columns (wall 1.3fr, record 1fr, gap 72px) with the wall sticky at top 28px, and the phone making preview is hidden. Below: one column, work first, gap 48px."
       },
       {
         "name": "page-column",
@@ -476,15 +502,13 @@
         "s": "clamp(110px, 10.5vw, 160px)",
         "m": "clamp(190px, 18vw, 290px)",
         "l": "clamp(230px, 23vw, 360px)",
-        "x": "clamp(260px, 30vw, 460px)",
-        "piece": "clamp(320px, 54vh, 640px)"
+        "x": "clamp(260px, 30vw, 460px)"
       },
       "phoneWidths": {
         "s": "38vw",
         "m": "66vw",
         "l": "76vw",
-        "x": "76vw",
-        "piece": "84vw"
+        "x": "76vw"
       },
       "rhythm": [
         "l",
@@ -543,6 +567,18 @@
         "room": {
           "h": "clamp(260px, 30vw, 420px)",
           "cap": "min(80vw, 560px)"
+        },
+        "piece-record": {
+          "h": "min(62vh, 720px)",
+          "cap": "calc(100cqi - 2 * max(12px, calc(var(--h) * 0.085)) - 8px); the wall column is the query container (container-type: inline-size)"
+        },
+        "piece-record-narrow": {
+          "h": "min(64vh, 640px) below 1100px",
+          "cap": "as piece-record"
+        },
+        "piece-record-phone": {
+          "h": "56vh",
+          "cap": "calc(100cqi - 2 * max(10px, calc(var(--w, 70vw) * 0.06)) - 4px)"
         }
       }
     },
@@ -575,6 +611,28 @@
         "interior": "#efece6"
       },
       "provenance": "public/salon/hero/wheat-field-brushwork.webp.json: detail of Wheat Field with Cypresses, Vincent van Gogh, 1889, The Metropolitan Museum of Art Open Access, CC0."
+    },
+    "pieceRecord": {
+      "grid": "minmax(0, 1.3fr) minmax(400px, 1fr) from 1100px, gap 72px, align-items start; one column below, gap 48px",
+      "wall": "position: sticky; top: 28px (from 1100px); container-type: inline-size",
+      "privateFramesBlank": "min(52vw, 640px) by min(52vh, 480px)",
+      "actionRow": "margin-top 26px; padding-block 18px; 1px #e2ddd3 hairline above and below",
+      "tabs": "margin-top 34px; gap 26px; 1px #e2ddd3 hairline beneath; tab padding 4px 0 11px with a 2px underline on the hairline; overflow-x auto, wraps (gap 4px 20px) to 640px; panel padding-top 24px",
+      "tabOrder": [
+        "The making",
+        "The record",
+        "Provenance",
+        "Questions",
+        "Rights"
+      ],
+      "hashLinks": "#record, #provenance, #questions, #rights; The making clears the hash; older #verify and #notes land on The record and Questions",
+      "makingStrip": "grid repeat(min(n, 8), minmax(0, 1fr)), gap 8px; thumb 4:3, object-fit cover, #efece6, outline 1px #e2ddd3 (hover #736d66); picked: outline 2px #23399a, offset -2px",
+      "timeline": "height 22px; hairline 1px #736d66; ticks 1px by 9px #736d66, inset 7px; marker 8px by 16px #1a1814 inside a 3px #f6f4ef ring with a 1px #1a1814 edge; idle (finished work on the wall): marker fill #f6f4ef",
+      "makingPreview": "below 1100px: width 100%, outline 1px #e2ddd3, margin-top 16px",
+      "backLink": "Cinzel 600 0.72rem, 0.16em, uppercase, #23399a, underlined (offset 0.3em), 14px under the label",
+      "facts": "row grid 11rem minmax(0, 1fr), gap 4px 20px, padding-block 14px, hairlines; value grid auto 1fr; bar 3px, #1a1814 on color-mix(in srgb, #736d66 22%, transparent); note 0.82rem #736d66; one column to 640px",
+      "ledger": "row grid 7.5rem minmax(0, 1fr), gap 16px, padding-block 11px, hairlines; date 0.82rem #736d66, tabular lining figures; one column (gap 2px) to 640px",
+      "fold": "summary #5b5650 (hover #1a1814), gap 10px; chevron 6px, two 1.5px strokes, rotate(-45deg) closed, rotate(45deg) open, 160ms"
     }
   },
   "components": [
@@ -677,13 +735,57 @@
       "description": "One idea of the landing: a roman room number in ultramarine display type, a headline-size title and wall text held to 60ch.",
       "html": "<section class=\"ds-room\"><p class=\"ds-room-numeral\">II</p><h2 class=\"ds-room-title\">A label says only what the record shows</h2><p class=\"ds-room-text\">Nobody can prove from a picture that no machine was involved, and Manmade never claims to. Each label states one of three things, in the same words every time.</p></section>",
       "css": ".ds-room{background:#f6f4ef;padding:40px 32px;color:#1a1814;} .ds-room-numeral{margin:0;font-family:var(--font-bodoni),'Cormorant 72',Didot,serif;font-size:2.4rem;line-height:1;color:#23399a;} .ds-room-title{margin:10px 0 0;font-family:var(--font-bodoni),'Cormorant 72',Didot,serif;font-weight:400;font-size:clamp(2.2rem,4vw,3.4rem);line-height:1.05;letter-spacing:-0.01em;} .ds-room-text{margin:18px 0 0;max-width:60ch;font-family:var(--font-spectral),Georgia,serif;font-size:1.06rem;line-height:1.55;color:#5b5650;}"
+    },
+    {
+      "name": "Record Tabs",
+      "kind": "nav",
+      "refersTo": "record-tab",
+      "description": "The piece record's tablist: Cinzel capitals on a hairline; the open tab is ultramarine with a 2px underline. Arrow keys, Home and End move between tabs; each panel has a hash link.",
+      "html": "<div class=\"ds-rt-wall\"><div class=\"ds-rt\" role=\"tablist\" aria-label=\"About this piece\"><button class=\"ds-rt-tab\" role=\"tab\" aria-selected=\"true\">The making</button><button class=\"ds-rt-tab\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">The record</button><button class=\"ds-rt-tab\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">Provenance</button><button class=\"ds-rt-tab\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">Questions</button><button class=\"ds-rt-tab\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">Rights</button></div></div>",
+      "css": ".ds-rt-wall{background:#f6f4ef;padding:24px;} .ds-rt{display:flex;gap:26px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid #e2ddd3;} .ds-rt-tab{flex:none;padding:4px 0 11px;margin-bottom:-1px;background:none;border:none;border-bottom:2px solid transparent;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.74rem;letter-spacing:0.16em;text-transform:uppercase;color:#736d66;cursor:pointer;transition:color 160ms,border-color 160ms;} .ds-rt-tab:hover{color:#1a1814;} .ds-rt-tab[aria-selected=\"true\"]{color:#23399a;border-bottom-color:#23399a;} .ds-rt-tab:focus-visible{outline:2px solid #23399a;outline-offset:3px;border-radius:2px;} @media (max-width:640px){.ds-rt{flex-wrap:wrap;gap:4px 20px;overflow:visible;}}"
+    },
+    {
+      "name": "Action Row",
+      "kind": "custom",
+      "description": "One status line and one row of actions between hairlines, fixed above the tabs: the seal Collect button with its price when listed, and the tip form the ghost Tip button opens (amount, visible USDC unit, Send N USDC, Cancel).",
+      "html": "<div class=\"ds-ar-wall\"><div class=\"ds-ar\"><p class=\"ds-ar-status\">Offered by collector.test.near.</p><div class=\"ds-ar-row\"><button class=\"ds-ar-seal\">Collect · 40 USDC</button><form class=\"ds-ar-tip\" onsubmit=\"return false\"><input class=\"ds-ar-field\" inputmode=\"decimal\" value=\"2\" aria-label=\"Tip amount\" /><span class=\"ds-ar-unit\" aria-hidden=\"true\">USDC</span><button class=\"ds-ar-send\">Send 2 USDC</button><button type=\"button\" class=\"ds-ar-cancel\">Cancel</button></form></div><p class=\"ds-ar-fine\">A tip goes straight to artist.test.near, whether or not the piece is for sale.</p></div></div>",
+      "css": ".ds-ar-wall{background:#f6f4ef;padding:24px;} .ds-ar{padding-block:18px;border-block:1px solid #e2ddd3;font-family:var(--font-sans),Georgia,serif;font-size:17px;line-height:1.55;color:#5b5650;} .ds-ar-status{margin:0;} .ds-ar-row{margin-top:16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;} .ds-ar-tip{display:flex;flex-wrap:wrap;align-items:center;gap:8px;} .ds-ar-seal,.ds-ar-send{padding:10px 16px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.76rem;letter-spacing:0.13em;text-transform:uppercase;color:#ffffff;border:none;border-radius:2px;cursor:pointer;white-space:nowrap;transition:background-color 200ms;} .ds-ar-seal{background:#23399a;} .ds-ar-seal:hover{background:#1a2b78;} .ds-ar-send{background:#1a1814;} .ds-ar-send:hover{background:#33302a;} .ds-ar-field{width:6rem;padding:8px 12px;font-family:var(--font-sans),Georgia,serif;font-size:0.95rem;color:#1a1814;background:#ffffff;border:1px solid #d9d3c8;border-radius:2px;outline:none;caret-color:#23399a;transition:border-color 150ms,box-shadow 150ms;} .ds-ar-field:focus{border-color:#23399a;box-shadow:0 0 0 3px rgba(35,57,154,0.15);} .ds-ar-cancel{background:none;border:none;padding:0;font-family:var(--font-sans),Georgia,serif;font-size:0.875rem;color:#5b5650;text-decoration:underline;text-underline-offset:0.2em;cursor:pointer;} .ds-ar-seal:focus-visible,.ds-ar-send:focus-visible,.ds-ar-cancel:focus-visible{outline:2px solid #23399a;outline-offset:3px;} .ds-ar-fine{margin:8px 0 0;font-size:0.75rem;color:#736d66;}"
+    },
+    {
+      "name": "Making Strip and Printed Timeline",
+      "kind": "custom",
+      "refersTo": "making-thumb",
+      "description": "The public frames as thumbnails (the picked one outlined in ultramarine) over a printed hairline with a tick per frame and a rectangular ink marker; the marker is hollow while the finished work hangs. A native range input, so range semantics are kept.",
+      "html": "<div class=\"ds-mk-wall\"><ol class=\"ds-mk-strip\"><li><button class=\"ds-mk-thumb\" aria-pressed=\"false\" aria-label=\"Show frame 1\"></button></li><li><button class=\"ds-mk-thumb\" aria-pressed=\"false\" aria-label=\"Show frame 3\"></button></li><li><button class=\"ds-mk-thumb\" aria-pressed=\"true\" aria-label=\"Show frame 5\"></button></li><li><button class=\"ds-mk-thumb\" aria-pressed=\"false\" aria-label=\"Show frame 7\"></button></li><li><button class=\"ds-mk-thumb\" aria-pressed=\"false\" aria-label=\"Show frame 9\"></button></li><li><button class=\"ds-mk-thumb\" aria-pressed=\"false\" aria-label=\"Show frame 11\"></button></li></ol><div class=\"ds-mk-line\"><span class=\"ds-mk-ticks\" aria-hidden=\"true\"><span></span><span></span><span></span><span></span><span></span><span></span></span><input type=\"range\" class=\"ds-mk-scrub\" min=\"0\" max=\"5\" value=\"2\" aria-label=\"Timeline\" /></div><p class=\"ds-mk-cap\">On the wall: frame 5, 14 Nov 2023, 22:33 UTC (device clock) · 3 of 6 public.</p></div>",
+      "css": ".ds-mk-wall{background:#f6f4ef;padding:24px;} .ds-mk-strip{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;} .ds-mk-thumb{display:block;width:100%;aspect-ratio:4 / 3;padding:0;border:none;background:#efece6;outline:1px solid #e2ddd3;outline-offset:-1px;cursor:pointer;transition:outline-color 160ms;} .ds-mk-thumb:hover{outline-color:#736d66;} .ds-mk-thumb[aria-pressed=\"true\"]{outline:2px solid #23399a;outline-offset:-2px;} .ds-mk-line{position:relative;margin-top:18px;height:22px;} .ds-mk-line::before{content:'';position:absolute;left:0;right:0;top:50%;border-top:1px solid #736d66;} .ds-mk-ticks{position:absolute;inset:0 7px;display:flex;justify-content:space-between;pointer-events:none;} .ds-mk-ticks span{width:1px;height:9px;margin-top:6.5px;background:#736d66;} .ds-mk-scrub{position:relative;width:100%;height:22px;margin:0;background:transparent;appearance:none;-webkit-appearance:none;cursor:pointer;} .ds-mk-scrub::-webkit-slider-runnable-track{height:22px;background:transparent;} .ds-mk-scrub::-moz-range-track{height:22px;background:transparent;} .ds-mk-scrub::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:22px;background:#1a1814;border:3px solid #f6f4ef;box-shadow:0 0 0 1px #1a1814;} .ds-mk-scrub::-moz-range-thumb{width:8px;height:16px;border-radius:0;background:#1a1814;border:3px solid #f6f4ef;box-shadow:0 0 0 1px #1a1814;} .ds-mk-scrub:focus-visible{outline:2px solid #23399a;outline-offset:4px;} .ds-mk-cap{margin:8px 0 0;font-family:var(--font-sans),Georgia,serif;font-size:0.875rem;color:#736d66;}"
+    },
+    {
+      "name": "Ledger Facts",
+      "kind": "custom",
+      "description": "The record's measured facts as a ruled ledger on the wall: Cinzel label, display figure with lining figures, an inline bar for shares, and a quiet note. No boxes.",
+      "html": "<div class=\"ds-lf-wall\"><dl class=\"ds-lf\"><div class=\"ds-lf-row\"><dt class=\"ds-lf-k\">Built up gradually</dt><dd class=\"ds-lf-v\"><span class=\"ds-lf-fig\">82%</span><span class=\"ds-lf-bar\" aria-hidden=\"true\"><span style=\"width:82%\"></span></span><span class=\"ds-lf-sub\">of the finished picture appeared step by step across the frames</span></dd></div><div class=\"ds-lf-row\"><dt class=\"ds-lf-k\">Largest single jump</dt><dd class=\"ds-lf-v\"><span class=\"ds-lf-fig\">9%</span><span class=\"ds-lf-bar\" aria-hidden=\"true\"><span style=\"width:9%\"></span></span><span class=\"ds-lf-sub\">the most of the picture that changed between two frames</span></dd></div></dl></div>",
+      "css": ".ds-lf-wall{background:#f6f4ef;padding:24px;} .ds-lf{display:grid;margin:0;color:#1a1814;font-family:var(--font-sans),Georgia,serif;} .ds-lf-row{display:grid;grid-template-columns:11rem minmax(0,1fr);gap:4px 20px;align-items:baseline;padding-block:14px;border-bottom:1px solid #e2ddd3;} .ds-lf-row:first-child{border-top:1px solid #e2ddd3;} .ds-lf-k{font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:#736d66;} .ds-lf-v{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:4px 16px;} .ds-lf-fig{font-family:var(--font-display),'Cormorant Garamond',Garamond,serif;font-weight:500;font-size:1.875rem;line-height:1;font-feature-settings:'kern','liga','lnum';} .ds-lf-bar{display:block;height:3px;background:color-mix(in srgb,#736d66 22%,transparent);} .ds-lf-bar span{display:block;height:3px;background:#1a1814;} .ds-lf-sub{grid-column:1 / -1;font-size:0.82rem;line-height:1.35;color:#736d66;} @media (max-width:640px){.ds-lf-row{grid-template-columns:minmax(0,1fr);}}"
+    },
+    {
+      "name": "Provenance Ledger",
+      "kind": "custom",
+      "description": "One dated ledger of everything that happened to the piece on-chain: date in quiet tabular figures, event as a plain sentence, rows between hairlines.",
+      "html": "<div class=\"ds-pl-wall\"><ol class=\"ds-pl\"><li><time>14 Nov 2023</time><span>The making was anchored on-chain 6 times while it was made</span></li><li><time>15 Nov 2023</time><span>artist.test.near sold it to client.test.near for 40 USDC</span></li></ol></div>",
+      "css": ".ds-pl-wall{background:#f6f4ef;padding:24px;} .ds-pl{display:grid;margin:0;padding:0;list-style:none;font-family:var(--font-sans),Georgia,serif;font-size:17px;line-height:1.55;color:#1a1814;} .ds-pl li{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:16px;padding-block:11px;border-bottom:1px solid #e2ddd3;} .ds-pl li:first-child{border-top:1px solid #e2ddd3;} .ds-pl time{color:#736d66;font-size:0.82rem;font-variant-numeric:tabular-nums lining-nums;} @media (max-width:640px){.ds-pl li{grid-template-columns:minmax(0,1fr);gap:2px;}}"
+    },
+    {
+      "name": "Fold",
+      "kind": "custom",
+      "description": "Detail most visitors skip, behind a summary with a drawn chevron that turns down when open.",
+      "html": "<div class=\"ds-fold-wall\"><details class=\"ds-fold\"><summary>How to read these facts</summary><p>A long session drawn step by step reads high on the first and low on the second.</p></details></div>",
+      "css": ".ds-fold-wall{background:#f6f4ef;padding:24px;font-family:var(--font-sans),Georgia,serif;font-size:17px;} .ds-fold>summary{cursor:pointer;width:fit-content;list-style:none;display:flex;align-items:center;gap:10px;color:#5b5650;} .ds-fold>summary::-webkit-details-marker{display:none;} .ds-fold>summary::before{content:'';width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg);transition:transform 160ms;} .ds-fold[open]>summary::before{transform:rotate(45deg) translate(-2px,-1px);} .ds-fold>summary:hover{color:#1a1814;} .ds-fold>summary:focus-visible{outline:2px solid #23399a;outline-offset:3px;} .ds-fold p{margin:8px 0 0;font-size:0.875rem;color:#5b5650;}"
     }
   ],
   "narrative": {
     "northStar": "The Salon Hang",
-    "overview": "Manmade is one room: a gallery-white wall in even light, hung close with works in real period frames. Every work carries a flat printed label that states what its record shows and nothing more. The hang is a Paris Salon's, where pictures touch shoulders and sizes vary; the wall is a present-day museum's warm white, so the photographed frames and the pictures carry all the colour. What separates it from an online shop's white grid is the frame, the label and the hang, never the colour of the wall.\n\nThere are two surfaces and one ink. **The wall** (warm white) carries the art, the headlines and navigation. **The sheet** (pure white paper with a ruled edge and a soft shadow) carries facts, forms and reading. Both take the same near-black ink (`ink`, `ink-2`, `ink-3`) and the same `rule`; a sheet differs from the wall by one step of white, a 1px border and its shadow, so a component reads the same in either place. One accent, ultramarine, marks the decisive action and the few emphasised words.\n\nThe physical parts are photographs, not drawings. The frames are four empty cassetta frames from The Metropolitan Museum of Art (Open Access, CC0) cut into nine-slice plates with measured slices; sculpture is cut from its museum photograph and stands on its own base. Each raster ships with a provenance record next to it. Operate screens (studio, rooms, vault, pay) live in the same room and simply use more sheet and less wall.\n\nThe room has three ways of showing work. **The hang** is the close salon wall of mixed sizes (artist pages). **The showcase** (`/gallery`) is the catalogue room: an even wall of equal cells, every work framed, under a printed finding aid. **The landing** (`/`) opens on the one unframed, full-bleed picture in the system, a museum photograph of real paint seen close, then walks through four numbered rooms to a doorway into the gallery.",
+    "overview": "Manmade is one room: a gallery-white wall in even light, hung close with works in real period frames. Every work carries a flat printed label that states what its record shows and nothing more. The hang is a Paris Salon's, where pictures touch shoulders and sizes vary; the wall is a present-day museum's warm white, so the photographed frames and the pictures carry all the colour. What separates it from an online shop's white grid is the frame, the label and the hang, never the colour of the wall.\n\nThere are two surfaces and one ink. **The wall** (warm white) carries the art, the headlines and navigation. **The sheet** (pure white paper with a ruled edge and a soft shadow) carries facts, forms and reading. Both take the same near-black ink (`ink`, `ink-2`, `ink-3`) and the same `rule`; a sheet differs from the wall by one step of white, a 1px border and its shadow, so a component reads the same in either place. One accent, ultramarine, marks the decisive action and the few emphasised words.\n\nThe physical parts are photographs, not drawings. The frames are four empty cassetta frames from The Metropolitan Museum of Art (Open Access, CC0) cut into nine-slice plates with measured slices; sculpture is cut from its museum photograph and stands on its own base. Each raster ships with a provenance record next to it. Operate screens (studio, rooms, vault, pay) live in the same room and simply use more sheet and less wall.\n\nThe room has four ways of showing work. **The hang** is the close salon wall of mixed sizes (artist pages). **The showcase** (`/gallery`) is the catalogue room: an even wall of equal cells, every work framed, under a printed finding aid. **The landing** (`/`) opens on the one unframed, full-bleed picture in the system, a museum photograph of real paint seen close, then walks through four numbered rooms to a doorway into the gallery. **The object record** (`/p/<piece>`) is one work hung large and alone, with everything known about it set beside it as wall text ruled by hairlines and read in tabs; it is the one place facts leave the sheet.",
     "keyCharacteristics": [
-      "One warm-white wall in even light: no pattern, no wall colour.",
+      "One warm-white wall in even light: no wall colour, only the faint tone-on-tone damask over plaster.",
       "Photographed period frames as nine-slice border plates; four mouldings, one per work for life.",
       "Flat white wall labels with a ruled edge: Cinzel title, italic Spectral line, ultramarine level.",
       "White sheets with a 1px rule border and a soft warm-black shadow for every fact and form.",
@@ -691,7 +793,8 @@
       "One authored interaction: a work steps forward and the wall behind it brightens.",
       "Pictures are sized from their own proportions, so every picture fills its frame.",
       "One full-bleed photograph of paint on the landing; everywhere else a picture is framed.",
-      "One accent, ultramarine; gilt exists only in the photographed frames."
+      "One accent, ultramarine; gilt exists only in the photographed frames.",
+      "A piece page is a museum object record: the work stays on the wall while a cardless, hairline-ruled record scrolls beside it."
     ],
     "rules": [
       {
@@ -741,7 +844,9 @@
       }
     ],
     "dos": [
-      "Do put the art and the headlines on the wall and every fact, form and long text on a sheet.",
+      "Do put the art and the headlines on the wall and every fact, form and long text on a sheet. The piece page's object record is the one exception: its facts are wall text ruled by hairlines.",
+      "Do keep the piece record's status line and action row in one fixed place above the tabs, and give every tab panel a hash link.",
+      "Do keep the timeline a real range control with a spoken value, and say in words what is on the wall.",
       "Do use the one set of ink tokens (`ink`, `ink-2`, `ink-3`, `rule`) on wall and paper alike.",
       "Do frame every picture with one of the four photographed plates and its measured slices from `public/salon/frames/frames.json`; add a new moulding only as a new photographed plate with its provenance file. The landing hero is the single exception (The One Unframed Painting Rule).",
       "Do keep works close on the hang: gaps stay within 14 to 28px and sizes follow the rhythm. On the showcase keep cells equal and labels on one line per row.",
@@ -761,7 +866,9 @@
       "Don't hang a picture unframed or unlabelled. The wall is pale, so the photographed frame, the printed label and the hang are what make it a gallery and not a shop grid.",
       "Don't round anything beyond 2px, and don't use pills or circular controls.",
       "Don't add a second light: no side or bottom glows, no coloured shadows, no hard offset shadows, no gradient on the wall.",
-      "Don't put a form field or a long paragraph directly on the wall; the wall select in the rail is the only wall control.",
+      "Don't put a form field or a long paragraph directly on the wall; the wall select in the rail and the piece record's on-demand tip amount field are the only wall controls.",
+      "Don't box the piece record: no sheet, border or shadow around the record column, its facts or its tabs, and no price-first card.",
+      "Don't move the page, the frame or the label when a frame of the making is picked; only the picture changes.",
       "Don't use moss, amber or red to grade a work; a label's only colour is the ultramarine level line.",
       "Don't show a level, price, record or collect control on an example work.",
       "Don't use Cinzel for sentences or in lowercase, and don't use the mono face for anything but checkable values.",
@@ -771,7 +878,7 @@
       "Don't add a second full-bleed or unframed painting; the landing hero is the only one.",
       "Don't use the Hero size anywhere but the landing headline.",
       "Don't let the finding aid change height or shift when a filter is set or cleared.",
-      "Don't bring back a coloured or patterned wall, and don't draw gilt: no gilt lines, plates, borders or lettering outside the photographed frames.",
+      "Don't colour the wall or add any pattern beyond the tone-on-tone damask over plaster, and don't draw gilt: no gilt lines, plates, borders or lettering outside the photographed frames.",
       "Don't add a second accent, and don't spend ultramarine on decoration, borders of ordinary sheets or body text."
     ]
   }

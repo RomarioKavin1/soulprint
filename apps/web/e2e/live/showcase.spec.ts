@@ -72,6 +72,7 @@ test("showcase: own piece recorded, finished, published to the gallery, collecte
   const before = await usdc(artist.id);
   await fan.p.goto(`/p/${pieceId}?as=${fan.id}`);
   await expect(fan.p.getByTestId("holder")).toHaveText("Held by the artist.", { timeout: 20_000 });
+  await fan.p.getByTestId("tip-open").click();
   await fan.p.getByLabel("Tip amount").fill("-1");
   await expect(fan.p.getByTestId("tip")).toBeDisabled(); // review B6
   await expect(fan.p.getByTestId("tip-invalid")).toBeVisible();
@@ -86,6 +87,7 @@ test("showcase: own piece recorded, finished, published to the gallery, collecte
   await buyer.p.getByTestId("collect-buy").click();
   await expect(buyer.p.getByTestId("holder")).toHaveText(`Collected by ${buyer.id}.`, { timeout: 30_000 });
   await expect(buyer.p.getByText("This piece is yours.")).toBeVisible();
+  await buyer.p.getByRole("tab", { name: "Rights" }).click();
   await expect(buyer.p.getByText(`Current holder: ${buyer.id}.`)).toBeVisible({ timeout: 20_000 }); // review B7
   expect((await view(L!.rpc, pieceId, "piece_info")).owner).toBe(buyer.id);
 });

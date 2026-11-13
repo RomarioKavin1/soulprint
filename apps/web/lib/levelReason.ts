@@ -27,7 +27,7 @@ export function levelReasons(level: number, thresholds: string | undefined, cap:
   const missing: string[] = [];
   if (cap.frames === 0) missing.push("none of its frames could be measured");
   else {
-    if (cap.frames < r.minFrames) missing.push(`only ${cap.frames} frames were measured (at least ${r.minFrames} are needed)`);
+    if (cap.frames < r.minFrames) missing.push(`only ${cap.frames} frame${cap.frames === 1 ? " was" : "s were"} measured (at least ${r.minFrames} are needed)`);
     if (cap.coverage < r.minCoverage) missing.push(`only ${Math.round(cap.coverage * 100)}% of the picture built up step by step (at least ${Math.round(r.minCoverage * 100)}% is needed)`);
     if (cap.largestJump > r.maxLargestJump) missing.push(`${Math.round(cap.largestJump * 100)}% of the picture changed in a single step (at most ${Math.round(r.maxLargestJump * 100)}% is allowed)`);
     if (cap.finalMatch && !cap.finalMatch.ok) missing.push("the finished file does not match the last frames of the recording");

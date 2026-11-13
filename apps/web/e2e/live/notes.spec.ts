@@ -50,7 +50,7 @@ async function publishedPiece() {
 
 async function open(browser: any, pieceId: string, role?: string) {
   const p: Page = await (await browser.newContext()).newPage();
-  await p.goto(`/p/${pieceId}${role ? `?as=${L!.c.accounts[role].account_id}` : ""}`);
+  await p.goto(`/p/${pieceId}${role ? `?as=${L!.c.accounts[role].account_id}` : ""}#questions`);
   await expect(p.getByTestId("context-notes")).toBeVisible({ timeout: 30_000 });
   return p;
 }
@@ -92,7 +92,7 @@ test("reader questions: rated into view only by a clear majority, answered with 
     await note.getByTestId("rate").click();
     await expect(note.getByText("You rated it useful.")).toBeVisible({ timeout: 20_000 });
     if (i === 3) {
-      await visitor.goto(`/p/${pieceId}`);
+      await visitor.goto(`/p/${pieceId}#questions`);
       await expect(visitor.getByTestId("no-shown-notes")).toBeVisible({ timeout: 20_000 });
     }
     await p.context().close();
@@ -105,7 +105,7 @@ test("reader questions: rated into view only by a clear majority, answered with 
   await artist.getByTestId("answer").click();
   await expect(artist.getByTestId("note-response")).toContainText("I sketch on paper first", { timeout: 20_000 });
 
-  await visitor.goto(`/p/${pieceId}`);
+  await visitor.goto(`/p/${pieceId}#questions`);
   const shown = visitor.locator('[data-testid=note][data-status=shown]');
   await expect(shown.getByTestId("note-question")).toHaveText("Could this have been made with AI?", { timeout: 20_000 });
   await expect(shown.getByTestId("note-rating")).toHaveText("5 of 5 readers found this question useful");
@@ -148,8 +148,8 @@ test("reader questions: rated into view only by a clear majority, answered with 
   expect((await view(L!.rpc, pieceId, "piece_info")).evidence_level).toBe(levelBefore);
 
   // The reader can withdraw their question; it disappears for everyone.
-  await reader.goto(`/p/${pieceId}?as=${L!.c.accounts.buyer.account_id}`);
+  await reader.goto(`/p/${pieceId}?as=${L!.c.accounts.buyer.account_id}#questions`);
   await reader.getByTestId("withdraw").click();
-  await visitor.goto(`/p/${pieceId}`);
+  await visitor.goto(`/p/${pieceId}#questions`);
   await expect(visitor.getByTestId("no-shown-notes")).toBeVisible({ timeout: 20_000 });
 });

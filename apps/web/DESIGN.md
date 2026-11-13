@@ -44,6 +44,24 @@ typography:
     fontSize: "1.875rem"
     fontWeight: 600
     lineHeight: 1.2
+  piece-title:
+    fontFamily: "Cormorant Garamond, 'Cormorant 72', Didot, serif"
+    fontSize: "clamp(3rem, 5vw, 4.8rem)"
+    fontWeight: 500
+    lineHeight: 0.98
+    letterSpacing: "-0.02em"
+    fontFeature: "'kern', 'liga', 'lnum'"
+  level-sentence:
+    fontFamily: "Cormorant Garamond, 'Cormorant 72', Didot, serif"
+    fontSize: "1.875rem"
+    fontWeight: 500
+    lineHeight: 1.2
+  fact-figure:
+    fontFamily: "Cormorant Garamond, 'Cormorant 72', Didot, serif"
+    fontSize: "1.875rem"
+    fontWeight: 500
+    lineHeight: 1
+    fontFeature: "'kern', 'liga', 'lnum'"
   body:
     fontFamily: "Spectral, Georgia, serif"
     fontSize: "17px"
@@ -60,6 +78,11 @@ typography:
     fontSize: "0.76rem"
     fontWeight: 600
     letterSpacing: "0.13em"
+  tab:
+    fontFamily: "Cinzel, 'Trajan Pro', serif"
+    fontSize: "0.74rem"
+    fontWeight: 600
+    letterSpacing: "0.16em"
   plaque-title:
     fontFamily: "Cinzel, 'Trajan Pro', serif"
     fontSize: "0.72rem"
@@ -91,6 +114,8 @@ spacing:
   room-gap: "clamp(96px, 12vw, 168px)"
   showcase-gap-x: "clamp(20px, 2.4vw, 36px)"
   showcase-gap-y: "clamp(36px, 3.6vw, 56px)"
+  record-gap: "72px"
+  record-gap-narrow: "48px"
 components:
   button-seal:
     backgroundColor: "{colors.seal}"
@@ -159,6 +184,19 @@ components:
     rounded: "{rounded.none}"
     padding: "9px 12px 10px"
     width: "17rem"
+  record-tab:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink-3}"
+    typography: "{typography.tab}"
+    rounded: "{rounded.none}"
+    padding: "4px 0 11px"
+  record-tab-hover:
+    textColor: "{colors.ink}"
+  record-tab-selected:
+    textColor: "{colors.seal}"
+  making-thumb:
+    backgroundColor: "{colors.paper-2}"
+    rounded: "{rounded.none}"
 ---
 
 # Design System: Manmade Salon
@@ -173,10 +211,10 @@ There are two surfaces and one ink. **The wall** (warm white) carries the art, t
 
 The physical parts are photographs, not drawings. The frames are four empty cassetta frames from The Metropolitan Museum of Art (Open Access, CC0) cut into nine-slice plates with measured slices; sculpture is cut from its museum photograph and stands on its own base. Each raster ships with a provenance record next to it. Operate screens (studio, rooms, vault, pay) live in the same room and simply use more sheet and less wall.
 
-The room has three ways of showing work. **The hang** is the close salon wall of mixed sizes (artist pages). **The showcase** (`/gallery`) is the catalogue room: an even wall of equal cells, every work framed, under a printed finding aid. **The landing** (`/`) opens on the one unframed, full-bleed picture in the system, a museum photograph of real paint seen close, then walks through four numbered rooms to a doorway into the gallery.
+The room has four ways of showing work. **The hang** is the close salon wall of mixed sizes (artist pages). **The showcase** (`/gallery`) is the catalogue room: an even wall of equal cells, every work framed, under a printed finding aid. **The landing** (`/`) opens on the one unframed, full-bleed picture in the system, a museum photograph of real paint seen close, then walks through four numbered rooms to a doorway into the gallery. **The object record** (`/p/<piece>`) is one work hung large and alone, with everything known about it set beside it as wall text ruled by hairlines and read in tabs; it is the one place facts leave the sheet.
 
 **Key Characteristics:**
-- One warm-white wall in even light: no pattern, no wall colour.
+- One warm-white wall in even light: no wall colour, only the faint tone-on-tone damask over plaster.
 - Photographed period frames as nine-slice border plates; four mouldings, one per work for life.
 - Flat white wall labels with a ruled edge: Cinzel title, italic Spectral line, ultramarine level.
 - White sheets with a 1px rule border and a soft warm-black shadow for every fact and form.
@@ -185,13 +223,14 @@ The room has three ways of showing work. **The hang** is the close salon wall of
 - Pictures are sized from their own proportions, so every picture fills its frame.
 - One full-bleed photograph of paint on the landing; everywhere else a picture is framed.
 - One accent, ultramarine; gilt exists only in the photographed frames.
+- A piece page is a museum object record: the work stays on the wall while a cardless, hairline-ruled record scrolls beside it.
 
 ## Colors
 
 A light, warm palette: gallery white, near-black ink and one ultramarine accent. The frames and the pictures carry the colour; the interface stays out of their way.
 
 ### Primary
-- **Ultramarine** (`seal`, hover `accent-2`): the painter's lapis blue and the only accent. The decisive button, the italic emphasis word in a headline, the evidence sentence on a piece page, the level line on a label, room numerals and level codes, the drawn quotation mark on sheets, the focus ring, text selection, input focus, caret and checkbox, the "Clear filters" link.
+- **Ultramarine** (`seal`, hover `accent-2`): the painter's lapis blue and the only accent. The decisive button, the italic emphasis word in a headline, the evidence sentence on a piece page, the level line on a label, room numerals and level codes, the drawn quotation mark on sheets, the focus ring, text selection, input focus, caret and checkbox, the "Clear filters" link. On the piece page it also marks where the reader is: the open tab's lettering and 2px underline, the 2px outline of the picked making frame, and the "Back to the finished work" link.
 
 ### Secondary
 - **Leaf Gilt** (`gilt`): the metal of the photographed frames, recorded for reference. It is not painted anywhere in the interface: no gilt lines, plates, borders or lettering.
@@ -232,10 +271,13 @@ A light, warm palette: gallery white, near-black ink and one ultramarine accent.
 ### Hierarchy
 - **Hero** (400, clamp(3rem, 6.2vw, 6rem), line-height 0.94, -0.025em): the landing headline only, set over the scrim; one italic word in Ultramarine. It is the largest type in the system and appears once.
 - **Display** (400, clamp(2.4rem, 3.4vw, 3.6rem), line-height 1, -0.02em): lettering painted on the wall. One word may be italic in Ultramarine. The header wordmark is the same face at 2rem to 2.4rem.
-- **Headline** (400, clamp(2.2rem, 4vw, 3.4rem), line-height 1, -0.015em): page titles on the wall; the piece title and artist name run up to 4.4rem and the gallery title to 4rem. Landing room titles use the same size at line-height 1.05, under a roman numeral in display type (2.4rem, Ultramarine).
-- **Title** (600 on sheets, 1.875rem): section headings inside sheets; large figures in fact grids use the same style.
+- **Headline** (400, clamp(2.2rem, 4vw, 3.4rem), line-height 1, -0.015em): page titles on the wall; the artist name runs up to 4.4rem and the gallery title to 4rem (the piece title has its own step, below). Landing room titles use the same size at line-height 1.05, under a roman numeral in display type (2.4rem, Ultramarine).
+- **Piece title** (500, clamp(3rem, 5vw, 4.8rem), line-height 0.98, -0.02em, lining figures): the title of the one work on a piece page, set on the wall at the head of its record. Only the landing Hero is larger.
+- **Level sentence** (500 italic, 1.875rem, line-height 1.2, Ultramarine, held to 30ch): the one sentence from the evidence wording table under the piece title and artist line. It is display type on the wall, so it does not take the paper weight.
+- **Title** (600 on sheets, 1.875rem): section headings inside sheets.
+- **Fact figure** (500, 1.875rem, line-height 1, lining figures): the figures of the piece record's ledger facts, set on the wall. The artist's words in The making use the same size in italic reading ink behind the drawn quotation mark.
 - **Body** (400, 17px, line-height 1.55): reading text; wall paragraphs are held to 32 to 36ch, sheet text to about 62ch. A landing room's explanation is the one longer wall text: 1.06rem in reading ink, held to 60ch (the hero sentence to 38ch). Secondary text is 0.875rem, fine print 0.75rem.
-- **Label** (Cinzel 600, 0.72rem, 0.2em, uppercase): field labels, definition terms, navigation. Buttons are 0.76rem at 0.13em; chips 0.7rem at 0.14em.
+- **Label** (Cinzel 600, 0.72rem, 0.2em, uppercase): field labels, definition terms, navigation. Buttons are 0.76rem at 0.13em; chips 0.7rem at 0.14em; record tabs 0.74rem at 0.16em.
 - **Wall label** (Cinzel 700, 0.72rem, 0.1em uppercase title, two lines at most; Spectral italic 0.82rem line; Cinzel 600 0.7rem ultramarine level; Spectral 0.78rem note).
 - **Data** (JetBrains Mono 400, 0.75rem, tabular figures): account names, fingerprints, hashes, codes.
 
@@ -254,9 +296,11 @@ The page column is 1400px wide with a 16px gutter (32px from 640px) and 112px of
 
 **The hang** is the main layout. It is a wrapping, centred flex row with one centre line, tight gaps (14 to 26px across, 18 to 28px down), and four sizes set by height: small clamp(110px, 10.5vw, 160px), medium clamp(190px, 18vw, 290px), large clamp(230px, 23vw, 360px), extra clamp(260px, 30vw, 460px). Sizes follow a fixed rhythm (large, two small, medium, two small, large, medium ...), and two consecutive small works stack in one column. Sculpture and works taller than 1.45:1 never hang small. Lettering blocks (18 to 24rem wide, left-aligned) hang in line with the frames as if painted on the wall. A section may bleed wall to wall, past the page column, with clamp(16px, 3vw, 48px) of side padding; the landing hero and its last doorway do. The hang now serves artist pages, inside the page column.
 
-Below the hang, sheets sit in a centred reading column (max-w-5xl, narrower for forms) with 48px between sheets and 96 to 128px of wall above the first. The piece page is a 12-column grid from 1024px: the framed work in 7 columns at clamp(320px, 54vh, 640px) tall, title, evidence sentence and facts sheet in 5.
+Below the hang, sheets sit in a centred reading column (max-w-5xl, narrower for forms) with 48px between sheets and 96 to 128px of wall above the first.
 
-**Phones (to 640px):** works are sized by width, not height (large 76vw, medium 66vw, small 38vw side by side as a pair; a lone small work hangs centred at 66vw), frame mouldings thin to 6% of the width, and the piece image is 84vw. Below 1024px the welcome lettering moves ahead of the first work.
+**The object record** (`/p/<piece>`) is two columns from 1100px: the wall at 1.3fr and the record at 1fr (never under 400px), 72px apart, both starting at the top. The wall column is sticky 28px from the top, so the work stays hung while the record scrolls. The picture is sized by The Proportion Rule with `--h` min(62vh, 720px) and `--cap` taken from its own column by a container query: the column's width (100cqi) less the moulding on both sides and 8px, so the frame always fits its column and the picture is never letterboxed. The wall label sits under the frame as everywhere. The record column has no card: title, artist line, level sentence, level chip and the reasons for the level (held to 60ch); 26px below, one status line and one action row between two hairlines (18px above and below); 34px below that, the tab row on its own hairline; then the open panel, 24px under the tabs. Below 1100px it is one column, work first, 48px apart, the wall no longer sticky and `--h` min(64vh, 640px). When the artist keeps the frames private the frame holds a blank of min(52vw, 640px) by min(52vh, 480px) with the italic line saying so.
+
+**Phones (to 640px):** works are sized by width, not height (large 76vw, medium 66vw, small 38vw side by side as a pair; a lone small work hangs centred at 66vw), frame mouldings thin to 6% of the width. On the piece page `--h` is 56vh and `--cap` is the column less the thinner moulding and 4px; the tab row wraps to two rows instead of scrolling, and ledger facts and provenance rows stack label over value. Below 1024px the welcome lettering moves ahead of the first work.
 
 **The showcase** (`/gallery`) is the even wall. Title and result count sit on the wall, then the finding aid, then a grid of equal cells: `repeat(auto-fill, minmax(15.5rem, 1fr))`, four across at 1440px, gaps of 20 to 36px across and 36 to 56px down. Each cell reserves the same picture height (`--h`, clamp(170px, 15vw, 230px)) plus its moulding, and frames are bottom-aligned in that space so every label starts on one line per row. `--cap` (clamp(150px, 17.5vw, 260px)) is the widest a picture may hang in its cell. On phones the showcase is two columns with `--h` 150px, `--cap` calc(50vw - 46px) and gaps of 14px across, 28px down. Sculpture stands unframed in its cell, 30px taller than the pictures.
 
@@ -287,6 +331,8 @@ Depth is physical and quiet. The room is lit evenly from above and the wall carr
 - **Arrival:** each work comes up from 35% brightness once, 1100ms, staggered 60ms per work after 120ms.
 - **Showcase arrival:** the same rise from the dark per cell, 900ms, staggered 40ms and capped at the twelfth cell so a long wall never waits. A showcase frame takes the 4px approach lift without the wall brightening.
 - **Lean in:** as the landing scrolls through its first screen the hero paint scales to 1.08 and drifts down 2%, from an origin at 70% 30%. It is driven by scroll position, not time, and runs only where scroll-driven animation is supported.
+- **Re-hang on the wall (piece page):** when a frame of the making is picked, the new picture fades in (opacity 0 to 1, 420ms, `cubic-bezier(0.16, 1, 0.3, 1)`) over the previous picture, which is kept beneath it until the fade ends. Only the picture changes; the frame, label and page do not move. Under reduced motion the swap is immediate and the previous picture is not kept.
+- **Record controls:** tabs, making thumbnails and fold chevrons change colour, outline or angle in 160ms.
 - **Re-hang:** while the showcase is fetching a new view the finding aid drops to 70% opacity over 200ms; nothing else moves.
 - **Controls:** 200ms background, border and colour changes only.
 - **Reduced motion:** no lift, no arrival, no lean in, no smooth scroll.
@@ -298,7 +344,7 @@ Depth is physical and quiet. The room is lit evenly from above and the wall carr
 
 Everything is square. Sheets, labels, chips, frames and pictures have no radius; controls (buttons, fields, the wall select, the focus ring) take 2px, the softness of a cut plate. There are no pills and no circles.
 
-Borders are either photographed or ruled. A frame is a photographed moulding drawn as a border image whose width is 8.5% of the work's height (minimum 12px; 6% of width on phones) with true corners and stretched sides; the stone-inlaid frame repeats its sides instead of stretching. Everything else is a 1px line: sheets, labels and the finding aid have a 1px `rule` border at their edge; fields and the wall select a 1px `control-rule` border; ghost buttons a 1px border (#cfc9be).
+Borders are either photographed or ruled. A frame is a photographed moulding drawn as a border image whose width is 8.5% of the work's height (minimum 12px; 6% of width on phones) with true corners and stretched sides; the stone-inlaid frame repeats its sides instead of stretching. Everything else is a 1px line: sheets, labels and the finding aid have a 1px `rule` border at their edge; fields and the wall select a 1px `control-rule` border; ghost buttons a 1px border (#cfc9be). On the piece record the same 1px `rule` line is used open, as a hairline above and below a row and never as a box: around the action row, under the tab row, between ledger facts and between provenance rows. The timeline's hairline and ticks are 1px in `ink-3`, and its marker is a rectangle, never a round knob.
 
 A doorway casing is the same photographed moulding as a frame, drawn as a border image clamp(18px, 2.4vw, 32px) wide around an opening instead of a picture.
 
@@ -324,12 +370,12 @@ Small flat plates: Cinzel capitals, 2px corners, 10px by 16px, no shadow.
 - Numbered steps and level codes use display type in ultramarine. A pull quote opens with a drawn quotation mark in display type, in ultramarine, never a side stripe.
 
 ### Inputs / Fields
-- **Style:** Paper, 1px Control Rule border, 2px corners, 8px by 12px, with a Cinzel label above in `ink-3`. Fields live on sheets only.
+- **Style:** Paper, 1px Control Rule border, 2px corners, 8px by 12px, with a Cinzel label above in `ink-3`. Fields live on sheets, with one exception on the wall: the tip amount field in the piece record's action row, which appears only when asked for.
 - **Focus:** border turns ultramarine with a 3px ultramarine ring at 15%. Caret and native controls (checkbox, select) take the accent.
 - **Wall select:** the one control that sits on the wall (account picker in the rail): transparent, 1px Control Rule border that turns ink on hover, Spectral 0.85rem.
 
 ### Navigation
-The rail: wordmark with the word "Salon" in small capitals beside it (it links to the landing, `/`), three Cinzel links (0.72rem, 0.2em) in `ink-2` that turn `ink` on hover, the first of which is "The gallery" (`/gallery`), the account control, and the 1px rule line beneath. The footer is a rule, the examples notice and two text links.
+The rail: the wordmark "Manmade.works", with ".works" in ultramarine italic at 0.72em (it links to the landing, `/`), three Cinzel links (0.72rem, 0.2em) in `ink-2` that turn `ink` on hover, "The gallery" (`/gallery`), "Reader questions" (`/notes`) and "Studio", the account control, and the 1px rule line beneath. The footer is a rule, the examples notice and two text links.
 
 ### The Hung Work (signature)
 A figure made of a frame plate, a dark sight edge, the picture, and a wall label 14px below. Four mouldings exist: gilt, patterned gilt, walnut-and-gilt, stone inlay. A work's moulding is derived from its identifier, so it keeps the same frame everywhere. Prints, and making-frames shown before a finished image exists, sit in a linen mat. When the artist keeps frames private the sight shows an italic line saying so.
@@ -358,13 +404,41 @@ The showcase's controls: one white strip with a 1px rule border, lying on the wa
 ### The Showcase Cell (signature)
 A framed work in an equal cell with a printed label beneath. The label is the wall label's card (same white, rule border and shadow), up to 17rem wide: title in capitals (linked), italic artist line (linked to the artist), then one row with the level in ultramarine and, beside it in ink (Spectral 600, 0.82rem), the price or status: a price, "Reserved" with the price, "Collected" or "Not for sale". A recorded work adds its evidence sentence; a declared one does not repeat itself. Examples show title, artist and date and the single word "Example", link to The Met in a new tab, and never show a price or status. A work whose artist keeps the frames private shows the italic line saying so in a linen mat.
 
+### The Object Record (signature)
+The piece page. Left, the Hung Work at full size with its wall label; right, the record as wall text with no sheet, border or shadow. The record opens with the Piece title, a line "by artist · piece N" (1.125rem, reading ink, the artist linked), the Level sentence, a quiet ruled chip with the level code ("Level E0": Cinzel 0.7rem at 0.16em, 1px rule border) and, when the record states them, the reasons for that level in reading ink. There is no eyebrow above the title. Then the action row, the tabs and the open panel.
+
+### The Action Row (signature)
+One status line and one row of actions between two hairlines, always in the same place above the tabs because panels vary in length. The status line says who holds the piece and whether it is for sale. The row holds at most one seal button, "Collect · price", shown only when the piece is listed, and a ghost "Tip the artist". The ghost is replaced in place by the tip form: an amount field 6rem wide, the unit "USDC" printed beside it in reading ink, a near-black "Send N USDC" button that names the amount as typed, and a "Cancel" text link; one line of fine print says where the tip goes. Signed out, both buttons read "Sign in to collect · price" and "Sign in to tip the artist" and lead to sign-in. The holder sees a link to their files in place of the buttons; the artist sees no tip control. A sale reserved for someone else is said in Refusal Red text.
+
+### Record Tabs (signature)
+A WAI-ARIA tablist: The making, The record, Provenance, Questions (with its count when questions are shown), Rights. Labels are Cinzel capitals (0.74rem, 0.16em) in `ink-3`, 26px apart, on a hairline; hover turns a label ink; the open tab is Ultramarine with a 2px Ultramarine underline lying on the hairline. Arrow keys, Home and End move between tabs and only the open tab is in the tab order. Each tab but the first is a hash link (`#record`, `#provenance`, `#questions`, `#rights`), so a panel can be linked to. From 641px the row scrolls sideways if it must; on phones it wraps to two rows (4px by 20px gaps).
+
+### The Making (signature)
+The first panel. The artist's words, if any, as a pull quote; one sentence saying how many frames are public; then:
+- **The making strip:** the public frames as a row of thumbnails, up to eight columns, 8px apart, each 4:3 on Paper Shade with a 1px rule outline (`ink-3` on hover). The picked one takes a 2px Ultramarine outline. A thumbnail is an index mark and the one place a picture is cropped; picking it hangs the whole frame on the wall, and picking it again returns the finished work.
+- **The printed timeline:** a 1px `ink-3` hairline 22px tall with a 9px tick for each public frame and a rectangular marker: an ink bar on a 3px ring of wall colour with a 1px ink edge. While the finished work hangs the marker is hollow (wall colour inside the ink edge) and rests at the last frame. It is a native range input, so it keeps range semantics, keyboard steps and a spoken value ("Frame 5, date"). Shown only when there is more than one public frame.
+- **Re-hanging:** the picked frame replaces the picture in the frame on the wall with the cross-fade; the wall label gains an Ultramarine line "Frame N · date", the linen mat is dropped, and an underlined Ultramarine Cinzel link "Back to the finished work" appears 14px under the label.
+- **The phone making preview:** below 1100px the wall is far above the strip, so the picked frame is also shown full width under the timeline with a 1px rule outline. It is hidden from 1100px.
+- A caption in quiet ink always says what is on the wall.
+
+### Ledger Facts (signature)
+The record's measured facts as a ruled ledger, not a grid of boxes. Each row sits between hairlines (14px above and below): a Cinzel label in an 11rem column, then the Fact figure, an inline bar when the fact is a share (3px high, ink on a track of `ink-3` at 22%), and a note in quiet ink (0.82rem) beneath. On phones the label stacks over the figure. A fact that is not a share has no bar.
+
+### The Provenance Ledger (signature)
+One dated list of everything that happened to the piece on-chain, oldest first. Each row sits between hairlines (11px above and below): the date in a 7.5rem column in quiet ink (0.82rem, tabular lining figures), then the event as a plain sentence. On phones the date stacks over the event. A line of quiet ink under the ledger says where it is read from.
+
+### Folds
+Detail most visitors skip (how to read the facts, on-chain details, the full public report) sits behind a fold: a summary in reading ink with a drawn chevron before it (a 6px corner of two 1.5px strokes, pointing right when closed and down when open, turning in 160ms). The chevron is drawn, never a glyph or an icon. Checkable values inside a fold are Data type under Cinzel labels.
+
 ### No Results (state)
 When no work matches, a small centred sheet replaces the grid: a display line, one sentence, then a quiet chip for each active filter ("Clear record: Declared") that removes only that filter, and a ghost button that shows every work.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** put the art and the headlines on the wall and every fact, form and long text on a sheet.
+- **Do** put the art and the headlines on the wall and every fact, form and long text on a sheet. The piece page's object record is the one exception: its facts are wall text ruled by hairlines.
+- **Do** keep the piece record's status line and action row in one fixed place above the tabs, and give every tab panel a hash link.
+- **Do** keep the timeline a real range control with a spoken value, and say in words what is on the wall.
 - **Do** use the one set of ink tokens (`ink`, `ink-2`, `ink-3`, `rule`) on wall and paper alike.
 - **Do** frame every picture with one of the four photographed plates and its measured slices from `public/salon/frames/frames.json`; add a new moulding only as a new photographed plate with its provenance file. The landing hero is the single exception (The One Unframed Painting Rule).
 - **Do** keep works close on the hang: gaps stay within 14 to 28px and sizes follow the rhythm. On the showcase keep cells equal and labels on one line per row.
@@ -384,7 +458,9 @@ When no work matches, a small centred sheet replaces the grid: a display line, o
 - **Don't** hang a picture unframed or unlabelled. The wall is pale, so the photographed frame, the printed label and the hang are what make it a gallery and not a shop grid.
 - **Don't** round anything beyond 2px, and don't use pills or circular controls.
 - **Don't** add a second light: no side or bottom glows, no coloured shadows, no hard offset shadows, no gradient on the wall.
-- **Don't** put a form field or a long paragraph directly on the wall; the wall select in the rail is the only wall control.
+- **Don't** put a form field or a long paragraph directly on the wall; the wall select in the rail and the piece record's on-demand tip amount field are the only wall controls.
+- **Don't** box the piece record: no sheet, border or shadow around the record column, its facts or its tabs, and no price-first card.
+- **Don't** move the page, the frame or the label when a frame of the making is picked; only the picture changes.
 - **Don't** use moss, amber or red to grade a work; a label's only colour is the ultramarine level line.
 - **Don't** show a level, price, record or collect control on an example work.
 - **Don't** use Cinzel for sentences or in lowercase, and don't use the mono face for anything but checkable values.
@@ -394,5 +470,5 @@ When no work matches, a small centred sheet replaces the grid: a display line, o
 - **Don't** add a second full-bleed or unframed painting; the landing hero is the only one.
 - **Don't** use the Hero size anywhere but the landing headline.
 - **Don't** let the finding aid change height or shift when a filter is set or cleared.
-- **Don't** bring back a coloured or patterned wall, and don't draw gilt: no gilt lines, plates, borders or lettering outside the photographed frames.
+- **Don't** colour the wall or add any pattern beyond the tone-on-tone damask over plaster, and don't draw gilt: no gilt lines, plates, borders or lettering outside the photographed frames.
 - **Don't** add a second accent, and don't spend ultramarine on decoration, borders of ordinary sheets or body text.

@@ -62,6 +62,7 @@ test("commission_happy_path: offer → pay → record in the browser → deliver
   await client.p.goto(`/p/${pieceId}`);
   await expect(client.p.getByTestId("evidence-sentence")).toBeVisible();
   await expect(client.p.getByTestId("badge")).toHaveText("Commissioned and accepted");
+  await client.p.getByRole("tab", { name: "The record" }).click();
   await expect(client.p.getByTestId("recompute")).toContainText("Recomputed in your browser");
 });
 

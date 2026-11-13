@@ -16,7 +16,7 @@ import {
  * ratings, so they can rate them. The artist answers here; the author can withdraw; anyone can
  * report; operators can remove.
  */
-export function ContextNotes({ pieceId, artist }: { pieceId: string; artist: string }) {
+export function ContextNotes({ pieceId, artist, bare = false }: { pieceId: string; artist: string; bare?: boolean }) {
   const { accountId } = useNear();
   const evidence = useEvidence();
   const { data, reload } = usePoll(
@@ -35,9 +35,9 @@ export function ContextNotes({ pieceId, artist }: { pieceId: string; artist: str
   );
 
   return (
-    <section className="card" id="notes" data-testid="context-notes">
-      <h2 className="title-section">Questions from readers</h2>
-      <p className="mt-1 text-sm text-ink-2">
+    <section className={bare ? "" : "card"} id={bare ? undefined : "notes"} data-testid="context-notes">
+      <h2 className={bare ? "sr-only" : "title-section"}>Questions from readers</h2>
+      <p className={bare ? "text-ink-2" : "mt-1 text-sm text-ink-2"}>
         Nobody can tell for certain from a picture whether it was made with AI. Readers can ask about this record and ask for more of it; the
         artist can answer. A question appears here only when most readers who rated it found it useful. It never changes what the record shows.
       </p>

@@ -9,10 +9,11 @@ import { ACTIVE_TIME_LABEL, BADGE_TEXT, bandText, issuerText, levelSentence } fr
 import { jcs } from "@/lib/jcs";
 import { levelReasons } from "@/lib/levelReason";
 import { RecomputeHash } from "@/components/proof/RecomputeHash";
-import { Timeline } from "@/components/proof/Timeline";
 import { Collect } from "@/components/collect/Collect";
 import { ContextNotes } from "@/components/notes/ContextNotes";
-import { Hung, mouldingFor, Plaque } from "@/components/salon/Frame";
+import { mouldingFor } from "@/components/salon/Frame";
+import { PieceRecord } from "@/components/piece/PieceRecord";
+import { Provenance } from "@/components/piece/Provenance";
 
 export const dynamic = "force-dynamic";
 
@@ -96,101 +97,76 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
       ? { src: `/evidence/pieces/${pieceId}/frames/${encodeURIComponent(lastFrame.key)}/${lastFrame.index}`, alt: `${name}, the last frame of its making`, testId: undefined }
       : null;
 
-  return (
-    <article className="page-top">
-      <div className="grid items-start gap-x-14 gap-y-14 lg:grid-cols-12">
-        <div className="piece-hang flex justify-center lg:col-span-7 lg:pt-6">
-          <Hung
-            moulding={mouldingFor(pieceId)}
-            mat={!pub.hasPreview}
-            testId={picture?.testId}
-            plaque={<Plaque title={name} line={m.artist} level={`Level E${shown.level}`} />}
-          >
-            {picture ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={picture.src} alt={picture.alt} className="piece-img" />
-            ) : (
-              <span className="piece-img hang-blank">The artist kept the frames private</span>
-            )}
-          </Hung>
-        </div>
+  // Questions readers found useful, for the tab label (the tab itself loads the live list).
+  const shownQuestions = await fetch(`${config.evidenceUrl}/pieces/${pieceId}/context-notes`, { cache: "no-store" })
+    .then((r) => (r.ok ? (r.json() as Promise<{ notes: { status: string }[] }>) : null))
+    .then((d) => d?.notes.filter((n) => n.status === "shown").length ?? 0)
+    .catch(() => 0);
 
-        <header className="lg:col-span-5">
-          <h1 className="title-display" data-testid="piece-title">{name}</h1>
-          <p className="mt-4 text-lg text-ink-2">
-            by{" "}
-            <Link className="text-ink underline" href={`/a/${piece.artist}`} data-testid="artist-link">{m.artist}</Link>
-            {pub.title ? <span className="text-ink-3"> · piece {m.tokenId}</span> : null}
-          </p>
-          <p className="mt-8 font-display text-[1.65rem] italic leading-snug text-seal" data-testid="evidence-sentence">{sentence}.</p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            {m.badge && <span className="chip" data-testid="badge">{BADGE_TEXT}</span>}
-            <span className="font-plaque border border-rule px-3 py-1 text-[0.7rem] uppercase tracking-[0.16em] text-ink-2">Level E{shown.level}</span>
-          </div>
-          {shown.note && <p className="mt-4 border border-[color:var(--color-amber)] px-3 py-2 text-sm">{shown.note}</p>}
-          {reasons.map((t) => <p key={t} className="mt-4 max-w-[52ch] text-[0.95rem] text-ink-2" data-testid="level-reason">{t}</p>)}
-          {cap && !measured && (
-            <p className="card mt-8 text-ink-2" data-testid="facts-unmeasured">
-              {cap.anchoredCount ?? 0} frames of this piece are anchored on-chain, but none could be measured
-              {cap.undecodableFrames ? ` (${cap.undecodableFrames} could not be read)` : ""}, so there are no facts about how it built up.
-            </p>
-          )}
-          {measured && (
-            <dl className="card mt-8 grid gap-6 sm:grid-cols-2">
-              <Fact k="Built up gradually" v={`${Math.round(cap.coverage * 100)}%`} bar={cap.coverage} sub="of the finished picture appeared step by step across the frames" />
-              <Fact k="Largest single jump" v={`${Math.round(cap.largestJump * 100)}%`} bar={cap.largestJump} sub="the most of the picture that changed between two frames" />
-              <Fact k="Active time" v={bandText(cap.activeBand)} sub={ACTIVE_TIME_LABEL} />
-              <Fact k="Sessions" v={`${cap.sessions} over ${Math.max(1, Math.round(cap.spanDays))} day${Math.round(cap.spanDays) <= 1 ? "" : "s"}`} sub={`${cap.frames} frames measured, ${cap.anchoredCount} in the chain anchored on-chain`} />
-              <p className="text-xs text-ink-3 sm:col-span-2">
-                A long session drawn step by step reads high on the first and low on the second. Short recordings, zooming or moving the canvas read as
-                large jumps — facts about the recording, not a grade of the work.
-              </p>
-            </dl>
-          )}
-        </header>
+  const header = (
+    <header>
+      <h1 className="title-display piece-title" data-testid="piece-title">{name}</h1>
+      <p className="mt-3 text-lg text-ink-2">
+        by{" "}
+        <Link className="text-ink underline" href={`/a/${piece.artist}`} data-testid="artist-link">{m.artist}</Link>
+        {pub.title ? <span className="text-ink-3"> · piece {m.tokenId}</span> : null}
+      </p>
+      <p className="piece-sentence" data-testid="evidence-sentence">{sentence}.</p>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <span className="font-plaque border border-rule px-3 py-1 text-[0.7rem] uppercase tracking-[0.16em] text-ink-2">Level E{shown.level}</span>
+        {m.badge && <span className="chip" data-testid="badge">{BADGE_TEXT}</span>}
       </div>
+      {shown.note && <p className="mt-4 border border-[color:var(--color-amber)] px-3 py-2 text-sm">{shown.note}</p>}
+      {reasons.map((t) => <p key={t} className="mt-4 max-w-[60ch] text-ink-2" data-testid="level-reason">{t}</p>)}
+    </header>
+  );
 
-      <div className="mt-20 space-y-8">
-        <section className="card">
-          <h2 className="title-section">The making</h2>
-          <div className="mt-6">
-            <Timeline pieceId={pieceId} frames={pub.frames} />
-          </div>
-          {pub.story && (
-            <blockquote className="pull-quote mt-8 font-display text-xl italic leading-relaxed text-ink-2">{pub.story}</blockquote>
-          )}
-        </section>
+  const record = (
+    <div>
+      {cap && !measured && (
+        <p className="text-ink-2" data-testid="facts-unmeasured">
+          {plural(cap.anchoredCount ?? 0, "frame")} of this piece {(cap.anchoredCount ?? 0) === 1 ? "is" : "are"} anchored on-chain, but none could be measured
+          {cap.undecodableFrames ? ` (${cap.undecodableFrames} could not be read)` : ""}, so there are no facts about how it built up.
+        </p>
+      )}
+      {!cap && <p className="text-ink-2">No recording of the making was kept with this piece, so the record has no facts about how it built up.</p>}
+      {measured && (
+        <>
+          <dl className="facts">
+            <Fact k="Built up gradually" v={`${Math.round(cap.coverage * 100)}%`} bar={cap.coverage} sub="of the finished picture appeared step by step across the frames" />
+            <Fact k="Largest single jump" v={`${Math.round(cap.largestJump * 100)}%`} bar={cap.largestJump} sub="the most of the picture that changed between two frames" />
+            <Fact k="Active time" v={bandText(cap.activeBand)} sub={ACTIVE_TIME_LABEL} />
+            <Fact k="Sessions" v={`${cap.sessions} over ${Math.max(1, Math.round(cap.spanDays))} day${Math.round(cap.spanDays) <= 1 ? "" : "s"}`} sub={`${plural(cap.frames, "frame")} measured, ${cap.anchoredCount} anchored on-chain`} />
+          </dl>
+          <details className="fold mt-4">
+            <summary>How to read these facts</summary>
+            <p className="mt-2 text-sm text-ink-2">
+              A long session drawn step by step reads high on the first and low on the second. Short recordings, zooming or moving the canvas read as
+              large jumps — facts about the recording, not a grade of the work.
+            </p>
+          </details>
+        </>
+      )}
 
-        <Collect pieceId={pieceId} />
-
-        <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-        <ContextNotes pieceId={pieceId} artist={piece.artist} />
-        <div className="space-y-8">
-        {challenges.length > 0 && (
-          <section className="card">
-            <h2 className="title-section">Live checks</h2>
-            <ul className="mt-4 space-y-2 text-sm">
-              {challenges.map((c, i) => (
-                <li key={i}>
-                  Code <code className="font-mono">{c.code}</code> requested by {issuerText(c.issuerClass)}:{" "}
-                  <b>{c.result === "passed" ? "appeared in the work in time" : c.result === "inconclusive" ? "could not be read automatically" : c.result === "expired" ? "did not appear in time" : "not acknowledged"}</b>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        <section className="card">
-          <h2 className="title-section">Rights</h2>
-          <p className="mt-3">{m.rights}</p>
-          <p className="mt-1 text-sm text-ink-2">{m.royalty} Current holder: {m.owner}.</p>
-        </section>
+      {challenges.length > 0 && (
+        <div className="mt-8">
+          <h3 className="label">Live checks</h3>
+          <ul className="mt-2 space-y-2 text-sm">
+            {challenges.map((c, i) => (
+              <li key={i}>
+                Code <code className="font-mono">{c.code}</code> requested by {issuerText(c.issuerClass)}:{" "}
+                <b>{c.result === "passed" ? "appeared in the work in time" : c.result === "inconclusive" ? "could not be read automatically" : c.result === "expired" ? "did not appear in time" : "not acknowledged"}</b>
+              </li>
+            ))}
+          </ul>
         </div>
-        </div>
+      )}
 
-        <section className="card" id="verify">
-          <h2 className="title-section">Verify on-chain</h2>
-          <dl className="mt-5 grid gap-5 text-sm sm:grid-cols-2">
+      <div className="mt-8 border-t border-rule pt-5">
+        <RecomputeHash report={pub.public} onChain={piece.report_hash} />
+        <details className="fold mt-4" id="verify">
+          <summary>On-chain details</summary>
+          <dl className="mt-4 grid gap-5 text-sm sm:grid-cols-2">
             <V k="Piece account" v={piece.piece_id} />
             <V k="Collection" v={config.collection} />
             <V k="Piece code hash" v={info.piece_code_hash} />
@@ -198,37 +174,67 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
             <V k="Final file fingerprint" v={piece.final_file_hash ?? "—"} />
             <V k="Attesting key" v={`#${proof.attestation.key_id}${revokedIds.includes(proof.attestation.key_id) ? " (withdrawn)" : ""}, thresholds ${pub.public.thresholds}`} />
             {proof.segments.map((s, i) => (
-              <V key={s.key} k={`Recording device ${i + 1}`} v={`${s.key} — ${s.count} frames anchored, head ${s.head}`} />
+              <V key={s.key} k={`Recording device ${i + 1}`} v={`${s.key} — ${plural(s.count, "frame")} anchored, head ${s.head}`} />
             ))}
           </dl>
-          <div className="mt-5">
-            <RecomputeHash report={pub.public} onChain={piece.report_hash} />
-          </div>
-          <details className="mt-4 text-xs">
-            <summary className="cursor-pointer text-ink-2">The full public report</summary>
+          <details className="fold mt-4 text-xs">
+            <summary>The full public report</summary>
             <pre className="mt-2 max-h-80 overflow-auto bg-paper-2 p-3 font-mono">{JSON.stringify(pub.public, null, 2)}</pre>
           </details>
-        </section>
-
-        <p className="text-sm text-ink-2">
-          This is evidence, not proof. <Link className="text-ink underline" href="/limits">What a record does and does not show</Link>.
-        </p>
+        </details>
       </div>
+      <p className="mt-6 text-sm text-ink-2">
+        This is evidence, not proof. <Link className="text-ink underline" href="/limits">What a record does and does not show</Link>.
+      </p>
+    </div>
+  );
+
+  const rights = (
+    <div>
+      <p className="text-[1.05rem]">{m.rights}</p>
+      <p className="mt-2 text-sm text-ink-2">{m.royalty} Current holder: {m.owner}.</p>
+    </div>
+  );
+
+  return (
+    <article className="page-top">
+      <PieceRecord
+        pieceId={pieceId}
+        name={name}
+        artist={m.artist}
+        moulding={mouldingFor(pieceId)}
+        mat={!pub.hasPreview}
+        picture={picture}
+        frames={pub.frames}
+        story={pub.story}
+        header={header}
+        actions={<Collect pieceId={pieceId} inline />}
+        tabs={[
+          { id: "record", label: "The record", content: record },
+          { id: "provenance", label: "Provenance", content: <Provenance pieceId={pieceId} artist={piece.artist} currency={piece.currency} decimals={config.currencyDecimals} /> },
+          { id: "questions", label: shownQuestions > 0 ? `Questions · ${shownQuestions}` : "Questions", content: <ContextNotes pieceId={pieceId} artist={piece.artist} bare /> },
+          { id: "rights", label: "Rights", content: rights },
+        ]}
+      />
     </article>
   );
 }
 
+function plural(n: number, word: string) {
+  return `${n} ${word}${n === 1 ? "" : "s"}`;
+}
+
 function Fact({ k, v, sub, bar }: { k: string; v: string; sub?: string; bar?: number }) {
   return (
-    <div>
+    <div className="fact">
       <dt className="label">{k}</dt>
-      <dd className="mt-1 font-display text-3xl">{v}</dd>
-      {bar !== undefined && (
-        <div className="mt-2 h-1 bg-paper-2" aria-hidden>
-          <div className="h-1 bg-ink-3" style={{ width: `${Math.min(100, Math.max(2, bar * 100))}%` }} />
-        </div>
-      )}
-      {sub && <dd className="mt-1 text-xs text-ink-3">{sub}</dd>}
+      <dd>
+        <span className="fact-figure">{v}</span>
+        {bar !== undefined && (
+          <span className="fact-bar" aria-hidden><span style={{ width: `${Math.min(100, Math.max(0, bar * 100))}%` }} /></span>
+        )}
+        {sub && <span className="fact-sub">{sub}</span>}
+      </dd>
     </div>
   );
 }

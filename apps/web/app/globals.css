@@ -289,11 +289,102 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   .frame { --m: max(10px, calc(var(--w, 70vw) * 0.06)); }
 }
 
-.piece-hang { --h: clamp(320px, 54vh, 640px); }
-.piece-img { display: block; height: var(--h); width: auto; max-width: min(84vw, 760px); object-fit: contain; }
+/* ---------------- the piece page: an object record ----------------
+   The work hangs large and alone on the left and stays on the wall while the record scrolls;
+   the record beside it is wall text ruled by hairlines, read in tabs. */
+.piece-record {
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 48px; --h: min(62vh, 720px);
+  /* the widest the picture may be: its column, less the frame's moulding on both sides */
+  --cap: calc(100cqi - 2 * max(12px, calc(var(--h) * 0.085)) - 8px);
+}
+.piece-text { min-width: 0; }
+.piece-wall { display: flex; justify-content: center; container-type: inline-size; }
+.piece-wall-inner { display: flex; flex-direction: column; align-items: center; }
+/* As large as the wall allows: sized from the picture's own proportions (--ar, read on load), so a small
+   preview grows to the wall and a large one shrinks to it, never letterboxed. */
+.piece-img { display: block; height: var(--h); width: auto; max-width: var(--cap); object-fit: contain; }
+.piece-img[style*="--ar"] { width: min(var(--cap), calc(var(--h) * var(--ar))); height: auto; max-width: none; object-fit: fill; }
+.piece-img.hang-blank { width: min(52vw, 640px); height: min(52vh, 480px); }
+/* re-hanging: the new picture fades in over the one it replaces */
+.piece-swap { position: relative; display: block; }
+.piece-swap-prev { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.piece-img-swap { position: relative; animation: piece-swap 420ms cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes piece-swap { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .piece-img-swap { animation: none; } .piece-swap-prev { display: none; } }
+.piece-back {
+  margin-top: 14px; font-family: var(--font-plaque); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--color-seal); text-decoration: underline; text-underline-offset: 0.3em;
+}
+.piece-title { font-size: clamp(3rem, 5vw, 4.8rem); line-height: 0.98; letter-spacing: -0.02em; }
+.piece-sentence { margin-top: 22px; max-width: 30ch; font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 1.875rem; line-height: 1.2; color: var(--color-seal); }
+.piece-actions { margin-top: 26px; padding-block: 18px; border-block: 1px solid var(--color-rule); }
+.piece-tabs { margin-top: 34px; display: flex; gap: 26px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--color-rule); }
+.piece-tabs::-webkit-scrollbar { display: none; }
+.piece-tab {
+  flex: none; padding: 4px 0 11px; margin-bottom: -1px; border-bottom: 2px solid transparent;
+  font-family: var(--font-plaque); font-weight: 600; font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--color-ink-3); transition: color 160ms, border-color 160ms;
+}
+.piece-tab:hover { color: var(--color-ink); }
+.piece-tab[aria-selected="true"] { color: var(--color-seal); border-bottom-color: var(--color-seal); }
+.piece-panel { padding-top: 24px; }
+.piece-panel .pull-quote { margin-bottom: 22px; }
+/* the making: public frames as a strip, picked one hangs on the wall */
+.making-strip { margin-top: 16px; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 8px; }
+.making-strip li { min-width: 0; }
+.making-thumb { display: block; width: 100%; aspect-ratio: 4 / 3; overflow: hidden; background: var(--color-paper-2); outline: 1px solid var(--color-rule); outline-offset: -1px; transition: outline-color 160ms, opacity 160ms; }
+.making-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.making-thumb:hover { outline-color: var(--color-ink-3); }
+.making-thumb[aria-pressed="true"] { outline: 2px solid var(--color-seal); outline-offset: -2px; }
+/* the timeline: a printed hairline with a tick per public frame and an ink marker (range semantics kept) */
+.making-line { position: relative; margin-top: 18px; height: 22px; }
+.making-line::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--color-ink-3); }
+.making-ticks { position: absolute; inset: 0 7px; display: flex; justify-content: space-between; pointer-events: none; }
+.making-ticks span { width: 1px; height: 9px; margin-top: 6.5px; background: var(--color-ink-3); }
+.making-scrub { position: relative; width: 100%; height: 22px; margin: 0; background: transparent; appearance: none; -webkit-appearance: none; cursor: pointer; }
+.making-scrub::-webkit-slider-runnable-track { height: 22px; background: transparent; }
+.making-scrub::-moz-range-track { height: 22px; background: transparent; }
+.making-scrub::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 22px; margin-top: 0; background: var(--color-ink); border: 3px solid var(--color-wall); box-shadow: 0 0 0 1px var(--color-ink); }
+.making-scrub::-moz-range-thumb { width: 8px; height: 16px; border-radius: 0; background: var(--color-ink); border: 3px solid var(--color-wall); box-shadow: 0 0 0 1px var(--color-ink); }
+.making-scrub[data-idle]::-webkit-slider-thumb { background: var(--color-wall); }
+.making-scrub[data-idle]::-moz-range-thumb { background: var(--color-wall); }
+.making-scrub:focus-visible { outline: 2px solid var(--color-seal); outline-offset: 4px; }
+.making-preview { display: block; margin-top: 16px; width: 100%; height: auto; outline: 1px solid var(--color-rule); }
+@media (min-width: 1100px) { .making-preview { display: none; } }
+/* the record's facts: printed figures over a hairline, no boxes */
+/* the record's facts: a ruled ledger, label left, figure and note right */
+.facts { display: grid; }
+.fact { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 4px 20px; align-items: baseline; padding-block: 14px; border-bottom: 1px solid var(--color-rule); }
+.fact:first-child { border-top: 1px solid var(--color-rule); }
+.fact dd { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 4px 16px; }
+.fact-figure { font-family: var(--font-display); font-weight: 500; font-size: 1.875rem; line-height: 1; font-feature-settings: "kern", "liga", "lnum"; }
+.fact-bar { display: block; height: 3px; background: color-mix(in srgb, var(--color-ink-3) 22%, transparent); }
+.fact-bar span { display: block; height: 3px; background: var(--color-ink); }
+.fact-sub { grid-column: 1 / -1; font-size: 0.82rem; line-height: 1.35; color: var(--color-ink-3); }
+/* folds for detail most visitors skip */
+.fold > summary { cursor: pointer; width: fit-content; list-style: none; display: flex; align-items: center; gap: 10px; color: var(--color-ink-2); }
+.fold > summary::-webkit-details-marker { display: none; }
+/* a drawn chevron, turned down when open */
+.fold > summary::before { content: ""; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform 160ms; }
+.fold[open] > summary::before { transform: rotate(45deg) translate(-2px, -1px); }
+.fold > summary:hover { color: var(--color-ink); }
+/* provenance: one dated ledger */
+.ledger { display: grid; }
+.ledger li { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 16px; padding-block: 11px; border-bottom: 1px solid var(--color-rule); }
+.ledger li:first-child { border-top: 1px solid var(--color-rule); }
+.ledger time { color: var(--color-ink-3); font-size: 0.82rem; font-variant-numeric: tabular-nums lining-nums; }
+@media (min-width: 1100px) {
+  .piece-record { grid-template-columns: minmax(0, 1.3fr) minmax(400px, 1fr); gap: 72px; align-items: start; }
+  .piece-wall { position: sticky; top: 28px; }
+}
+@media (max-width: 1099px) {
+  .piece-record { --h: min(64vh, 640px); }
+}
 @media (max-width: 640px) {
-  .piece-hang { --w: 84vw; }
-  .piece-img { width: min(84vw, 520px); height: auto; max-height: none; }
+  .piece-record { --h: 56vh; --cap: calc(100cqi - 2 * max(10px, calc(var(--w, 70vw) * 0.06)) - 4px); }
+  .fact { grid-template-columns: minmax(0, 1fr); }
+  .piece-tabs { flex-wrap: wrap; gap: 4px 20px; overflow: visible; }
+  .ledger li { grid-template-columns: minmax(0, 1fr); gap: 2px; }
 }
 
 /* A small printed label for states (status, published). */
