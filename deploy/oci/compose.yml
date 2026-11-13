@@ -1,0 +1,44 @@
+# Manmade on OCI. Everything lives under $MANMADE_HOME (default ~/manmade):
+#   app/   this repository (pulled by deploy.sh)
+#   data/  evidence, indexer and relayer data
+#   env/   services.env (secret keys, chmod 600, never in git)
+# Remove it all: `docker compose -p manmade down --rmi local` and delete ~/manmade.
+name: manmade
+x-service: &service
+  build: { context: ../.., dockerfile: deploy/oci/Dockerfile }
+  image: manmade-services:latest
+  env_file: ${MANMADE_HOME}/env/services.env
+  restart: unless-stopped
+services:
+  evidence:
+    <<: *service
+    working_dir: /app/services/evidence
+    command: ["pnpm", "exec", "tsx", "src/main.ts"]
+    environment: { PORT: "8787", EVIDENCE_DATA_DIR: /data/evidence }
+    volumes: ["${MANMADE_HOME}/data/evidence:/data/evidence"]
+    healthcheck: { test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"], interval: 30s, timeout: 5s, retries: 3 }
+  indexer:
+    <<: *service
+    working_dir: /app/services/indexer
+    command: ["pnpm", "exec", "tsx", "src/main.ts"]
+    environment: { PORT: "8788", INDEXER_DATA_DIR: /data/indexer }
+    volumes: ["${MANMADE_HOME}/data/indexer:/data/indexer"]
+  relayer:
+    <<: *service
+    working_dir: /app/services/relayer
+    command: ["pnpm", "exec", "tsx", "src/main.ts"]
+    environment: { PORT: "8789", RELAYER_DATA_DIR: /data/relayer }
+    volumes: ["${MANMADE_HOME}/data/relayer:/data/relayer"]
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro"]
+    depends_on: [evidence, indexer]
+  tunnel:
+    # Quick tunnel: a random https://*.trycloudflare.com URL, kept while this container lives.
+    # deploy.sh never recreates it, so redeploys keep the URL; a host reboot gives a new one
+    # (run ~/manmade/tunnel-url.sh, then update EVIDENCE_URL / INDEXER_URL on Vercel).
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: ["tunnel", "--no-autoupdate", "--url", "http://proxy:8080"]
+    depends_on: [proxy]

@@ -40,7 +40,8 @@ export function loadConfig(): PublicConfig | null {
   const network = (process.env.SOULPRINT_NETWORK ?? "sandbox") as NetworkId;
   let all: any;
   try {
-    all = JSON.parse(readFileSync(configPath(), "utf8"));
+    // Hosted builds (Vercel) carry the network entry in an env var: the config file is not in git.
+    all = JSON.parse(process.env.SOULPRINT_CONFIG_JSON ?? readFileSync(configPath(), "utf8"));
   } catch {
     return null;
   }

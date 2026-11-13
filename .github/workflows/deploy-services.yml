@@ -1,0 +1,25 @@
+# Redeploy the services on the OCI host when they change on main. The web app deploys through
+# Vercel's own git integration. Secrets: OCI_HOST, OCI_SSH_KEY (a key the host restricts to
+# ~/manmade/app/deploy/oci/deploy.sh), OCI_KNOWN_HOSTS (the host's public key line).
+name: deploy-services
+on:
+  push:
+    branches: [main]
+    paths: ["services/**", "packages/**", "deploy/oci/**", "pnpm-lock.yaml", ".github/workflows/deploy-services.yml"]
+  workflow_dispatch:
+concurrency: { group: deploy-services, cancel-in-progress: false }
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Deploy on the host
+        env:
+          KEY: ${{ secrets.OCI_SSH_KEY }}
+          HOSTS: ${{ secrets.OCI_KNOWN_HOSTS }}
+          HOST: ${{ secrets.OCI_HOST }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$HOSTS" > ~/.ssh/known_hosts
+          ssh -o BatchMode=yes "ubuntu@$HOST" deploy

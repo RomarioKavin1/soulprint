@@ -1,0 +1,13 @@
+# One public origin for the quick tunnel: /ev → evidence, /ix → indexer. The relayer stays private.
+:8080 {
+	handle_path /ev/* {
+		reverse_proxy evidence:8787
+	}
+	handle_path /ix/* {
+		reverse_proxy indexer:8788
+	}
+	handle /health {
+		respond "ok" 200
+	}
+	respond 404
+}
