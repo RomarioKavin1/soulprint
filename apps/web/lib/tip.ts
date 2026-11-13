@@ -8,7 +8,7 @@ import type { ChainView } from "./near.ts";
 import { toUnits } from "./terms.ts";
 
 export function tipMemo(pieceId: string) {
-  return `Soulprint tip for ${pieceId}`;
+  return `Manmade tip for ${pieceId}`;
 }
 
 /** The transfer, preceded by a registration with the token if the artist has never held it (tipper pays). */

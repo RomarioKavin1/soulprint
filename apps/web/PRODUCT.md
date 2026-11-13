@@ -16,7 +16,7 @@ web
 
 ## Product Purpose
 
-Soulprint protects the soul of real art without being anti-AI: artists show how a work was made, and the record states exactly what it shows — evidence, never "proof", never "proven not AI". Success: a visitor can see a piece, its making and its record at a glance, trust the wording, and act (tip, collect) without friction.
+Manmade protects the soul of real art without being anti-AI: artists show how a work was made, and the record states exactly what it shows — evidence, never "proof", never "proven not AI". Success: a visitor can see a piece, its making and its record at a glance, trust the wording, and act (tip, collect) without friction.
 
 ## Positioning
 
@@ -37,13 +37,13 @@ Every artwork is its own NEAR account that carries its own making: signed frames
 
 ## Brand Commitments
 
-- Name: Soulprint. Owner's stance: "AI is useful but the soul of real pictures and real art must be protected" — aid real art, not anti-AI.
+- Name: Manmade (renamed from Soulprint on 13 Nov; owner bought manmade.works). Code, packages, contracts and on-chain accounts keep the name "soulprint". Owner's stance: "AI is useful but the soul of real pictures and real art must be protected" — aid real art, not anti-AI.
 - Owner reference (binding direction, 13 Nov): an artsy, museum-like frontend in the spirit of objectandarchive.com, with **framed artworks** in the gallery, using **public-domain classic art** (paintings, sculpture) in the UI.
 
 ## Evidence on Hand
 
 - No real recorded artworks yet (test pieces are synthetic patterns; all at E0). Owner will record real work.
-- Classic public-domain artworks may fill the gallery as **examples** until real pieces exist (owner's choice, 13 Nov). They must be labelled as examples with title, artist, year and source, and never shown with a Soulprint record, level, price or collect button — they were not recorded on Soulprint.
+- Classic public-domain artworks may fill the gallery as **examples** until real pieces exist (owner's choice, 13 Nov). They must be labelled as examples with title, artist, year and source, and never shown with a Manmade record, level, price or collect button — they were not recorded on Manmade.
 - No testimonials, users, sales figures or press exist; do not invent any.
 
 ## Product Principles

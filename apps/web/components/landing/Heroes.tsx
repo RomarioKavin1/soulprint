@@ -23,7 +23,7 @@ export function HeroBrushwork() {
           Real art, hung with its <em className="text-seal">making</em>.
         </h1>
         <p className="mt-6 max-w-[38ch] text-lg text-ink-2">
-          Up close, every stroke shows how a picture was made. On Soulprint, artists record that making as they work, and every piece hangs
+          Up close, every stroke shows how a picture was made. On Manmade, artists record that making as they work, and every piece hangs
           with its record.
         </p>
         <Actions />

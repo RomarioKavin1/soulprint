@@ -64,7 +64,7 @@ export default async function Landing() {
           <p className="room-numeral">II</p>
           <h2 className="room-title">A label says only what the record shows</h2>
           <p className="room-text mx-auto">
-            Nobody can prove from a picture that no machine was involved, and Soulprint never claims to. Each label states one of three things,
+            Nobody can prove from a picture that no machine was involved, and Manmade never claims to. Each label states one of three things,
             in the same words every time.
           </p>
         </div>

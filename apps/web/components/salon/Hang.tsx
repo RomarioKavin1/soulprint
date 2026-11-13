@@ -93,7 +93,7 @@ function PieceOnWall({ p, i, showArtist }: { p: GalleryPiece; i: number; showArt
 function ExampleOnWall({ c, i, moulding }: { c: Classic; i: number; moulding?: Moulding }) {
   const title = shortTitle(c.title);
   const plaque = <Plaque title={title} line={`${c.artist}${c.date ? `, ${c.date}` : ""}`} level="Example" />;
-  const alt = `${title} by ${c.artist} — an example from The Met, not recorded on Soulprint`;
+  const alt = `${title} by ${c.artist} — an example from The Met, not recorded on Manmade`;
   return (
     <a href={c.source} target="_blank" rel="noopener noreferrer" className="hang-item block no-underline" style={{ "--i": i } as CSSProperties} data-testid="example-card" title={`${title} — open at ${c.museum}`}>
       {c.kind === "sculpture" ? (

@@ -26,7 +26,7 @@ function Cell({ it, decimals }: { it: ShowcaseItem; decimals: number }) {
     <FitImg src={it.image} alt={it.title} loading="lazy" />
   ) : it.image ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={it.image} alt={example ? `${it.title} by ${it.artist} — an example from The Met, not recorded on Soulprint` : it.title} width={it.width} height={it.height} loading="lazy"
+    <img src={it.image} alt={example ? `${it.title} by ${it.artist} — an example from The Met, not recorded on Manmade` : it.title} width={it.width} height={it.height} loading="lazy"
       style={it.width && it.height && !sculpture ? ({ "--ar": it.width / it.height } as CSSProperties) : undefined} />
   ) : (
     <span className="showcase-blank">The artist kept the frames private</span>

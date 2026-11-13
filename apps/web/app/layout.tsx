@@ -12,7 +12,7 @@ const spectral = Spectral({ subsets: ["latin"], variable: "--font-spectral", wei
 const jbmono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jbmono", weight: ["400"] });
 
 export const metadata: Metadata = {
-  title: "Soulprint — real art, hung with its making",
+  title: "Manmade — real art, hung with its making",
   description: "A salon of real art. Every work hangs with the record of how it was made.",
 };
 
@@ -53,7 +53,7 @@ function Header({ networkBadge }: { networkBadge: string | null }) {
     <header className="relative">
       <div className="page flex flex-wrap items-end justify-between gap-x-8 gap-y-3 pb-4 pt-6">
         <Link href="/" className="group flex items-baseline gap-3 no-underline">
-          <span className="font-display text-[2rem] leading-none tracking-[-0.01em] text-ink sm:text-[2.4rem]">Soulprint</span>
+          <span className="font-display text-[2rem] leading-none tracking-[-0.01em] text-ink sm:text-[2.4rem]">Manmade</span>
           <span className="font-plaque text-[0.66rem] uppercase tracking-[0.3em] text-ink-3">Salon</span>
           {networkBadge && (
             <span className="font-plaque border border-rule px-2 py-0.5 text-[0.58rem] uppercase tracking-[0.2em] text-ink-3">{networkBadge}</span>
@@ -77,7 +77,7 @@ function Footer() {
       <div className="page flex flex-wrap items-baseline justify-between gap-6 py-10 text-sm text-ink-3">
         <p className="max-w-2xl">
           Works labelled <i>Example</i> are public-domain classics from The Metropolitan Museum of Art Open Access (CC0), hung to show the
-          room. They were not recorded on Soulprint.
+          room. They were not recorded on Manmade.
         </p>
         <p className="flex gap-6">
           <Link href="/limits" className="text-ink-2 hover:text-ink">What a record shows</Link>

@@ -42,7 +42,7 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
         <h1 className="title-display">The gallery</h1>
         <p className="tabular text-ink-2" data-testid="result-count">
           {shown.length} {shown.length === 1 ? "work" : "works"}
-          {filtered ? ` of ${all.length}` : ""} · {realCount} by artists on Soulprint
+          {filtered ? ` of ${all.length}` : ""} · {realCount} by artists on Manmade
         </p>
       </header>
       <p className="mt-4 max-w-[68ch] text-ink-2">

@@ -1,5 +1,5 @@
 ---
-name: Soulprint Salon
+name: Manmade Salon
 description: A salon hang of real art on a gallery-white wall; every work in a photographed period frame with a printed label that says exactly what its record shows.
 colors:
   wall: "#f6f4ef"
@@ -161,13 +161,13 @@ components:
     width: "17rem"
 ---
 
-# Design System: Soulprint Salon
+# Design System: Manmade Salon
 
 ## Overview
 
 **Creative North Star: "The Salon Hang"**
 
-Soulprint is one room: a gallery-white wall in even light, hung close with works in real period frames. Every work carries a flat printed label that states what its record shows and nothing more. The hang is a Paris Salon's, where pictures touch shoulders and sizes vary; the wall is a present-day museum's warm white, so the photographed frames and the pictures carry all the colour. What separates it from an online shop's white grid is the frame, the label and the hang, never the colour of the wall.
+Manmade is one room: a gallery-white wall in even light, hung close with works in real period frames. Every work carries a flat printed label that states what its record shows and nothing more. The hang is a Paris Salon's, where pictures touch shoulders and sizes vary; the wall is a present-day museum's warm white, so the photographed frames and the pictures carry all the colour. What separates it from an online shop's white grid is the frame, the label and the hang, never the colour of the wall.
 
 There are two surfaces and one ink. **The wall** (warm white) carries the art, the headlines and navigation. **The sheet** (pure white paper with a ruled edge and a soft shadow) carries facts, forms and reading. Both take the same near-black ink (`ink`, `ink-2`, `ink-3`) and the same `rule`; a sheet differs from the wall by one step of white, a 1px border and its shadow, so a component reads the same in either place. One accent, ultramarine, marks the decisive action and the few emphasised words.
 

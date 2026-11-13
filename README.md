@@ -1,4 +1,6 @@
-# Soulprint
+# Manmade
+
+*manmade.works* — code name Soulprint: the repository, packages, contracts and on-chain accounts (`soulprint-v1…`) keep that name.
 
 **Real art, with the making on record.** Artists record how a piece is made — signed frame by
 frame on their own device and anchored on NEAR as they work — then publish it with its making and
@@ -12,7 +14,7 @@ the same piece as an escrow: the client's payment waits inside it until they acc
 
 NEAR hackathon, track 10 — *NFTs That Do Something* (NFTs as accounts).
 
-> AI is useful, but the soul of real pictures and real art must be protected. Soulprint does not
+> AI is useful, but the soul of real pictures and real art must be protected. Manmade does not
 > claim to detect AI. It records **how a piece was made** and states exactly what that record
 > shows — evidence, not proof (see [Accepted limits](#accepted-limits)).
 
