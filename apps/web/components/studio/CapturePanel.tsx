@@ -1,4 +1,5 @@
 "use client";
+import { PairingQr } from "./PairingQr";
 import { useEffect, useRef, useState } from "react";
 import { hex, nearPublicKey, type Signer as KeySigner } from "@soulprint/proof";
 import { CaptureSession, IdbFrameStore, INTERVAL_MS, cameraSource, screenSource, type CaptureStatus } from "@soulprint/proof/capture";
@@ -147,9 +148,7 @@ export function CapturePanel({ pieceId, segments, open, onChange }: { pieceId: s
       {open && (
         <details className="mt-5 text-sm">
           <summary className="cursor-pointer text-ink-2">Record on a phone or tablet instead</summary>
-          <p className="mt-2 text-ink-2">
-            Open <code className="font-mono">/capture/{pieceId}</code> on the device. It shows a pairing key — paste it here.
-          </p>
+          <PairingQr pieceId={pieceId} />
           <div className="mt-2 flex gap-2">
             <input className="field" placeholder="ed25519:…" value={phoneKey} onChange={(e) => setPhoneKey(e.target.value.trim())} aria-label="Pairing key" />
             <button

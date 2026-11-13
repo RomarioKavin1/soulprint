@@ -34,12 +34,12 @@ test("showcase: own piece recorded, finished, published to the gallery, collecte
   await artist.p.getByRole("button", { name: "Stop" }).click();
   await expect(artist.p.getByRole("button", { name: "Show to client" })).toHaveCount(0);
   await artist.p.getByRole("button", { name: "Select all" }).click();
-  await artist.p.getByRole("button", { name: "Show on proof page" }).click();
+  await artist.p.getByRole("button", { name: "Show on the public page" }).click();
 
   // Finish and seal.
   await artist.p.locator('input[type="file"]').first().setInputFiles({ name: "final.png", mimeType: "image/png", buffer: PNG });
   await artist.p.getByRole("button", { name: "Check the record" }).click();
-  await expect(artist.p.getByText("What the proof page will say")).toBeVisible({ timeout: 90_000 });
+  await expect(artist.p.getByText("What the public page will say")).toBeVisible({ timeout: 90_000 });
   await artist.p.getByRole("button", { name: "Finish and seal the record" }).click();
   await expect(artist.p.getByTestId("status")).toHaveText("Finished", { timeout: 30_000 });
 

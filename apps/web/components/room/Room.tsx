@@ -266,7 +266,7 @@ export function Room({ pieceId }: { pieceId: string }) {
           <span>The piece and its rights are yours.</span>
           <span className="flex gap-2">
             <Link className="btn-primary" href={`/vault/${pieceId}`}>Open your files</Link>
-            <Link className="btn-ghost" href={`/p/${pieceId}`}>Proof page</Link>
+            <Link className="btn-ghost" href={`/p/${pieceId}`}>Public page</Link>
             <button className="btn-ghost" onClick={() => window.print()}>Print a receipt</button>
           </span>
         </div>

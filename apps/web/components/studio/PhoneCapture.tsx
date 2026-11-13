@@ -1,4 +1,5 @@
 "use client";
+import { CopyButton } from "./CopyButton";
 import { useEffect, useState } from "react";
 import { useNear } from "@/components/NearProvider";
 import { usePoll } from "@/components/ui";
@@ -45,6 +46,7 @@ export function PhoneCapture({ pieceId }: { pieceId: string }) {
           <p className="mt-2 break-all font-mono text-sm" data-testid="pairing-key">
             {pairing ?? "…"}
           </p>
+          {pairing && <div className="mt-3"><CopyButton value={pairing} label="Copy the key" /></div>}
           <p className="mt-3 text-sm text-ink-2">In your studio, open this piece, choose &ldquo;Record on a phone or tablet instead&rdquo; and paste this key. This page continues by itself once it is paired.</p>
         </div>
       )}

@@ -7,6 +7,7 @@ import { pieceInfo, proofPage, type PieceInfo, type ProofView } from "@/lib/piec
 import { displayLevel, proofModel } from "@/lib/proof";
 import { ACTIVE_TIME_LABEL, BADGE_TEXT, bandText, issuerText, levelSentence } from "@/lib/wording";
 import { jcs } from "@/lib/jcs";
+import { levelReasons } from "@/lib/levelReason";
 import { RecomputeHash } from "@/components/proof/RecomputeHash";
 import { Timeline } from "@/components/proof/Timeline";
 import { Collect } from "@/components/collect/Collect";
@@ -81,6 +82,12 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
   const m = proofModel({ piece });
   const sentence = levelSentence(shown.level, cap ? { coverage: cap.coverage, activeBand: cap.activeBand, spanDays: cap.spanDays, source: cap.source } : null, challenges);
 
+  // Why the record sits at its level — only when the level shown is the one the report gave.
+  const reasons = shown.level === pub.public.level
+    ? levelReasons(shown.level, pub.public.thresholds, cap, challenges.filter((c) => c.result === "passed" && c.issuerClass !== "artist").length)
+    : [];
+  const measured = !!cap && cap.frames > 0;
+
   const name = pub.title || `Piece ${m.tokenId}`;
   const lastFrame = pub.frames.at(-1);
   const picture = pub.hasPreview
@@ -121,7 +128,14 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
             <span className="font-plaque border border-rule px-3 py-1 text-[0.7rem] uppercase tracking-[0.16em] text-ink-2">Level E{shown.level}</span>
           </div>
           {shown.note && <p className="mt-4 border border-[color:var(--color-amber)] px-3 py-2 text-sm">{shown.note}</p>}
-          {cap && (
+          {reasons.map((t) => <p key={t} className="mt-4 max-w-[52ch] text-[0.95rem] text-ink-2" data-testid="level-reason">{t}</p>)}
+          {cap && !measured && (
+            <p className="card mt-8 text-ink-2" data-testid="facts-unmeasured">
+              {cap.anchoredCount ?? 0} frames of this piece are anchored on-chain, but none could be measured
+              {cap.undecodableFrames ? ` (${cap.undecodableFrames} could not be read)` : ""}, so there are no facts about how it built up.
+            </p>
+          )}
+          {measured && (
             <dl className="card mt-8 grid gap-6 sm:grid-cols-2">
               <Fact k="Built up gradually" v={`${Math.round(cap.coverage * 100)}%`} bar={cap.coverage} sub="of the finished picture appeared step by step across the frames" />
               <Fact k="Largest single jump" v={`${Math.round(cap.largestJump * 100)}%`} bar={cap.largestJump} sub="the most of the picture that changed between two frames" />

@@ -1,4 +1,5 @@
 "use client";
+import { fmtDate } from "@/lib/terms";
 import { useState } from "react";
 
 interface F { key: string; index: number; deviceTs: number }
@@ -20,7 +21,7 @@ export function Timeline({ pieceId, frames }: { pieceId: string; frames: F[] }) 
       </div>
       <input type="range" className="mt-4 w-full accent-[color:var(--color-seal)]" min={0} max={frames.length - 1} value={i} onChange={(e) => setI(Number(e.target.value))} aria-label="Timeline" />
       <p className="mt-1 text-xs text-ink-3">
-        Frame {f.index + 1} · {new Date(f.deviceTs).toLocaleString()} (device clock) · {i + 1} of {frames.length} shown
+        Frame {f.index + 1} · {fmtDate(f.deviceTs)} (device clock) · {i + 1} of {frames.length} shown
       </p>
     </div>
   );

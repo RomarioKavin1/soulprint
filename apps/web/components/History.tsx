@@ -1,4 +1,5 @@
 "use client";
+import { fmtDate } from "@/lib/terms";
 import { Section, usePoll } from "@/components/ui";
 import { describeEvent, historyNotice, lagNotice } from "@/lib/history";
 import type { Currency } from "@/lib/terms";
@@ -23,7 +24,7 @@ export function History({ pieceId, currency, decimals }: { pieceId: string; curr
       <ol className="space-y-2 text-sm" data-testid="history">
         {shown.map((e) => (
           <li key={`${e.height}-${e.event}-${JSON.stringify(e.data).length}`} className="flex gap-3">
-            <span className="w-36 shrink-0 text-ink-3">{new Date(e.at).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" })}</span>
+            <span className="w-36 shrink-0 text-ink-3">{fmtDate(e.at)}</span>
             <span>{describeEvent(e, currency, decimals)}</span>
           </li>
         ))}

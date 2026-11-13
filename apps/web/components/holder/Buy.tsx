@@ -22,7 +22,7 @@ export function Buy({ pieceId }: { pieceId: string }) {
     <div className="space-y-8 page-top">
       <div>
         <h1 className="title-page">Piece {piece.token_id} by {piece.artist}</h1>
-        <p className="mt-3 text-sm text-ink-3">For sale · {piece.piece_id}</p>
+        <p className="mt-3 text-sm text-ink-3">{listing ? "For sale" : bought ? "Yours" : "Not for sale right now"} · {piece.piece_id}</p>
         <Link className="mt-2 inline-block text-sm underline" href={`/p/${pieceId}`}>See how it was made</Link>
       </div>
       {bought ? (

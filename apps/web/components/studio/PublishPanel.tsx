@@ -21,7 +21,9 @@ export function PublishPanel({ piece }: { piece: PieceInfo }) {
   const { busy, error, run } = useAction();
   useEffect(() => {
     if (data && !loaded) {
-      setTitle(data.title ?? "");
+      let working = "";
+      try { working = localStorage.getItem(`soulprint.title.${piece.piece_id}`) ?? ""; } catch { /* storage blocked */ }
+      setTitle(data.title ?? working);
       setStory(data.story ?? "");
       setShowFinal(data.showFinal);
       setLoaded(true);
@@ -34,7 +36,7 @@ export function PublishPanel({ piece }: { piece: PieceInfo }) {
       if (story.trim() && story.trim() !== (data.story ?? "")) await evidence("POST", `/pieces/${piece.piece_id}/story`, { text: story.trim() });
       await reload();
     });
-  const dirty = title !== (data.title ?? "") || story.trim() !== (data.story ?? "") || showFinal !== data.showFinal;
+  const dirty = title !== (data.title ?? "")  || story.trim() !== (data.story ?? "") || showFinal !== data.showFinal;
   return (
     <Section
       title="The piece's page"

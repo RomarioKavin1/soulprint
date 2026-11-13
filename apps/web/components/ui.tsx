@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ChainError } from "@/lib/near";
 import { EvidenceError } from "@/lib/auth";
+import { fmtDate } from "@/lib/terms";
 
 export function Section({ title, aside, children }: { title: string; aside?: ReactNode; children: ReactNode }) {
   return (
@@ -136,7 +137,7 @@ export function nsToDate(ns: string | bigint | null | undefined): Date | null {
 }
 export function when(ns: string | null | undefined) {
   const d = nsToDate(ns);
-  return d ? d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "—";
+  return d ? fmtDate(d.getTime()) : "—";
 }
 export function duration(ns: bigint) {
   const s = Number(ns / 1_000_000_000n);

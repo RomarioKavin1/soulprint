@@ -61,7 +61,7 @@ function Header({ networkBadge }: { networkBadge: string | null }) {
         </Link>
         <nav className="flex min-w-0 flex-wrap items-center gap-x-6 gap-y-2 font-plaque text-[0.72rem] uppercase tracking-[0.2em]" aria-label="Main">
           <Link href="/gallery" className="text-ink-2 no-underline hover:text-ink">The gallery</Link>
-          <Link href="/notes" className="text-ink-2 no-underline hover:text-ink">Rate notes</Link>
+          <Link href="/notes" className="text-ink-2 no-underline hover:text-ink">Reader questions</Link>
           <Link href="/studio" className="text-ink-2 no-underline hover:text-ink">Studio</Link>
           <span className="normal-case tracking-normal"><SignIn /></span>
         </nav>

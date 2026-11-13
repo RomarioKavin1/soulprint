@@ -1,4 +1,5 @@
 "use client";
+import { fmtDate } from "@/lib/terms";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { b64 } from "@soulprint/proof";
@@ -55,6 +56,7 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
   const usdc: Currency = { Ft: config.currencyToken };
   const [offer, setOffer] = useState<Offer>(() => defaultOffer({ now: Date.now(), currency: usdc, decimals: config.currencyDecimals }));
   const [priceText, setPriceText] = useState("");
+  const [title, setTitle] = useState("");
   const [limits, setLimits] = useState<TimeLimits>(PRODUCTION_LIMITS);
   const set = (p: Partial<Offer>) => setOffer((o) => ({ ...o, ...p }));
   const decimals = offer.currency === "Near" ? 24 : config.currencyDecimals;
@@ -85,13 +87,26 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
           : { Standalone: { currency: offer.currency, royalty_bps: offer.royaltyBps, grant: offer.grant, licence_text_hash: b64.encode(licenceHash(offer.licenceText, offer.grant)) } };
       return createPiece(chain, signer, config.collection, kind, key.publicKey);
     });
-    if (r) router.push(`/studio/${r.pieceId}`);
+    if (r) {
+      // the working title waits on this device until the artist publishes the page (it prefills the title there)
+      if (title.trim()) try { localStorage.setItem(`soulprint.title.${r.pieceId}`, title.trim()); } catch { /* storage blocked */ }
+      router.push(`/studio/${r.pieceId}`);
+    }
   }
 
   if (!accountId) return <p className="mt-6 text-ink-2">Sign in to create a piece.</p>;
   return (
     <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px]">
       <div className="space-y-6">
+        {mode === "standalone" && (
+          <Section title="The piece">
+            <label className="block max-w-xl">
+              <span className="label">Working title</span>
+              <input className="field mt-1" value={title} maxLength={120} onChange={(e) => setTitle(e.target.value)} placeholder="Harbour at dusk" aria-label="Working title" />
+              <span className="mt-1 block text-xs text-ink-3">You can change it when you publish. Next you record how you make it — on this screen, a camera, or a phone.</span>
+            </label>
+          </Section>
+        )}
         {mode === "commission" && (
           <Section title="Who and how much">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -181,6 +196,7 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
           </Section>
         )}
 
+        <RightsWrap standalone={mode === "standalone"} summary={`${GRANT_TEXT[offer.grant.kind].title}${offer.grant.attribution ? ", with credit" : ""} · ${offer.royaltyBps / 100}% resale royalty · sold in ${currencyName(offer.currency)}`}>
         <Section title={mode === "commission" ? "Rights the buyer gets" : "Rights a collector would get"}>
           {mode === "standalone" && (
             <label className="mb-4 block max-w-xs">
@@ -218,6 +234,7 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
             <textarea className="field mt-1 min-h-24" value={offer.licenceText} onChange={(e) => set({ licenceText: e.target.value })} placeholder="Anything specific about how the work may be used." />
           </label>
         </Section>
+        </RightsWrap>
       </div>
 
       <aside className="lg:sticky lg:top-6 lg:self-start">
@@ -226,14 +243,14 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
           {mode === "commission" ? (
             <ul className="mt-3 space-y-2 text-sm">
               <li>
-                {offer.client ? <b>{offer.client}</b> : "Whoever pays first"} pays <b>{priceText || "—"} {currencyName(offer.currency)}</b>, held in the piece until each stage is released.
+                {offer.client ? <b>{offer.client}</b> : "Whoever pays first"} pays {priceText ? <b>{priceText} {currencyName(offer.currency)}</b> : <i>the price you set</i>}, held in the piece until each stage is released.
               </li>
-              <li>Delivered by {new Date(Number(offer.deadlineNs / 1_000_000n)).toLocaleDateString(undefined, { dateStyle: "medium" })}, plus {fmtNs(offer.graceNs)} grace.</li>
+              <li>Delivered by {fmtDate(Number(offer.deadlineNs / 1_000_000n), "date")}, plus {fmtNs(offer.graceNs)} grace.</li>
               <li>
                 {fmtNs(offer.reviewWindowNs)} to review, {offer.revisionRounds} revision round{offer.revisionRounds === 1 ? "" : "s"}.
               </li>
               <li>
-                Refusing a delivery costs a {fromUnits(bond, decimals)} {currencyName(offer.currency)} deposit; arbitrators decide.
+                Refusing a delivery costs a {priceText ? `${fromUnits(bond, decimals)} ${currencyName(offer.currency)}` : `${offer.rejectBondBps / 100}% of the price`} deposit; arbitrators decide.
               </li>
               <li>
                 Rights: {GRANT_TEXT[offer.grant.kind].title.toLowerCase()}
@@ -265,5 +282,19 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
         </div>
       </aside>
     </div>
+  );
+}
+
+/** For a piece of one's own the rights start as a sensible default, one line, opened only to change them. */
+function RightsWrap({ standalone, summary, children }: { standalone: boolean; summary: string; children: React.ReactNode }) {
+  if (!standalone) return <>{children}</>;
+  return (
+    <details className="card !p-0 [&[open]>summary]:border-b [&[open]>summary]:border-rule">
+      <summary className="flex cursor-pointer flex-wrap items-baseline justify-between gap-2 px-6 py-4 sm:px-8">
+        <span><span className="label block">If you offer it to collectors</span><span className="mt-1 block text-ink">{summary}</span></span>
+        <span className="text-sm text-ink-2 underline">Change</span>
+      </summary>
+      <div className="[&>.card]:shadow-none [&>.card]:border-0">{children}</div>
+    </details>
   );
 }

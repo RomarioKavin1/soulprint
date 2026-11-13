@@ -9,7 +9,7 @@ import { parseNearPublicKey } from "@soulprint/proof";
 
 interface Frame { key: string; index: number; deviceTs: number; visibility: "private" | "client" | "public"; discarded: boolean; jpeg: string | null }
 const PAGE = 60;
-const VIS: Record<Frame["visibility"], string> = { private: "Only you", client: "You and the client", public: "Everyone (proof page)" };
+const VIS: Record<Frame["visibility"], string> = { private: "Only you", client: "You and the client", public: "Everyone (public page)" };
 
 /** Review controls only who sees each frame (A27); discarding removes the image, the chain keeps its hash. */
 export function ReviewGrid({ pieceId, commission = true }: { pieceId: string; commission?: boolean }) {
@@ -67,7 +67,7 @@ export function ReviewGrid({ pieceId, commission = true }: { pieceId: string; co
               </button>
             )}
             <button className="btn-ghost py-1" disabled={!chosen.length || !!busy} onClick={() => setVisibility("public")}>
-              Show on proof page
+              Show on the public page
             </button>
             <button className="btn-ghost py-1" disabled={!chosen.length || !!busy} onClick={() => setVisibility("private")}>
               Keep private

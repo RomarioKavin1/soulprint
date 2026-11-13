@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const config: NextConfig = {
   transpilePackages: ["@soulprint/proof"],
+  // no Next.js dev badge over the pages (demo recordings and screenshots)
+  devIndicators: false,
   serverExternalPackages: ["near-api-js"],
   // The browser reaches the evidence service same-origin (no CORS); it sees `/pieces/...` paths,
   // which is what NEP-413 auth binds to.

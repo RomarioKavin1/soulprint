@@ -88,7 +88,7 @@ export function DeliverPanel({ piece, onChange }: { piece: PieceInfo; onChange: 
         </button>
       ) : (
         <div className="mt-4 rounded-sm border border-rule bg-paper-2/60 p-4">
-          <p className="label">What the proof page will say</p>
+          <p className="label">What the public page will say</p>
           <p className="mt-2 font-display text-lg">{LEVEL_TEXT[report.level as 0 | 2 | 3]?.summary}</p>
           <p className="mt-1 text-sm text-ink-2">{LEVEL_TEXT[report.level as 0 | 2 | 3]?.detail}</p>
           <button className="btn-seal mt-4" disabled={!!busy || unsent > 0} onClick={deliver}>

@@ -1,4 +1,5 @@
 "use client";
+import { fmtDate } from "@/lib/terms";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { useNear } from "@/components/NearProvider";
@@ -179,7 +180,7 @@ export function NoteCard({ note: n, viewer, artist, canModerate = false, onChang
         <p className="mt-1 text-xs"><Link className="underline" href={`/p/${n.pieceId}`}>See the piece and its record</Link></p>
       )}
       <p className="mt-2 whitespace-pre-line text-sm">{n.body}</p>
-      <p className="mt-1 text-xs text-ink-3">{n.author} · {new Date(n.createdAt).toLocaleDateString()}</p>
+      <p className="mt-1 text-xs text-ink-3">{n.author} · {fmtDate(n.createdAt, "date")}</p>
       {req && <p className={`mt-2 text-sm ${req.met ? "text-moss" : "text-ink-2"}`} data-testid="note-request">{req.text}</p>}
       {n.response && (
         <div className="mt-3 ml-1 border-t border-rule pt-3 pl-4" data-testid="note-response">

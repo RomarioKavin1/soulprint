@@ -205,3 +205,15 @@ export function fmtNs(ns: bigint): string {
   if (s % 60 === 0) return `${s / 60} minute${s === 60 ? "" : "s"}`;
   return `${s} seconds`;
 }
+
+/**
+ * Dates shown on the site: one fixed locale and time zone, so the server and the browser render the
+ * same text (a browser-locale date broke hydration on piece pages) and every reader sees the same time.
+ */
+export function fmtDate(ms: number, style: "date" | "datetime" = "datetime"): string {
+  const d = new Date(ms);
+  if (Number.isNaN(d.getTime())) return "—";
+  const opts: Intl.DateTimeFormatOptions =
+    style === "date" ? { dateStyle: "medium", timeZone: "UTC" } : { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" };
+  return new Intl.DateTimeFormat("en-GB", opts).format(d) + (style === "datetime" ? " UTC" : "");
+}

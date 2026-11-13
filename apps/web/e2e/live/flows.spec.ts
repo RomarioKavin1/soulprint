@@ -46,7 +46,7 @@ test("commission_happy_path: offer → pay → record in the browser → deliver
   // Deliver.
   await artist.p.locator('input[type="file"]').first().setInputFiles({ name: "final.png", mimeType: "image/png", buffer: PNG });
   await artist.p.getByRole("button", { name: "Check the record" }).click();
-  await expect(artist.p.getByText("What the proof page will say")).toBeVisible({ timeout: 90_000 });
+  await expect(artist.p.getByText("What the public page will say")).toBeVisible({ timeout: 90_000 });
   await artist.p.getByRole("button", { name: "Deliver to the client" }).click();
   await expect(artist.p.getByTestId("status")).toHaveText("Delivered — client reviewing", { timeout: 30_000 });
 
