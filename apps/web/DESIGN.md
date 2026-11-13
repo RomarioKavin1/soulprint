@@ -22,25 +22,25 @@ colors:
   mat-linen: "#f1ede5"
 typography:
   display:
-    fontFamily: "Bodoni Moda, 'Bodoni 72', Didot, serif"
+    fontFamily: "Cormorant Garamond, 'Cormorant 72', Didot, serif"
     fontSize: "clamp(2.4rem, 3.4vw, 3.6rem)"
     fontWeight: 400
     lineHeight: 1
     letterSpacing: "-0.02em"
   hero:
-    fontFamily: "Bodoni Moda, 'Bodoni 72', Didot, serif"
+    fontFamily: "Cormorant Garamond, 'Cormorant 72', Didot, serif"
     fontSize: "clamp(3rem, 6.2vw, 6rem)"
     fontWeight: 400
     lineHeight: 0.94
     letterSpacing: "-0.025em"
   headline:
-    fontFamily: "Bodoni Moda, 'Bodoni 72', Didot, serif"
+    fontFamily: "Cormorant Garamond, 'Cormorant 72', Didot, serif"
     fontSize: "clamp(2.2rem, 4vw, 3.4rem)"
     fontWeight: 400
     lineHeight: 1
     letterSpacing: "-0.015em"
   title:
-    fontFamily: "Bodoni Moda, 'Bodoni 72', Didot, serif"
+    fontFamily: "Cormorant Garamond, 'Cormorant 72', Didot, serif"
     fontSize: "1.875rem"
     fontWeight: 600
     lineHeight: 1.2
@@ -220,7 +220,9 @@ A light, warm palette: gallery white, near-black ink and one ultramarine accent.
 
 ## Typography
 
-**Display Font:** Bodoni Moda, optical-size axis on (fallback Bodoni 72, Didot, serif)
+**Display face (13 Nov):** Cormorant Garamond replaced Bodoni Moda at the owner's choice ("A · Cormorant (Recommended)" from four rendered candidates, after "I dont like this font"). Titles set at 500 (600 for small display type on paper), always with lining figures (`lnum`) so numbers in facts and titles read evenly; body Spectral keeps old-style figures.
+
+**Display Font:** Cormorant Garamond, optical-size axis on (fallback Cormorant 72, Didot, serif)
 **Body Font:** Spectral, 300 to 600 with italics (fallback Georgia, serif)
 **Label Font:** Cinzel, 400/600/700 (fallback Trajan Pro, serif)
 **Data Font:** JetBrains Mono 400 (fallback ui-monospace, Menlo)
@@ -238,7 +240,7 @@ A light, warm palette: gallery white, near-black ink and one ultramarine accent.
 - **Data** (JetBrains Mono 400, 0.75rem, tabular figures): account names, fingerprints, hashes, codes.
 
 ### Named Rules
-**The Heavier-On-Paper Rule.** Bodoni's hairlines break at small sizes on paper. Any display type inside a sheet is weight 600; weight 400 is for large lettering on the wall.
+**The Heavier-On-Paper Rule.** Cormorant's hairlines break at small sizes on paper. Any display type inside a sheet is weight 600; weight 400 is for large lettering on the wall.
 
 **The Capitals Are Printed Rule.** Cinzel is always uppercase, tracked 0.1em to 0.3em, and at or below 0.8rem. It is never used for sentences.
 
@@ -246,7 +248,7 @@ A light, warm palette: gallery white, near-black ink and one ultramarine accent.
 
 **The One Edge Rule.** Every page shares one width and one gutter: `--page-max` 1680px, `--gutter` clamp(16px, 3vw, 48px), applied by the `page` utility to the header, `<main>` and the footer. Full-bleed sections (the landing hero, the last doorway) pad their content to `--edge`, so the logo, every page title, the hero copy and the hero's framed example all start or end on the same line at every width. Pages are left-aligned on that edge; nothing is centred in a narrower column except reading text capped by its measure. Every page's first block starts `page-top` (clamp(40px, 4.5vw, 64px)) below the header; only the landing hero sits flush. Titles come in three sizes only: `title-display` (gallery, artist, piece, limits), `title-page` (studio and working pages), `title-section` (headings inside sheets).
 
-The wall is lime plaster: a seamless 512px procedurally generated tile (`public/salon/wall/plaster.webp`, ±3% around #f6f4ef) under the wall colour, so the white reads as a surface, never as a blank screen.
+The wall is a tone-on-tone damask stencil (`public/salon/damask.svg`, warm brown at 7% with a white 50% highlight; owner asked for the patterned salon wall back) over faint lime plaster (`public/salon/wall/plaster.webp`, a seamless procedural 512px tile, ±3% around #f6f4ef), so the white reads as a papered wall, never as a blank screen.
 
 The page column is 1400px wide with a 16px gutter (32px from 640px) and 112px of wall left under the content. The header is the rail: wordmark lower-left, navigation lower-right, and a 1px rule line running the full width beneath them.
 

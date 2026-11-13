@@ -20,7 +20,7 @@ export function issuerText(cls: string) {
   return cls === "Client" || cls === "client" ? "the client" : "an account the artist invited";
 }
 
-/** The active-time band in words: "<5h" reads "under 5h" (a hairline "<" vanishes in Bodoni). */
+/** The active-time band in words: "<5h" reads "under 5h" (a bare "<" reads poorly in the display face). */
 export function bandText(b: string) {
   return b.startsWith("<") ? `under ${b.slice(1)}` : b;
 }

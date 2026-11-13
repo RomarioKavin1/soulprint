@@ -608,7 +608,7 @@
       "refersTo": "sheet",
       "description": "White sheet on the wall; carries facts, forms and reading. 1px rule border, soft warm-black shadow, square corners.",
       "html": "<div class=\"ds-wall-sheet\"><section class=\"ds-sheet\"><h2 class=\"ds-sheet-title\">Rights</h2><p class=\"ds-sheet-body\">Personal use, with credit to the artist.</p><p class=\"ds-sheet-fine\">5% of every resale goes to the artist.</p></section></div>",
-      "css": ".ds-wall-sheet{background:#f6f4ef;padding:24px;} .ds-sheet{position:relative;padding:32px;color:#1a1814;background:#ffffff;border:1px solid #e2ddd3;box-shadow:0 1px 2px rgba(26,24,20,0.04),0 12px 32px -20px rgba(26,24,20,0.25);font-family:var(--font-spectral),Georgia,serif;font-size:17px;line-height:1.55;} .ds-sheet-title{margin:0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:600;font-size:1.875rem;line-height:1.2;} .ds-sheet-body{margin:12px 0 0;} .ds-sheet-fine{margin:4px 0 0;font-size:0.875rem;color:#5b5650;}"
+      "css": ".ds-wall-sheet{background:#f6f4ef;padding:24px;} .ds-sheet{position:relative;padding:32px;color:#1a1814;background:#ffffff;border:1px solid #e2ddd3;box-shadow:0 1px 2px rgba(26,24,20,0.04),0 12px 32px -20px rgba(26,24,20,0.25);font-family:var(--font-spectral),Georgia,serif;font-size:17px;line-height:1.55;} .ds-sheet-title{margin:0;font-family:var(--font-bodoni),'Cormorant 72',Didot,serif;font-weight:600;font-size:1.875rem;line-height:1.2;} .ds-sheet-body{margin:12px 0 0;} .ds-sheet-fine{margin:4px 0 0;font-size:0.875rem;color:#5b5650;}"
     },
     {
       "name": "Field with Label",
@@ -639,14 +639,14 @@
       "kind": "nav",
       "description": "The header rail: wordmark (links to the landing) and Cinzel links, the first to the gallery, above a 1px rule line running the width of the room.",
       "html": "<header class=\"ds-rail\"><div class=\"ds-rail-row\"><a class=\"ds-rail-mark\" href=\"#\"><span class=\"ds-rail-name\">Soulprint</span><span class=\"ds-rail-sub\">Salon</span></a><nav class=\"ds-rail-nav\"><a href=\"#\">The gallery</a><a href=\"#\">Rate notes</a><a href=\"#\">Studio</a></nav></div><div class=\"ds-rail-line\"></div></header>",
-      "css": ".ds-rail{background:#f6f4ef;} .ds-rail-row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px;padding:24px 32px 16px;} .ds-rail-mark{display:flex;align-items:baseline;gap:12px;text-decoration:none;} .ds-rail-name{font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-size:2.4rem;line-height:1;letter-spacing:-0.01em;color:#1a1814;} .ds-rail-sub{font-family:var(--font-plaque),'Trajan Pro',serif;font-size:0.66rem;letter-spacing:0.3em;text-transform:uppercase;color:#736d66;} .ds-rail-nav{display:flex;flex-wrap:wrap;gap:8px 24px;font-family:var(--font-plaque),'Trajan Pro',serif;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;} .ds-rail-nav a{color:#5b5650;text-decoration:none;} .ds-rail-nav a:hover{color:#1a1814;} .ds-rail-nav a:focus-visible,.ds-rail-mark:focus-visible{outline:2px solid #23399a;outline-offset:3px;border-radius:2px;} .ds-rail-line{height:1px;background:#e2ddd3;}"
+      "css": ".ds-rail{background:#f6f4ef;} .ds-rail-row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px;padding:24px 32px 16px;} .ds-rail-mark{display:flex;align-items:baseline;gap:12px;text-decoration:none;} .ds-rail-name{font-family:var(--font-bodoni),'Cormorant 72',Didot,serif;font-size:2.4rem;line-height:1;letter-spacing:-0.01em;color:#1a1814;} .ds-rail-sub{font-family:var(--font-plaque),'Trajan Pro',serif;font-size:0.66rem;letter-spacing:0.3em;text-transform:uppercase;color:#736d66;} .ds-rail-nav{display:flex;flex-wrap:wrap;gap:8px 24px;font-family:var(--font-plaque),'Trajan Pro',serif;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;} .ds-rail-nav a{color:#5b5650;text-decoration:none;} .ds-rail-nav a:hover{color:#1a1814;} .ds-rail-nav a:focus-visible,.ds-rail-mark:focus-visible{outline:2px solid #23399a;outline-offset:3px;border-radius:2px;} .ds-rail-line{height:1px;background:#e2ddd3;}"
     },
     {
       "name": "Pull Quote",
       "kind": "custom",
       "description": "The artist's words on a sheet, opened by a drawn quotation mark in ultramarine.",
       "html": "<div class=\"ds-quote-sheet\"><blockquote class=\"ds-pull-quote\">Ink first, then washes.</blockquote></div>",
-      "css": ".ds-quote-sheet{background:#ffffff;border:1px solid #e2ddd3;padding:28px 24px;} .ds-pull-quote{position:relative;margin:0;padding-left:1.6em;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:600;font-style:italic;font-size:1.25rem;line-height:1.6;color:#5b5650;} .ds-pull-quote::before{content:'\\201C';position:absolute;left:0;top:-0.15em;font-size:2.4em;line-height:1;font-style:normal;color:#23399a;}"
+      "css": ".ds-quote-sheet{background:#ffffff;border:1px solid #e2ddd3;padding:28px 24px;} .ds-pull-quote{position:relative;margin:0;padding-left:1.6em;font-family:var(--font-bodoni),'Cormorant 72',Didot,serif;font-weight:600;font-style:italic;font-size:1.25rem;line-height:1.6;color:#5b5650;} .ds-pull-quote::before{content:'\\201C';position:absolute;left:0;top:-0.15em;font-size:2.4em;line-height:1;font-style:normal;color:#23399a;}"
     },
     {
       "name": "Finding Aid",
@@ -669,14 +669,14 @@
       "kind": "custom",
       "description": "The landing's first screen: a full-bleed museum photograph of paint under a Gallery White scrim, hero lettering in ink with one ultramarine italic word, and the whole painting framed small with its label. Source: /salon/hero/wheat-field-brushwork.webp (The Met, CC0).",
       "html": "<section class=\"ds-hero\"><img class=\"ds-hero-paint\" src=\"/salon/hero/wheat-field-brushwork.webp\" alt=\"\" /><div class=\"ds-hero-copy\"><h1 class=\"ds-hero-title\">Real art, hung with its <em>making</em>.</h1><p class=\"ds-hero-text\">Up close, every stroke shows how a picture was made.</p></div></section>",
-      "css": ".ds-hero{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;min-height:420px;padding:32px;background:#f6f4ef;} .ds-hero-paint{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 40%;z-index:-2;} .ds-hero::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(246,244,239,0.96) 0%,rgba(246,244,239,0.9) 34%,rgba(246,244,239,0.25) 60%,transparent 74%),linear-gradient(0deg,rgba(246,244,239,0.7),transparent 22%);} .ds-hero-copy{max-width:46rem;} .ds-hero-title{margin:0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:400;font-size:clamp(3rem,6.2vw,6rem);line-height:0.94;letter-spacing:-0.025em;color:#1a1814;text-wrap:balance;} .ds-hero-title em{color:#23399a;} .ds-hero-text{margin:24px 0 0;max-width:38ch;font-family:var(--font-spectral),Georgia,serif;font-size:1.125rem;line-height:1.55;color:#5b5650;}"
+      "css": ".ds-hero{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;min-height:420px;padding:32px;background:#f6f4ef;} .ds-hero-paint{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 40%;z-index:-2;} .ds-hero::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(246,244,239,0.96) 0%,rgba(246,244,239,0.9) 34%,rgba(246,244,239,0.25) 60%,transparent 74%),linear-gradient(0deg,rgba(246,244,239,0.7),transparent 22%);} .ds-hero-copy{max-width:46rem;} .ds-hero-title{margin:0;font-family:var(--font-bodoni),'Cormorant 72',Didot,serif;font-weight:400;font-size:clamp(3rem,6.2vw,6rem);line-height:0.94;letter-spacing:-0.025em;color:#1a1814;text-wrap:balance;} .ds-hero-title em{color:#23399a;} .ds-hero-text{margin:24px 0 0;max-width:38ch;font-family:var(--font-spectral),Georgia,serif;font-size:1.125rem;line-height:1.55;color:#5b5650;}"
     },
     {
       "name": "Room",
       "kind": "custom",
       "description": "One idea of the landing: a roman room number in ultramarine display type, a headline-size title and wall text held to 60ch.",
       "html": "<section class=\"ds-room\"><p class=\"ds-room-numeral\">II</p><h2 class=\"ds-room-title\">A label says only what the record shows</h2><p class=\"ds-room-text\">Nobody can prove from a picture that no machine was involved, and Soulprint never claims to. Each label states one of three things, in the same words every time.</p></section>",
-      "css": ".ds-room{background:#f6f4ef;padding:40px 32px;color:#1a1814;} .ds-room-numeral{margin:0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-size:2.4rem;line-height:1;color:#23399a;} .ds-room-title{margin:10px 0 0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:400;font-size:clamp(2.2rem,4vw,3.4rem);line-height:1.05;letter-spacing:-0.01em;} .ds-room-text{margin:18px 0 0;max-width:60ch;font-family:var(--font-spectral),Georgia,serif;font-size:1.06rem;line-height:1.55;color:#5b5650;}"
+      "css": ".ds-room{background:#f6f4ef;padding:40px 32px;color:#1a1814;} .ds-room-numeral{margin:0;font-family:var(--font-bodoni),'Cormorant 72',Didot,serif;font-size:2.4rem;line-height:1;color:#23399a;} .ds-room-title{margin:10px 0 0;font-family:var(--font-bodoni),'Cormorant 72',Didot,serif;font-weight:400;font-size:clamp(2.2rem,4vw,3.4rem);line-height:1.05;letter-spacing:-0.01em;} .ds-room-text{margin:18px 0 0;max-width:60ch;font-family:var(--font-spectral),Georgia,serif;font-size:1.06rem;line-height:1.55;color:#5b5650;}"
     }
   ],
   "narrative": {
@@ -716,7 +716,7 @@
       },
       {
         "name": "The Heavier-On-Paper Rule",
-        "body": "Bodoni's hairlines break at small sizes on paper. Any display type inside a sheet is weight 600; weight 400 is for large lettering on the wall.",
+        "body": "Cormorant's hairlines break at small sizes on paper. Any display type inside a sheet is weight 600; weight 400 is for large lettering on the wall.",
         "section": "typography"
       },
       {

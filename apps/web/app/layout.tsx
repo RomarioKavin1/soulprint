@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Bodoni_Moda, Cinzel, JetBrains_Mono, Spectral } from "next/font/google";
+import { Cinzel, Cormorant_Garamond, JetBrains_Mono, Spectral } from "next/font/google";
 import Link from "next/link";
 import { loadConfig } from "@/lib/config";
 import { NearProvider } from "@/components/NearProvider";
 import { SignIn } from "@/components/SignIn";
 import "./globals.css";
 
-const bodoni = Bodoni_Moda({ subsets: ["latin"], variable: "--font-bodoni", style: ["normal", "italic"], axes: ["opsz"] });
+const cormorant = Cormorant_Garamond({ subsets: ["latin"], variable: "--font-cormorant", weight: ["400", "500", "600"], style: ["normal", "italic"] });
 const cinzel = Cinzel({ subsets: ["latin"], variable: "--font-cinzel", weight: ["400", "600", "700"] });
 const spectral = Spectral({ subsets: ["latin"], variable: "--font-spectral", weight: ["300", "400", "500", "600"], style: ["normal", "italic"] });
 const jbmono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jbmono", weight: ["400"] });
@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const config = loadConfig();
   return (
-    <html lang="en" className={`${bodoni.variable} ${cinzel.variable} ${spectral.variable} ${jbmono.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${cinzel.variable} ${spectral.variable} ${jbmono.variable}`}>
       <body className="min-h-screen">
         {config ? (
           <NearProvider config={config}>

@@ -24,7 +24,7 @@
   /* gilt: only the frames' own metal and the thin picture rail */
   --color-gilt: #c9a24a;
   --color-gilt-dark: #6e4f17;
-  --font-display: var(--font-bodoni), "Bodoni 72", Didot, serif;
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Garamond, "Times New Roman", serif;
   --font-plaque: var(--font-cinzel), "Trajan Pro", serif;
   --font-sans: var(--font-spectral), Georgia, serif;
   --font-mono: var(--font-jbmono), ui-monospace, Menlo, monospace;
@@ -32,6 +32,7 @@
 
 :root {
   color-scheme: light;
+  /* Cormorant reads light at 400; titles sit at 500, the same visual weight Bodoni had */
   /* one page width and one gutter for the whole site: header, pages, footer and the inner edge
      of every full-bleed section start on the same line */
   --page-max: 1680px;
@@ -40,12 +41,13 @@
 }
 @utility page { width: 100%; max-width: var(--page-max); margin-inline: auto; padding-inline: var(--gutter); }
 /* every page's first block starts the same distance below the header (the landing hero sits flush) */
+.font-display { font-weight: 500; font-feature-settings: "kern", "liga", "lnum"; }
 @utility page-top { padding-top: clamp(40px, 4.5vw, 64px); }
 /* two page-title sizes: display for the public rooms (gallery, artist, piece, limits), page for working pages */
-@utility title-display { font-family: var(--font-display); font-size: clamp(2.4rem, 4.4vw, 4rem); line-height: 1.02; letter-spacing: -0.015em; }
+@utility title-display { font-family: var(--font-display); font-weight: 500; font-feature-settings: "kern", "liga", "lnum"; font-size: clamp(2.4rem, 4.4vw, 4rem); line-height: 1.02; letter-spacing: -0.015em; }
 /* section headings inside sheets, one size everywhere */
-@utility title-section { font-family: var(--font-display); font-size: clamp(1.55rem, 2.2vw, 1.875rem); line-height: 1.15; }
-@utility title-page { font-family: var(--font-display); font-size: clamp(2.2rem, 4vw, 3.4rem); line-height: 1.02; letter-spacing: -0.015em; }
+@utility title-section { font-family: var(--font-display); font-weight: 500; font-feature-settings: "kern", "liga", "lnum"; font-size: clamp(1.55rem, 2.2vw, 1.875rem); line-height: 1.15; }
+@utility title-page { font-family: var(--font-display); font-weight: 500; font-feature-settings: "kern", "liga", "lnum"; font-size: clamp(2.2rem, 4vw, 3.4rem); line-height: 1.02; letter-spacing: -0.015em; }
 .card, .sheet, .on-paper { color: var(--color-ink); }
 
 html {
@@ -60,9 +62,9 @@ body {
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "kern", "liga", "onum";
   background-color: var(--color-wall);
-  /* lime plaster: a faint mottled tile, so the wall reads as a surface and not as a screen */
-  background-image: url("/salon/wall/plaster.webp");
-  background-size: 512px 512px;
+  /* the salon wall: a tone-on-tone damask stencil over faint lime plaster */
+  background-image: url("/salon/damask.svg"), url("/salon/wall/plaster.webp");
+  background-size: 160px 220px, 512px 512px;
   min-height: 100vh;
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
@@ -318,7 +320,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 /* On narrow screens the welcome lettering leads, before the first work. */
 @media (max-width: 1023px) { .hang-lettering[data-key="welcome"] { order: -1; } }
 
-/* Bodoni's hairlines break below ~2rem on paper: set small display type heavier there. */
+/* small display type on paper sets heavier so Cormorant holds up at small sizes */
 .card .font-display, .sheet .font-display { font-weight: 600; font-optical-sizing: auto; }
 /* A pull quote opens with a drawn quotation mark, not a coloured side stripe. */
 .pull-quote { position: relative; padding-left: 1.6em; }
