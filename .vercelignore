@@ -1,0 +1,11 @@
+**/node_modules
+**/.next
+**/target
+.superpowers
+apps/web/.impeccable
+apps/web/test-results
+apps/web/playwright-report
+config/networks.json
+contracts
+deploy
+docs
