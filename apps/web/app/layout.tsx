@@ -53,8 +53,9 @@ function Header({ networkBadge }: { networkBadge: string | null }) {
     <header className="relative">
       <div className="page flex flex-wrap items-end justify-between gap-x-8 gap-y-3 pb-4 pt-6">
         <Link href="/" className="group flex items-baseline gap-3 no-underline">
-          <span className="font-display text-[2rem] leading-none tracking-[-0.01em] text-ink sm:text-[2.4rem]">Manmade</span>
-          <span className="font-plaque text-[0.66rem] uppercase tracking-[0.3em] text-ink-3">Salon</span>
+          <span className="font-display text-[2rem] leading-none tracking-[-0.01em] text-ink sm:text-[2.4rem]">
+            Manmade<span className="italic text-seal">.works</span>
+          </span>
           {networkBadge && (
             <span className="font-plaque border border-rule px-2 py-0.5 text-[0.58rem] uppercase tracking-[0.2em] text-ink-3">{networkBadge}</span>
           )}
