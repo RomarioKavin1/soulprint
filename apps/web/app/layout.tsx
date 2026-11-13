@@ -66,7 +66,7 @@ function Header({ networkBadge }: { networkBadge: string | null }) {
           <span className="normal-case tracking-normal"><SignIn /></span>
         </nav>
       </div>
-      <div aria-hidden className="h-[2px] bg-[color:var(--color-gilt)]" />
+      <div aria-hidden className="h-px bg-[color:var(--color-rule)]" />
     </header>
   );
 }

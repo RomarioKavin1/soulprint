@@ -61,7 +61,7 @@ export function Workspace({ pieceId }: { pieceId: string }) {
       </div>
 
       {piece.mode === "Commission" && piece.status === "Offered" && (
-        <div className="card border-seal/40">
+        <div className="card border-seal-2/40">
           <p className="label">Send this link to your client</p>
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <code className="break-all font-mono text-sm" data-testid="client-link">{link}</code>
@@ -75,7 +75,7 @@ export function Workspace({ pieceId }: { pieceId: string }) {
       {piece.status === "Delivered" && piece.review_ends_at && (
         <div className="card">The client is reviewing. If they say nothing, the piece completes on {when(piece.review_ends_at)}.</div>
       )}
-      {piece.status === "Disputed" && <div className="card border-seal/40">The client refused this delivery. The arbitrators will decide; you can also agree a split with the client.</div>}
+      {piece.status === "Disputed" && <div className="card border-seal-2/40">The client refused this delivery. The arbitrators will decide; you can also agree a split with the client.</div>}
 
       <Earnings pieceId={pieceId} acc={acc} onChange={reload} />
       {recording && <CapturePanel pieceId={pieceId} segments={proof.segments} open={recording} onChange={reload} />}

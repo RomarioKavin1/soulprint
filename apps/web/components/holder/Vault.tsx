@@ -46,7 +46,7 @@ export function Vault({ pieceId }: { pieceId: string }) {
       </div>
       {!accountId && <div className="card">Sign in as the owner to open the files.</div>}
       {gate && (
-        <div className="card border-seal/40" data-testid="vault-denied">
+        <div className="card border-seal-2/40" data-testid="vault-denied">
           {gate}
         </div>
       )}

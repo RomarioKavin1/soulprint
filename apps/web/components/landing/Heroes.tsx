@@ -20,7 +20,7 @@ export function HeroBrushwork() {
       <img className="hero-brush-paint" src="/salon/hero/wheat-field-brushwork.webp" alt="" />
       <div className="hero-brush-copy">
         <h1 id="landing-title" className="font-display text-balance text-[clamp(3rem,6.2vw,6rem)] leading-[0.94] tracking-[-0.025em]">
-          Real art, hung with its <em className="text-[color:var(--color-gilt-light)]">making</em>.
+          Real art, hung with its <em className="text-seal">making</em>.
         </h1>
         <p className="mt-6 max-w-[38ch] text-lg text-ink-2">
           Up close, every stroke shows how a picture was made. On Soulprint, artists record that making as they work, and every piece hangs

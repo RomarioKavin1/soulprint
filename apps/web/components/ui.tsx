@@ -72,7 +72,7 @@ export function explain(e: unknown): string {
 export function ErrorNote({ error }: { error: unknown }) {
   if (!error) return null;
   return (
-    <p role="alert" className="mt-3 rounded-sm border border-seal/30 bg-seal/5 px-3 py-2 text-sm text-seal-2">
+    <p role="alert" className="mt-3 rounded-sm border border-seal-2/30 bg-seal-2/5 px-3 py-2 text-sm text-seal-2">
       {explain(error)}
     </p>
   );

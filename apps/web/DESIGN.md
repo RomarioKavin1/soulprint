@@ -1,40 +1,25 @@
 ---
 name: Soulprint Salon
-description: A salon hang of real art on a lit claret wall; every work in a photographed period frame with a printed label that says exactly what its record shows.
+description: A salon hang of real art on a gallery-white wall; every work in a photographed period frame with a printed label that says exactly what its record shows.
 colors:
-  wall: "#4f161b"
-  wall-deep: "#2b0a0d"
+  wall: "#f6f4ef"
+  wall-deep: "#ece8e0"
+  paper: "#ffffff"
+  paper-2: "#efece6"
+  ink: "#1a1814"
+  ink-2: "#5b5650"
+  ink-3: "#736d66"
+  ink-hover: "#33302a"
+  rule: "#e2ddd3"
+  control-rule: "#d9d3c8"
+  seal: "#23399a"
+  accent-2: "#1a2b78"
+  seal-2: "#a3261e"
+  moss: "#2f6b3f"
+  amber: "#8a5a0c"
   gilt: "#c9a24a"
-  gilt-light: "#ecd18a"
-  gilt-dark: "#6e4f17"
-  gilt-plate: "#d9b866"
-  seal: "#7a1e26"
-  seal-plate: "#8a222b"
-  seal-plate-ink: "#f8e9d0"
-  wall-ink: "#f4e6c6"
-  wall-ink-2: "#dcc49b"
-  wall-ink-3: "#bd9e75"
-  wall-rule: "rgba(233, 201, 122, 0.28)"
-  wall-recess: "rgba(0, 0, 0, 0.22)"
-  wall-seal-2: "#f1a08e"
-  wall-moss: "#a9d29d"
-  wall-amber: "#f0c56a"
-  paper: "#f3ead6"
-  paper-2: "#e8dbbd"
-  sheet-ink: "#2a1f17"
-  sheet-ink-2: "#5a4636"
-  sheet-ink-3: "#7d6650"
-  sheet-rule: "#cdb98f"
-  sheet-seal-2: "#5b141b"
-  sheet-moss: "#355a35"
-  sheet-amber: "#8c5e0f"
-  plaque: "#efe6d2"
-  plaque-ink: "#2a1a05"
-  plaque-ink-2: "#4a3a26"
-  chip-gilt: "#e3c77e"
-  field: "#fffaf0"
   sight: "#1a1210"
-  mat-linen: "#ece3cd"
+  mat-linen: "#f1ede5"
 typography:
   display:
     fontFamily: "Bodoni Moda, 'Bodoni 72', Didot, serif"
@@ -108,62 +93,68 @@ spacing:
   showcase-gap-y: "clamp(36px, 3.6vw, 56px)"
 components:
   button-seal:
-    backgroundColor: "{colors.seal-plate}"
-    textColor: "{colors.seal-plate-ink}"
+    backgroundColor: "{colors.seal}"
+    textColor: "{colors.paper}"
     typography: "{typography.button}"
     rounded: "{rounded.plate}"
     padding: "10px 16px"
+  button-seal-hover:
+    backgroundColor: "{colors.accent-2}"
   button-primary:
-    backgroundColor: "{colors.gilt-plate}"
-    textColor: "{colors.plaque-ink}"
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.paper}"
     typography: "{typography.button}"
     rounded: "{rounded.plate}"
     padding: "10px 16px"
+  button-primary-hover:
+    backgroundColor: "{colors.ink-hover}"
   button-ghost:
     backgroundColor: "transparent"
-    textColor: "{colors.wall-ink}"
+    textColor: "{colors.ink}"
     typography: "{typography.button}"
     rounded: "{rounded.plate}"
     padding: "10px 16px"
+  button-ghost-hover:
+    backgroundColor: "{colors.paper}"
   sheet:
     backgroundColor: "{colors.paper}"
-    textColor: "{colors.sheet-ink}"
+    textColor: "{colors.ink}"
     rounded: "{rounded.none}"
     padding: "{spacing.sheet-wide}"
   field:
-    backgroundColor: "{colors.field}"
-    textColor: "{colors.sheet-ink}"
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
     rounded: "{rounded.plate}"
     padding: "8px 12px"
   plaque:
-    backgroundColor: "{colors.plaque}"
-    textColor: "{colors.plaque-ink}"
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
     typography: "{typography.plaque-title}"
     rounded: "{rounded.none}"
     padding: "8px 14px 9px"
   chip:
-    backgroundColor: "{colors.chip-gilt}"
-    textColor: "{colors.plaque-ink}"
+    backgroundColor: "{colors.paper-2}"
+    textColor: "{colors.ink}"
     rounded: "{rounded.none}"
     padding: "4px 12px"
   chip-quiet:
     backgroundColor: "transparent"
-    textColor: "{colors.wall-ink-2}"
+    textColor: "{colors.ink-2}"
     rounded: "{rounded.none}"
     padding: "4px 12px"
   wall-select:
     backgroundColor: "transparent"
-    textColor: "{colors.wall-ink}"
+    textColor: "{colors.ink}"
     rounded: "{rounded.plate}"
     padding: "4px 26px 4px 10px"
   finding-aid:
     backgroundColor: "{colors.paper}"
-    textColor: "{colors.sheet-ink}"
+    textColor: "{colors.ink}"
     rounded: "{rounded.none}"
     padding: "18px 20px"
   showcase-label:
-    backgroundColor: "{colors.plaque}"
-    textColor: "{colors.plaque-ink}"
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
     typography: "{typography.plaque-title}"
     rounded: "{rounded.none}"
     padding: "9px 12px 10px"
@@ -176,56 +167,56 @@ components:
 
 **Creative North Star: "The Salon Hang"**
 
-Soulprint is one room: a claret wall, lit once from the cornice, hung close with works in real period frames. Every work carries a flat printed label that states what its record shows and nothing more. The reference is a Paris Salon wall of the 1880s, where pictures touch shoulders and sizes vary, and it replaces the online-shop pattern of unframed images in a white grid.
+Soulprint is one room: a gallery-white wall in even light, hung close with works in real period frames. Every work carries a flat printed label that states what its record shows and nothing more. The hang is a Paris Salon's, where pictures touch shoulders and sizes vary; the wall is a present-day museum's warm white, so the photographed frames and the pictures carry all the colour. What separates it from an online shop's white grid is the frame, the label and the hang, never the colour of the wall.
 
-There are two materials and they never blur. **The wall** (claret, damask, gilt, light lettering) carries the art, the headlines and navigation. **The sheet** (ivory catalogue paper with dark print) carries facts, forms and reading. The same token names (`ink`, `ink-2`, `ink-3`, `rule`, `paper-2`, `seal-2`, `moss`, `amber`) resolve to light values on the wall and dark values inside a sheet, so a component reads correctly in either place without a variant.
+There are two surfaces and one ink. **The wall** (warm white) carries the art, the headlines and navigation. **The sheet** (pure white paper with a ruled edge and a soft shadow) carries facts, forms and reading. Both take the same near-black ink (`ink`, `ink-2`, `ink-3`) and the same `rule`; a sheet differs from the wall by one step of white, a 1px border and its shadow, so a component reads the same in either place. One accent, ultramarine, marks the decisive action and the few emphasised words.
 
 The physical parts are photographs, not drawings. The frames are four empty cassetta frames from The Metropolitan Museum of Art (Open Access, CC0) cut into nine-slice plates with measured slices; sculpture is cut from its museum photograph and stands on its own base. Each raster ships with a provenance record next to it. Operate screens (studio, rooms, vault, pay) live in the same room and simply use more sheet and less wall.
 
 The room has three ways of showing work. **The hang** is the close salon wall of mixed sizes (artist pages). **The showcase** (`/gallery`) is the catalogue room: an even wall of equal cells, every work framed, under a printed finding aid. **The landing** (`/`) opens on the one unframed, full-bleed picture in the system, a museum photograph of real paint seen close, then walks through four numbered rooms to a doorway into the gallery.
 
 **Key Characteristics:**
-- One claret wall, one light from the top, an authored tone-on-tone damask.
+- One warm-white wall in even light: no pattern, no wall colour.
 - Photographed period frames as nine-slice border plates; four mouldings, one per work for life.
-- Flat ivory wall labels: Cinzel title, italic Spectral line, claret level.
-- Ivory catalogue sheets with an inset hairline for every fact and form.
+- Flat white wall labels with a ruled edge: Cinzel title, italic Spectral line, ultramarine level.
+- White sheets with a 1px rule border and a soft warm-black shadow for every fact and form.
 - Square forms; the only radius is 2px on controls.
-- One authored interaction: a work steps forward and the wall behind it warms.
+- One authored interaction: a work steps forward and the wall behind it brightens.
 - Pictures are sized from their own proportions, so every picture fills its frame.
 - One full-bleed photograph of paint on the landing; everywhere else a picture is framed.
+- One accent, ultramarine; gilt exists only in the photographed frames.
 
 ## Colors
 
-A warm, narrow palette: claret, gilt and ivory, with dark brown print. Nothing cool, nothing neutral grey.
+A light, warm palette: gallery white, near-black ink and one ultramarine accent. The frames and the pictures carry the colour; the interface stays out of their way.
 
 ### Primary
-- **Salon Claret** (`wall`): the wall itself, the body background of every route.
-- **Claret Shadow** (`wall-deep`): the root behind the wall (overscroll and the foot of the room), and the scrim laid over the landing's paint so wall lettering stays readable (92% under the type, clear by three quarters of the way across).
-- **Wax Seal** (`seal`, painted as `seal-plate` on buttons with `seal-plate-ink` lettering): the decisive action, the level line on a label, numerals and the drawn quotation mark on sheets, input focus and caret, the timeline scrubber.
+- **Ultramarine** (`seal`, hover `accent-2`): the painter's lapis blue and the only accent. The decisive button, the italic emphasis word in a headline, the evidence sentence on a piece page, the level line on a label, room numerals and level codes, the drawn quotation mark on sheets, the focus ring, text selection, input focus, caret and checkbox, the "Clear filters" link.
 
 ### Secondary
-- **Leaf Gilt** (`gilt`): the 2px picture rail, ghost-button and wall-control borders, text selection.
-- **Gilt Highlight** (`gilt-light`): the emphasised word in wall lettering, the evidence sentence on a piece page, the focus ring on the wall, the roman numeral of a landing room.
-- **Gilt Shade** (`gilt-dark`): scrollbar thumb and the sheet's inset hairline (at 35% alpha).
-- **Gilt Plate** (`gilt-plate`) and **Label Gilt** (`chip-gilt`): the painted plate of the ordinary primary button and of state chips.
+- **Leaf Gilt** (`gilt`): the metal of the photographed frames, recorded for reference. It is not painted anywhere in the interface: no gilt lines, plates, borders or lettering.
 
 ### Tertiary
-- **Moss** (`wall-moss` / `sheet-moss`) and **Amber** (`wall-amber` / `sheet-amber`): confirmation and caution text or thin borders, small and rare. **Seal Tint** (`wall-seal-2` / `sheet-seal-2`) is error and warning text.
+- **Refusal Red** (`seal-2`): error, refusal and destructive-action text. Errors stay red; they never take the accent.
+- **Moss** (`moss`) and **Amber** (`amber`): confirmation and caution, as small text or a thin border, rare.
 
 ### Neutral
-- **Wall Lettering** (`wall-ink`, `wall-ink-2`, `wall-ink-3`): headline, reading and quiet text on claret. **Wall Rule** (`wall-rule`) is a translucent gilt hairline; **Wall Recess** (`wall-recess`) is a darkened well.
-- **Catalogue Ivory** (`paper`, `paper-2`): the sheet and its recessed wells (code blocks, bar tracks).
-- **Print Brown** (`sheet-ink`, `sheet-ink-2`, `sheet-ink-3`) and **Sheet Rule** (`sheet-rule`): text and dividers on ivory.
-- **Label Card** (`plaque`, `plaque-ink`, `plaque-ink-2`): the wall label and its print.
-- **Field White** (`field`): input background, always on a sheet.
+- **Gallery White** (`wall`): the wall, the body background of every route, and the scrim laid over the landing's paint so the lettering stays readable.
+- **Wall Shade** (`wall-deep`): the root behind the wall (overscroll and the foot of the room).
+- **Paper** (`paper`): sheets, wall labels, the finding aid, fields, and the lettering on filled buttons. Pure white, one step brighter than the wall.
+- **Paper Shade** (`paper-2`): recessed wells (code blocks, bar tracks, thumbnails), state chips, and the room seen through the last doorway.
+- **Ink** (`ink`, `ink-2`, `ink-3`): headline, reading and quiet text, the same on wall and paper. `ink` is also the plate of the ordinary primary button (`ink-hover` on hover).
+- **Rule** (`rule`): the 1px line: sheet, label and finding-aid borders, the header rail, the footer line, quiet chips. **Control Rule** (`control-rule`) is the slightly darker border of fields and the wall select.
 - **Sight** (`sight`) and **Linen Mat** (`mat-linen`): the dark sight edge inside a frame, and the mat used for prints and for making-frames shown in place of a finished image.
 
 ### Named Rules
-**The Two Inks Rule.** Never hard-code a text colour for wall or sheet. Use `ink`, `ink-2`, `ink-3`, `rule`; the scope (`:root`/`.on-wall` versus `.card`/`.sheet`/`.on-paper`) picks the value.
+**The One Ink Rule.** Text is `ink`, `ink-2` or `ink-3` and lines are `rule`, on the wall and on paper alike. There are no surface scopes and no light-on-dark variants to maintain; never hard-code a text colour.
 
-**The Seal Is One Decision Rule.** The claret seal button marks the one decisive action in a view (walk the hang, start a piece, the committing step of a flow). Ordinary actions are gilt plates or ghosts.
+**The Seal Is One Decision Rule.** The ultramarine seal button marks the one decisive action in a view (enter the gallery, start a piece, the committing step of a flow). Ordinary actions are near-black plates or ghosts.
 
-**The Claret Level Rule.** On a label, the only coloured line is the level or the word "Example", in seal claret. Colour never grades a work; green, amber and red are for system state only.
+**The Ultramarine Level Rule.** On a label, the only coloured line is the level or the word "Example", in ultramarine. Colour never grades a work; green, amber and red are for system state only.
+
+**The Pictures Carry The Colour Rule.** Wall, paper and ink are neutral, and ultramarine is the single accent. Every other colour on a screen comes from a photographed frame or a picture. Gilt is never drawn.
 
 ## Typography
 
@@ -237,23 +228,23 @@ A warm, narrow palette: claret, gilt and ivory, with dark brown print. Nothing c
 **Character:** High-contrast Didone for what is said aloud on the wall, inscriptional capitals for what is printed on plates and labels, and a quiet book serif with old-style figures for reading. Mono appears only for values a reader could check on-chain.
 
 ### Hierarchy
-- **Hero** (400, clamp(3rem, 6.2vw, 6rem), line-height 0.94, -0.025em): the landing headline only, set over the scrim; one italic word in Gilt Highlight. It is the largest type in the system and appears once.
-- **Display** (400, clamp(2.4rem, 3.4vw, 3.6rem), line-height 1, -0.02em): lettering painted on the wall. One word may be italic in Gilt Highlight. The header wordmark is the same face at 2rem to 2.4rem.
-- **Headline** (400, clamp(2.2rem, 4vw, 3.4rem), line-height 1, -0.015em): page titles on the wall; the piece title and artist name run up to 4.4rem and the gallery title to 4rem. Landing room titles use the same size at line-height 1.05, under a roman numeral in display type (2.4rem, Gilt Highlight).
+- **Hero** (400, clamp(3rem, 6.2vw, 6rem), line-height 0.94, -0.025em): the landing headline only, set over the scrim; one italic word in Ultramarine. It is the largest type in the system and appears once.
+- **Display** (400, clamp(2.4rem, 3.4vw, 3.6rem), line-height 1, -0.02em): lettering painted on the wall. One word may be italic in Ultramarine. The header wordmark is the same face at 2rem to 2.4rem.
+- **Headline** (400, clamp(2.2rem, 4vw, 3.4rem), line-height 1, -0.015em): page titles on the wall; the piece title and artist name run up to 4.4rem and the gallery title to 4rem. Landing room titles use the same size at line-height 1.05, under a roman numeral in display type (2.4rem, Ultramarine).
 - **Title** (600 on sheets, 1.875rem): section headings inside sheets; large figures in fact grids use the same style.
 - **Body** (400, 17px, line-height 1.55): reading text; wall paragraphs are held to 32 to 36ch, sheet text to about 62ch. A landing room's explanation is the one longer wall text: 1.06rem in reading ink, held to 60ch (the hero sentence to 38ch). Secondary text is 0.875rem, fine print 0.75rem.
 - **Label** (Cinzel 600, 0.72rem, 0.2em, uppercase): field labels, definition terms, navigation. Buttons are 0.76rem at 0.13em; chips 0.7rem at 0.14em.
-- **Wall label** (Cinzel 700, 0.72rem, 0.1em uppercase title, two lines at most; Spectral italic 0.82rem line; Cinzel 600 0.7rem claret level; Spectral 0.78rem note).
+- **Wall label** (Cinzel 700, 0.72rem, 0.1em uppercase title, two lines at most; Spectral italic 0.82rem line; Cinzel 600 0.7rem ultramarine level; Spectral 0.78rem note).
 - **Data** (JetBrains Mono 400, 0.75rem, tabular figures): account names, fingerprints, hashes, codes.
 
 ### Named Rules
-**The Heavier-On-Paper Rule.** Bodoni's hairlines break at small sizes on ivory. Any display type inside a sheet is weight 600; weight 400 is for large lettering on the wall.
+**The Heavier-On-Paper Rule.** Bodoni's hairlines break at small sizes on paper. Any display type inside a sheet is weight 600; weight 400 is for large lettering on the wall.
 
 **The Capitals Are Printed Rule.** Cinzel is always uppercase, tracked 0.1em to 0.3em, and at or below 0.8rem. It is never used for sentences.
 
 ## Layout
 
-The page column is 1400px wide with a 16px gutter (32px from 640px) and 112px of wall left under the content. The header is the picture rail: wordmark lower-left, navigation lower-right, and a flat 2px gilt line running the full width beneath them.
+The page column is 1400px wide with a 16px gutter (32px from 640px) and 112px of wall left under the content. The header is the rail: wordmark lower-left, navigation lower-right, and a 1px rule line running the full width beneath them.
 
 **The hang** is the main layout. It is a wrapping, centred flex row with one centre line, tight gaps (14 to 26px across, 18 to 28px down), and four sizes set by height: small clamp(110px, 10.5vw, 160px), medium clamp(190px, 18vw, 290px), large clamp(230px, 23vw, 360px), extra clamp(260px, 30vw, 460px). Sizes follow a fixed rhythm (large, two small, medium, two small, large, medium ...), and two consecutive small works stack in one column. Sculpture and works taller than 1.45:1 never hang small. Lettering blocks (18 to 24rem wide, left-aligned) hang in line with the frames as if painted on the wall. A section may bleed wall to wall, past the page column, with clamp(16px, 3vw, 48px) of side padding; the landing hero and its last doorway do. The hang now serves artist pages, inside the page column.
 
@@ -272,73 +263,73 @@ Below the hang, sheets sit in a centred reading column (max-w-5xl, narrower for 
 
 ## Elevation & Depth
 
-Depth is physical and has one source: the light at the cornice. The wall is lit by a single warm radial gradient at the top over the damask; objects cast soft shadows straight down. There are no hard offset shadows and no glows except the wall warming behind an approached work.
+Depth is physical and quiet. The room is lit evenly from above and the wall carries no gradient; objects cast soft warm-black shadows (ink, `rgba(26,24,20,…)`) straight down. Buttons, chips and fields are flat. There are no hard offset shadows, no coloured shadows and no glows; the one change in the wall is that it brightens behind an approached work.
 
 ### Shadow Vocabulary
-- **Hung frame** (`0 26px 36px -18px rgba(8,0,0,0.85), 0 6px 10px -2px rgba(8,0,0,0.5)`): every framed work at rest.
-- **Approached frame** (`0 34px 44px -18px rgba(8,0,0,0.9), 0 8px 14px -2px rgba(8,0,0,0.55)` with a 4px lift): hover or focus within.
+- **Hung frame** (`0 18px 28px -16px rgba(26,24,20,0.45), 0 3px 6px -1px rgba(26,24,20,0.25)`): every framed work at rest.
+- **Approached frame** (`0 28px 40px -18px rgba(26,24,20,0.5), 0 6px 10px -2px rgba(26,24,20,0.3)` with a 4px lift): hover or focus within.
 - **Moulding depth** (`inset 0 6px 9px -4px rgba(0,0,0,0.5), inset 5px 0 8px -5px rgba(0,0,0,0.35)`): the frame shading the picture's top and left edges.
-- **Sheet** (`0 1px 0 rgba(255,255,255,0.6) inset, 0 18px 40px -18px rgba(0,0,0,0.75), 0 2px 6px rgba(0,0,0,0.35)`): catalogue sheets.
-- **Label and plate** (`0 2px 4px rgba(0,0,0,0.35)` for labels; `0 2px 6px rgba(0,0,0,0.3)` for gilt buttons; the seal button adds `inset 0 0 0 1px rgba(233,201,122,0.55)`).
-- **Sculpture** (`drop-shadow(0 3px 2px rgba(0,0,0,0.55)) drop-shadow(0 12px 10px rgba(0,0,0,0.3))`): follows the cut-out's silhouette.
-- **Finding aid** (`0 14px 30px -18px rgba(0,0,0,0.75)`): the ivory strip of controls; lighter than a sheet because it lies closer to the wall.
-- **Doorway** (`inset 0 0 30px rgba(0,0,0,0.55), 0 10px 30px rgba(0,0,0,0.45)`): the room seen through the last doorway is darker at its edges; its only light is a warm radial at the top, the cornice of the next room.
-- **Paint scrim** (`linear-gradient(90deg, rgba(43,10,13,0.92) 0%, rgba(43,10,13,0.78) 34%, rgba(43,10,13,0.15) 62%, transparent 75%)` over `linear-gradient(0deg, rgba(43,10,13,0.6), transparent 30%)`; on phones one top-down gradient from 0.92 through 0.84 at 46% to clear): Claret Shadow laid over the hero photograph. It darkens, it never lights.
+- **Sheet** (`0 1px 2px rgba(26,24,20,0.04), 0 12px 32px -20px rgba(26,24,20,0.25)`): white sheets, with their 1px rule border.
+- **Label** (`0 1px 3px rgba(26,24,20,0.08)`): wall labels and showcase labels, with their 1px rule border.
+- **Sculpture** (`drop-shadow(0 3px 2px rgba(26,24,20,0.35)) drop-shadow(0 12px 10px rgba(26,24,20,0.18))`): follows the cut-out's silhouette.
+- **Finding aid** (`0 10px 28px -20px rgba(26,24,20,0.3)`): the white strip of controls; lighter than a sheet because it lies closer to the wall.
+- **Doorway** (`inset 0 0 30px rgba(26,24,20,0.08), 0 18px 32px -18px rgba(26,24,20,0.4)`): the room seen through the last doorway is flat Paper Shade, faintly shaded at its edges; the casing casts down like a frame.
+- **Paint scrim** (`linear-gradient(90deg, rgba(246,244,239,0.96) 0%, rgba(246,244,239,0.9) 34%, rgba(246,244,239,0.25) 60%, transparent 74%)` over `linear-gradient(0deg, rgba(246,244,239,0.7), transparent 22%)`; to 760px one top-down gradient from 0.96 through 0.9 at 48% and 0.15 at 70% to clear): Gallery White laid over the hero photograph. It lightens, it never darkens.
 
 ### Motion
-- **Approach:** frame lifts 4px and a radial warm patch fades in behind it, 500ms, `cubic-bezier(0.16, 1, 0.3, 1)`. Triggered by hover and by keyboard focus within.
+- **Approach:** frame lifts 4px and a radial patch of white (90% at its centre) fades in behind it, brightening the wall, 500ms, `cubic-bezier(0.16, 1, 0.3, 1)`. Triggered by hover and by keyboard focus within.
 - **Arrival:** each work comes up from 35% brightness once, 1100ms, staggered 60ms per work after 120ms.
-- **Showcase arrival:** the same rise from the dark per cell, 900ms, staggered 40ms and capped at the twelfth cell so a long wall never waits. A showcase frame takes the 4px approach lift without the wall warming.
+- **Showcase arrival:** the same rise from the dark per cell, 900ms, staggered 40ms and capped at the twelfth cell so a long wall never waits. A showcase frame takes the 4px approach lift without the wall brightening.
 - **Lean in:** as the landing scrolls through its first screen the hero paint scales to 1.08 and drifts down 2%, from an origin at 70% 30%. It is driven by scroll position, not time, and runs only where scroll-driven animation is supported.
 - **Re-hang:** while the showcase is fetching a new view the finding aid drops to 70% opacity over 200ms; nothing else moves.
-- **Controls:** 200ms colour, shadow and brightness changes only.
+- **Controls:** 200ms background, border and colour changes only.
 - **Reduced motion:** no lift, no arrival, no lean in, no smooth scroll.
 
 ### Named Rules
-**The One Light Rule.** Light comes from the top of the room. Shadows fall down, inner shading sits on the top and left of a picture, and nothing is lit from below or from the side.
+**The One Light Rule.** Light is even and comes from above. Shadows fall straight down in warm black, inner shading sits on the top and left of a picture, and nothing is lit from below or from the side.
 
 ## Shapes
 
 Everything is square. Sheets, labels, chips, frames and pictures have no radius; controls (buttons, fields, the wall select, the focus ring) take 2px, the softness of a cut plate. There are no pills and no circles.
 
-Borders are either real or printed. A frame is a photographed moulding drawn as a border image whose width is 8.5% of the work's height (minimum 12px; 6% of width on phones) with true corners and stretched sides; the stone-inlaid frame repeats its sides instead of stretching. A sheet has a 1px gilt-shade hairline inset 8px from its edge, like a printed border on a catalogue page. Other lines are 1px rules in the scoped `rule` colour.
+Borders are either photographed or ruled. A frame is a photographed moulding drawn as a border image whose width is 8.5% of the work's height (minimum 12px; 6% of width on phones) with true corners and stretched sides; the stone-inlaid frame repeats its sides instead of stretching. Everything else is a 1px line: sheets, labels and the finding aid have a 1px `rule` border at their edge; fields and the wall select a 1px `control-rule` border; ghost buttons a 1px border (#cfc9be).
 
-The finding aid carries the sheet's printed hairline, inset 6px. A doorway casing is the same photographed moulding as a frame, drawn as a border image clamp(18px, 2.4vw, 32px) wide around an opening instead of a picture.
+A doorway casing is the same photographed moulding as a frame, drawn as a border image clamp(18px, 2.4vw, 32px) wide around an opening instead of a picture.
 
 ## Components
 
 ### Buttons
-Small engraved plates: Cinzel capitals, 2px corners, 10px by 16px.
-- **Seal:** claret plate, cream lettering, thin gilt inner line. The decisive action.
-- **Primary:** gilt-painted plate with dark lettering. Ordinary committing actions inside sheets.
-- **Ghost:** transparent with a 1px gilt border at 70%; fills with gilt at 16% on hover. Works on wall and sheet through the scoped ink.
-- **Hover / Focus / Disabled:** hover brightens the plate (1.08 gilt, 1.12 seal); focus is a 2px outline offset 3px, Gilt Highlight on the wall and Wax Seal on a sheet; disabled is 45% opacity.
+Small flat plates: Cinzel capitals, 2px corners, 10px by 16px, no shadow.
+- **Seal:** ultramarine plate, white lettering. The decisive action.
+- **Primary:** near-black plate (`ink`), white lettering. Ordinary committing actions.
+- **Ghost:** transparent with a 1px border (#cfc9be) and ink lettering; on hover the border turns ink and the plate fills white.
+- **Hover / Focus / Disabled:** hover deepens the plate (seal to `accent-2`, primary to `ink-hover`); focus is a 2px ultramarine outline offset 3px, the same everywhere; disabled is 45% opacity.
 
 ### Chips
-- **Style:** a small printed state label, square, Label Gilt with dark capitals.
-- **Quiet:** transparent with an inset 1px rule, for secondary states.
+- **Style:** a small printed state label, square, Paper Shade with ink capitals.
+- **Quiet:** transparent with an inset 1px rule and `ink-2` capitals, for secondary states.
 
-### Cards / Containers (the catalogue sheet)
+### Cards / Containers (the sheet)
 - **Corner Style:** square.
-- **Background:** Catalogue Ivory with a faint lighter wash over the top 40%.
-- **Shadow Strategy:** the Sheet shadow; it hangs on the wall.
-- **Border:** 1px gilt-shade hairline inset 8px.
+- **Background:** Paper, flat.
+- **Shadow Strategy:** the Sheet shadow; it lies on the wall.
+- **Border:** 1px `rule` at the edge; no inner outline.
 - **Internal Padding:** 24px, 32px from 640px (48px for the large explanatory sheet).
-- Inside a sheet all ink tokens turn dark. Numbered steps use roman numerals in display type, in seal claret. A pull quote opens with a drawn quotation mark in display type, never a side stripe.
+- Numbered steps and level codes use display type in ultramarine. A pull quote opens with a drawn quotation mark in display type, in ultramarine, never a side stripe.
 
 ### Inputs / Fields
-- **Style:** Field White, 1px Sheet Rule border, 2px corners, 8px by 12px, with a Cinzel label above. Fields live on sheets only.
-- **Focus:** border turns Wax Seal with a 3px seal ring at 15%.
-- **Wall select:** the one control that sits on the wall (account picker in the rail): transparent, 1px gilt border at 55%, Spectral 0.85rem.
+- **Style:** Paper, 1px Control Rule border, 2px corners, 8px by 12px, with a Cinzel label above in `ink-3`. Fields live on sheets only.
+- **Focus:** border turns ultramarine with a 3px ultramarine ring at 15%. Caret and native controls (checkbox, select) take the accent.
+- **Wall select:** the one control that sits on the wall (account picker in the rail): transparent, 1px Control Rule border that turns ink on hover, Spectral 0.85rem.
 
 ### Navigation
-The picture rail: wordmark with the word "Salon" in small capitals beside it (it links to the landing, `/`), three Cinzel links (0.72rem, 0.2em) in secondary wall ink that brighten on hover, the first of which is "The gallery" (`/gallery`), the account control, and the 2px gilt line. The footer is a rule, the examples notice and two text links.
+The rail: wordmark with the word "Salon" in small capitals beside it (it links to the landing, `/`), three Cinzel links (0.72rem, 0.2em) in `ink-2` that turn `ink` on hover, the first of which is "The gallery" (`/gallery`), the account control, and the 1px rule line beneath. The footer is a rule, the examples notice and two text links.
 
 ### The Hung Work (signature)
 A figure made of a frame plate, a dark sight edge, the picture, and a wall label 14px below. Four mouldings exist: gilt, patterned gilt, walnut-and-gilt, stone inlay. A work's moulding is derived from its identifier, so it keeps the same frame everywhere. Prints, and making-frames shown before a finished image exists, sit in a linen mat. When the artist keeps frames private the sight shows an italic line saying so.
 
 ### The Wall Label (signature)
-A flat ivory card, centred under the work, 9 to 20rem wide and never wider than a small work. Order: title in capitals (linked), italic line (artist; or artist and date), level in claret, one sentence from the evidence wording table, and an optional two-line italic quote from the artist. The wording is binding: a label states what the record shows and is never a verdict; it never calls a work or a person fake and never says "proven". Example works carry the title, artist and date, and the single word "Example"; they link to the museum and never show a level, price or collect control. A reader-question count, when present, is a small ruled capital link under the label.
+A flat white card with a 1px rule border, centred under the work, 9 to 20rem wide and never wider than a small work. Order: title in capitals (linked), italic line (artist; or artist and date), level in ultramarine, one sentence from the evidence wording table, and an optional two-line italic quote from the artist. The wording is binding: a label states what the record shows and is never a verdict; it never calls a work or a person fake and never says "proven". Example works carry the title, artist and date, and the single word "Example"; they link to the museum and never show a level, price or collect control. A reader-question count, when present, is a small ruled capital link under the label.
 
 ### Sculpture (signature)
 The work cut from its museum photograph on its own base, no frame, with a silhouette drop shadow and the same wall label. It joins the hang at medium size or larger.
@@ -347,19 +338,19 @@ The work cut from its museum photograph on its own base, no frame, with a silhou
 Headline, a short paragraph and at most two buttons, set left-aligned in a column that hangs between frames. It is the only way text appears on the hang.
 
 ### The Paint Hero (signature)
-The landing's first screen. A museum photograph of real paint, cropped close enough to read the strokes, fills the section edge to edge (`object-fit: cover`), under the Claret Shadow scrim. On the scrim: the Hero headline, one sentence in reading ink, a seal button into the gallery and a ghost button. At bottom right the whole painting hangs small in a photographed frame with a wall label whose claret line reads "Example" and says which part is shown; frame and label are one link to the museum page. The photograph ships with a provenance record beside it (`public/salon/hero/`), as every raster does. The photograph itself is decoration (empty alt); the framed whole carries the description.
+The landing's first screen. A museum photograph of real paint, cropped close enough to read the strokes, fills the section edge to edge (`object-fit: cover`), under the Gallery White scrim. On the scrim: the Hero headline in ink with its one ultramarine italic word, one sentence in reading ink, a seal button into the gallery and a ghost button. At bottom right the whole painting hangs small in a photographed frame with a wall label whose ultramarine line reads "Example" and says which part is shown; frame and label are one link to the museum page. The photograph ships with a provenance record beside it (`public/salon/hero/`), as every raster does. The photograph itself is decoration (empty alt); the framed whole carries the description.
 
 ### The Room (signature)
-One idea of the landing: a roman numeral in display type and Gilt Highlight, a headline-size title, and one or two paragraphs of wall text held to 60ch. A room may hang one framed work (a recorded piece when one exists, otherwise a labelled example) or one sheet beside or below the text. Rooms are numbered because they are walked in order; the numeral is a room number, not a category label.
+One idea of the landing: a roman numeral in display type and Ultramarine, a headline-size title, and one or two paragraphs of wall text held to 60ch. A room may hang one framed work (a recorded piece when one exists, otherwise a labelled example) or one sheet beside or below the text. Rooms are numbered because they are walked in order; the numeral is a room number, not a category label.
 
 ### The Last Doorway (signature)
-The end of the landing: a photographed frame plate used as a doorway casing, up to 1180px wide, with a few small framed examples seen through it against a darker wall. The whole casing is one link into the gallery. An italic line under it names the works seen and says they are examples; a display line and a seal button repeat the way in.
+The end of the landing: a photographed frame plate used as a doorway casing, up to 1180px wide, with a few small framed examples seen through it against Paper Shade, a step deeper than the wall. The whole casing is one link into the gallery. An italic line under it names the works seen and says they are examples; a display line and a seal button repeat the way in.
 
 ### The Finding Aid (signature)
-The showcase's controls: one ivory strip with a printed hairline, lying on the wall above the grid. In order: search (wider than the rest), record, availability, artist, sort, a "Show examples" checkbox, then a ghost "Search" button and a claret text link "Clear filters". Each control is a standard field with its Cinzel label above. Every change rewrites the address, so any view is a link, and the strip works as a plain form without scripting. The "Clear filters" slot is always reserved and only hidden when nothing is set, so the strip never shifts. From 1100px down it becomes two columns with search across the top; on phones the four selects sit two by two, and the checkbox and button share the last row.
+The showcase's controls: one white strip with a 1px rule border, lying on the wall above the grid. In order: search (wider than the rest), record, availability, artist, sort, a "Show examples" checkbox, then a ghost "Search" button and an ultramarine text link "Clear filters". Each control is a standard field with its Cinzel label above. Every change rewrites the address, so any view is a link, and the strip works as a plain form without scripting. The "Clear filters" slot is always reserved and only hidden when nothing is set, so the strip never shifts. From 1100px down it becomes two columns with search across the top; on phones the four selects sit two by two, and the checkbox and button share the last row.
 
 ### The Showcase Cell (signature)
-A framed work in an equal cell with a printed label beneath. The label is the wall label's card (same ivory, print and shadow), up to 17rem wide: title in capitals (linked), italic artist line (linked to the artist), then one row with the level in claret and, beside it in dark print (Spectral 600, 0.82rem), the price or status: a price, "Reserved" with the price, "Collected" or "Not for sale". A recorded work adds its evidence sentence; a declared one does not repeat itself. Examples show title, artist and date and the single word "Example", link to The Met in a new tab, and never show a price or status. A work whose artist keeps the frames private shows the italic line saying so in a linen mat.
+A framed work in an equal cell with a printed label beneath. The label is the wall label's card (same white, rule border and shadow), up to 17rem wide: title in capitals (linked), italic artist line (linked to the artist), then one row with the level in ultramarine and, beside it in ink (Spectral 600, 0.82rem), the price or status: a price, "Reserved" with the price, "Collected" or "Not for sale". A recorded work adds its evidence sentence; a declared one does not repeat itself. Examples show title, artist and date and the single word "Example", link to The Met in a new tab, and never show a price or status. A work whose artist keeps the frames private shows the italic line saying so in a linen mat.
 
 ### No Results (state)
 When no work matches, a small centred sheet replaces the grid: a display line, one sentence, then a quiet chip for each active filter ("Clear record: Declared") that removes only that filter, and a ghost button that shows every work.
@@ -368,7 +359,7 @@ When no work matches, a small centred sheet replaces the grid: a display line, o
 
 ### Do:
 - **Do** put the art and the headlines on the wall and every fact, form and long text on a sheet.
-- **Do** use the scoped ink tokens so the same component reads on wall and sheet.
+- **Do** use the one set of ink tokens (`ink`, `ink-2`, `ink-3`, `rule`) on wall and paper alike.
 - **Do** frame every picture with one of the four photographed plates and its measured slices from `public/salon/frames/frames.json`; add a new moulding only as a new photographed plate with its provenance file. The landing hero is the single exception (The One Unframed Painting Rule).
 - **Do** keep works close on the hang: gaps stay within 14 to 28px and sizes follow the rhythm. On the showcase keep cells equal and labels on one line per row.
 - **Do** give every work a wall label and take the evidence sentence from the wording table unchanged.
@@ -377,22 +368,25 @@ When no work matches, a small centred sheet replaces the grid: a display line, o
 - **Do** give keyboard focus the same approach response as hover, and remove movement under reduced motion.
 - **Do** keep product copy on creator and client screens free of "NFT", "mint", "gas" and "wallet".
 - **Do** size a picture from its aspect ratio with `--h`, `--cap` and `--ar` (The Proportion Rule), and give every new layout its own `--h` and `--cap`.
-- **Do** put filters and sorting on an ivory strip, never loose on the wall, and make every filtered view a link.
-- **Do** keep a scrim between a photograph and any type set over it, in Claret Shadow, strong enough that wall lettering keeps its contrast.
+- **Do** put filters and sorting on a white strip, never loose on the wall, and make every filtered view a link.
+- **Do** keep a scrim between a photograph and any type set over it, in Gallery White, strong enough that ink lettering keeps its contrast.
 - **Do** ship every new photograph with its provenance record beside it.
+- **Do** keep errors and refusals red (`seal-2`); ultramarine is for decisions and emphasis.
 
 ### Don't:
 - **Don't** draw a frame with CSS borders, gradients or bevels; frames are photographs.
-- **Don't** hang unframed images in an evenly spaced grid on a pale ground. The showcase is an even grid, but every work in it is framed, labelled and on the claret wall.
+- **Don't** hang a picture unframed or unlabelled. The wall is pale, so the photographed frame, the printed label and the hang are what make it a gallery and not a shop grid.
 - **Don't** round anything beyond 2px, and don't use pills or circular controls.
-- **Don't** add a second light: no side or bottom glows, no coloured shadows, no hard offset shadows.
+- **Don't** add a second light: no side or bottom glows, no coloured shadows, no hard offset shadows, no gradient on the wall.
 - **Don't** put a form field or a long paragraph directly on the wall; the wall select in the rail is the only wall control.
-- **Don't** use moss, amber or red to grade a work; a label's only colour is the claret level line.
+- **Don't** use moss, amber or red to grade a work; a label's only colour is the ultramarine level line.
 - **Don't** show a level, price, record or collect control on an example work.
 - **Don't** use Cinzel for sentences or in lowercase, and don't use the mono face for anything but checkable values.
 - **Don't** use a coloured side stripe for quotes or callouts.
-- **Don't** introduce cool greys, pure white or pure black; every neutral is warm.
+- **Don't** introduce cool greys or pure black; every neutral is warm, and pure white is kept for paper (sheets, labels, fields) and the lettering on filled buttons.
 - **Don't** crop, stretch or letterbox a picture to fit a cell; change `--h` or `--cap` instead.
 - **Don't** add a second full-bleed or unframed painting; the landing hero is the only one.
 - **Don't** use the Hero size anywhere but the landing headline.
 - **Don't** let the finding aid change height or shift when a filter is set or cleared.
+- **Don't** bring back a coloured or patterned wall, and don't draw gilt: no gilt lines, plates, borders or lettering outside the photographed frames.
+- **Don't** add a second accent, and don't spend ultramarine on decoration, borders of ordinary sheets or body text.

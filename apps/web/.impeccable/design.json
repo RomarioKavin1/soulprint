@@ -1,510 +1,302 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-13T12:00:00Z",
+  "generatedAt": "2026-11-13T18:00:00Z",
   "title": "Design System: Soulprint Salon",
   "extensions": {
     "colorMeta": {
       "wall": {
-        "role": "primary",
-        "displayName": "Salon Claret",
-        "canonical": "#4f161b",
+        "role": "neutral",
+        "displayName": "Gallery White",
+        "canonical": "#f6f4ef",
         "tonalRamp": [
-          "#331a1c",
-          "#5d282c",
-          "#90323a",
-          "#c73844",
-          "#cd6f78",
-          "#d7a2a7",
-          "#e5ccce",
-          "#f6eff0"
-        ]
+          "#2c2920",
+          "#524b37",
+          "#7f714d",
+          "#a69363",
+          "#b8ac8e",
+          "#cdc7b6",
+          "#e3e0d9",
+          "#f4f3f1"
+        ],
+        "purpose": "The wall and body background; also the scrim over the landing's paint photograph."
       },
       "wall-deep": {
-        "role": "primary",
-        "displayName": "Claret Shadow",
-        "canonical": "#2b0a0d",
+        "role": "neutral",
+        "displayName": "Wall Shade",
+        "canonical": "#ece8e0",
         "tonalRamp": [
-          "#34181b",
-          "#60252a",
-          "#952d37",
-          "#cf303f",
-          "#d26a74",
-          "#da9fa5",
-          "#e7cbcd",
+          "#2b2821",
+          "#504939",
+          "#7b6d51",
+          "#a18e68",
+          "#b5a991",
+          "#ccc5b8",
+          "#e2dfda",
+          "#f4f3f1"
+        ],
+        "purpose": "Root behind the wall: overscroll and the foot of the room."
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#262626",
+          "#454545",
+          "#666666",
+          "#858585",
+          "#a3a3a3",
+          "#c2c2c2",
+          "#dedede",
+          "#f2f2f2"
+        ],
+        "purpose": "Sheets, wall labels, the finding aid, fields, lettering on filled buttons."
+      },
+      "paper-2": {
+        "role": "neutral",
+        "displayName": "Paper Shade",
+        "canonical": "#efece6",
+        "tonalRamp": [
+          "#2b2822",
+          "#4f483a",
+          "#796c53",
+          "#9f8d6a",
+          "#b4a993",
+          "#cbc5b9",
+          "#e2dfda",
+          "#f3f3f1"
+        ],
+        "purpose": "Recessed wells, state chips, the room seen through the last doorway."
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#1a1814",
+        "tonalRamp": [
+          "#292724",
+          "#4b473f",
+          "#726a5a",
+          "#948a75",
+          "#ada699",
+          "#c7c4bd",
+          "#e0dfdc",
+          "#f3f2f2"
+        ],
+        "purpose": "Headline text on wall and paper; the primary button plate."
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink, reading",
+        "canonical": "#5b5650",
+        "tonalRamp": [
+          "#282625",
+          "#484542",
+          "#6c6760",
+          "#8c857d",
+          "#a8a49e",
+          "#c4c2bf",
+          "#dfdedd",
+          "#f3f2f2"
+        ],
+        "purpose": "Reading and secondary text."
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Ink, quiet",
+        "canonical": "#736d66",
+        "tonalRamp": [
+          "#272625",
+          "#484542",
+          "#6b6661",
+          "#8c857d",
+          "#a8a49f",
+          "#c4c2bf",
+          "#dfdedd",
+          "#f3f2f2"
+        ],
+        "purpose": "Quiet text, field labels, placeholders."
+      },
+      "ink-hover": {
+        "role": "neutral",
+        "displayName": "Ink, hover",
+        "canonical": "#33302a",
+        "tonalRamp": [
+          "#282724",
+          "#4a4640",
+          "#6f695d",
+          "#908879",
+          "#aaa69c",
+          "#c6c3be",
+          "#e0dedc",
+          "#f3f2f2"
+        ],
+        "purpose": "Primary button on hover."
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Rule",
+        "canonical": "#e2ddd3",
+        "tonalRamp": [
+          "#2b2822",
+          "#4f483b",
+          "#786c54",
+          "#9d8d6c",
+          "#b3a894",
+          "#cac5b9",
+          "#e1dfda",
+          "#f3f3f1"
+        ],
+        "purpose": "The 1px line: sheet, label and finding-aid borders, header rail, footer line, quiet chips."
+      },
+      "control-rule": {
+        "role": "neutral",
+        "displayName": "Control Rule",
+        "canonical": "#d9d3c8",
+        "tonalRamp": [
+          "#2a2722",
+          "#4e473c",
+          "#766b56",
+          "#9a8b6f",
+          "#b1a795",
+          "#c9c4ba",
+          "#e1dfdb",
+          "#f3f3f1"
+        ],
+        "purpose": "Border of fields and the wall select."
+      },
+      "seal": {
+        "role": "primary",
+        "displayName": "Ultramarine",
+        "canonical": "#23399a",
+        "tonalRamp": [
+          "#191e33",
+          "#263263",
+          "#2e439e",
+          "#3a55d0",
+          "#7485d2",
+          "#a8b2db",
+          "#d3d7e9",
+          "#eff0f6"
+        ],
+        "purpose": "The only accent: decisive button, emphasis word, level line, room numerals, focus ring, selection, form controls."
+      },
+      "accent-2": {
+        "role": "primary",
+        "displayName": "Ultramarine, hover",
+        "canonical": "#1a2b78",
+        "tonalRamp": [
+          "#191e34",
+          "#263164",
+          "#2d429f",
+          "#3854d1",
+          "#7384d4",
+          "#a8b1dc",
+          "#d3d7e9",
+          "#eff0f6"
+        ],
+        "purpose": "Seal button on hover."
+      },
+      "seal-2": {
+        "role": "tertiary",
+        "displayName": "Refusal Red",
+        "canonical": "#a3261e",
+        "tonalRamp": [
+          "#351a18",
+          "#662824",
+          "#a33029",
+          "#d73c32",
+          "#d7766f",
+          "#dea9a6",
+          "#ead3d2",
           "#f6efef"
         ],
-        "purpose": "Root behind the wall; also the scrim over the landing's paint photograph."
+        "purpose": "Error, refusal and destructive-action text."
+      },
+      "moss": {
+        "role": "tertiary",
+        "displayName": "Moss",
+        "canonical": "#2f6b3f",
+        "tonalRamp": [
+          "#1e2e22",
+          "#32583c",
+          "#438956",
+          "#56b36f",
+          "#86c096",
+          "#b2d2ba",
+          "#d7e5db",
+          "#f0f4f1"
+        ],
+        "purpose": "Confirmation text or thin border."
+      },
+      "amber": {
+        "role": "tertiary",
+        "displayName": "Amber",
+        "canonical": "#8a5a0c",
+        "tonalRamp": [
+          "#382a15",
+          "#6d4f1c",
+          "#b1781b",
+          "#e99c20",
+          "#e2b264",
+          "#e4caa0",
+          "#ece1cf",
+          "#f7f3ee"
+        ],
+        "purpose": "Caution text or thin border."
       },
       "gilt": {
         "role": "secondary",
         "displayName": "Leaf Gilt",
         "canonical": "#c9a24a",
         "tonalRamp": [
-          "#322b1a",
-          "#5c4c29",
-          "#8e7234",
-          "#c49a3b",
-          "#cbaf71",
-          "#d6c7a3",
-          "#e5ddcd",
+          "#322b1b",
+          "#5f4f2b",
+          "#967936",
+          "#c59d44",
+          "#ccb37b",
+          "#d8caac",
+          "#e7e1d5",
           "#f5f3ef"
-        ]
-      },
-      "gilt-light": {
-        "role": "secondary",
-        "displayName": "Gilt Highlight",
-        "canonical": "#ecd18a",
-        "tonalRamp": [
-          "#362d16",
-          "#645220",
-          "#9d7c25",
-          "#dba924",
-          "#dab962",
-          "#dfcc9b",
-          "#e9e0c9",
-          "#f6f4ee"
-        ]
-      },
-      "gilt-dark": {
-        "role": "secondary",
-        "displayName": "Gilt Shade",
-        "canonical": "#6e4f17",
-        "tonalRamp": [
-          "#352a18",
-          "#614b23",
-          "#97702b",
-          "#d3972c",
-          "#d4ae68",
-          "#dcc69e",
-          "#e7ddca",
-          "#f6f3ee"
-        ]
-      },
-      "gilt-plate": {
-        "role": "secondary",
-        "displayName": "Gilt Plate",
-        "canonical": "#d9b866",
-        "tonalRamp": [
-          "#342c19",
-          "#5f4e26",
-          "#93762f",
-          "#cca033",
-          "#d0b36c",
-          "#d9c9a0",
-          "#e6decb",
-          "#f6f4ef"
-        ]
-      },
-      "seal": {
-        "role": "primary",
-        "displayName": "Wax Seal",
-        "canonical": "#7a1e26",
-        "tonalRamp": [
-          "#34191b",
-          "#5f262b",
-          "#932f37",
-          "#cd3240",
-          "#d06c75",
-          "#d9a0a5",
-          "#e6cbce",
-          "#f6efef"
-        ]
-      },
-      "seal-plate": {
-        "role": "primary",
-        "displayName": "Seal Plate",
-        "canonical": "#8a222b",
-        "tonalRamp": [
-          "#34191b",
-          "#5f262b",
-          "#932f37",
-          "#cd3240",
-          "#d06c75",
-          "#d9a0a5",
-          "#e6cbce",
-          "#f6efef"
-        ]
-      },
-      "seal-plate-ink": {
-        "role": "neutral",
-        "displayName": "Seal Lettering",
-        "canonical": "#f8e9d0",
-        "tonalRamp": [
-          "#372a16",
-          "#654b1f",
-          "#9e7023",
-          "#de9721",
-          "#dcad61",
-          "#e0c59a",
-          "#e9ddc8",
-          "#f7f3ee"
-        ]
-      },
-      "wall-ink": {
-        "role": "neutral",
-        "displayName": "Wall Lettering",
-        "canonical": "#f4e6c6",
-        "tonalRamp": [
-          "#352c17",
-          "#624f22",
-          "#997729",
-          "#d6a129",
-          "#d6b466",
-          "#ddc99d",
-          "#e8dfca",
-          "#f6f4ee"
-        ]
-      },
-      "wall-ink-2": {
-        "role": "neutral",
-        "displayName": "Wall Lettering, reading",
-        "canonical": "#dcc49b",
-        "tonalRamp": [
-          "#31291c",
-          "#59482c",
-          "#896b39",
-          "#bd9042",
-          "#c6a976",
-          "#d3c3a6",
-          "#e3dcce",
-          "#f5f3ef"
-        ]
-      },
-      "wall-ink-3": {
-        "role": "neutral",
-        "displayName": "Wall Lettering, quiet",
-        "canonical": "#bd9e75",
-        "tonalRamp": [
-          "#2e271e",
-          "#534532",
-          "#7e6544",
-          "#ac8652",
-          "#bba281",
-          "#cdbfac",
-          "#e1dad1",
-          "#f4f3f0"
-        ]
-      },
-      "wall-rule": {
-        "role": "neutral",
-        "displayName": "Wall Rule",
-        "canonical": "rgba(233, 201, 122, 0.28)",
-        "tonalRamp": [
-          "#362d16",
-          "#645120",
-          "#9c7a25",
-          "#dba624",
-          "#dab763",
-          "#dfcb9b",
-          "#e9dfc9",
-          "#f6f4ee"
-        ]
-      },
-      "wall-recess": {
-        "role": "neutral",
-        "displayName": "Wall Recess",
-        "canonical": "rgba(0, 0, 0, 0.22)",
-        "tonalRamp": [
-          "#262626",
-          "#424242",
-          "#616161",
-          "#808080",
-          "#9e9e9e",
-          "#bdbdbd",
-          "#d9d9d9",
-          "#f2f2f2"
-        ]
-      },
-      "wall-seal-2": {
-        "role": "tertiary",
-        "displayName": "Seal Tint on Wall",
-        "canonical": "#f1a08e",
-        "tonalRamp": [
-          "#381b15",
-          "#672b1e",
-          "#a23820",
-          "#e3401c",
-          "#df755d",
-          "#e1a598",
-          "#eacec7",
-          "#f7efee"
-        ]
-      },
-      "wall-moss": {
-        "role": "tertiary",
-        "displayName": "Moss on Wall",
-        "canonical": "#a9d29d",
-        "tonalRamp": [
-          "#222e1e",
-          "#395431",
-          "#508042",
-          "#66af50",
-          "#8dbd7f",
-          "#b3ceab",
-          "#d4e1d1",
-          "#f1f4f0"
-        ]
-      },
-      "wall-amber": {
-        "role": "tertiary",
-        "displayName": "Amber on Wall",
-        "canonical": "#f0c56a",
-        "tonalRamp": [
-          "#382d14",
-          "#69501c",
-          "#a5791d",
-          "#e8a517",
-          "#e2b65a",
-          "#e3cb96",
-          "#ebdfc7",
-          "#f7f4ed"
-        ]
-      },
-      "paper": {
-        "role": "neutral",
-        "displayName": "Catalogue Ivory",
-        "canonical": "#f3ead6",
-        "tonalRamp": [
-          "#322b1a",
-          "#5c4c28",
-          "#8e7234",
-          "#c59a3a",
-          "#cbaf71",
-          "#d7c6a3",
-          "#e5ddcd",
-          "#f5f3ef"
-        ]
-      },
-      "paper-2": {
-        "role": "neutral",
-        "displayName": "Ivory Well",
-        "canonical": "#e8dbbd",
-        "tonalRamp": [
-          "#312a1c",
-          "#594b2b",
-          "#897139",
-          "#bd9842",
-          "#c6ae76",
-          "#d4c6a6",
-          "#e3ddce",
-          "#f5f3ef"
-        ]
-      },
-      "sheet-ink": {
-        "role": "neutral",
-        "displayName": "Print Brown",
-        "canonical": "#2a1f17",
-        "tonalRamp": [
-          "#2d2520",
-          "#504035",
-          "#795d49",
-          "#a57a5a",
-          "#b69a86",
-          "#cabbaf",
-          "#dfd8d2",
-          "#f4f2f1"
-        ]
-      },
-      "sheet-ink-2": {
-        "role": "neutral",
-        "displayName": "Print Brown, reading",
-        "canonical": "#5a4636",
-        "tonalRamp": [
-          "#2c2621",
-          "#4e4136",
-          "#765f4c",
-          "#9f7c60",
-          "#b39c89",
-          "#c9bbb1",
-          "#ded8d3",
-          "#f4f2f1"
-        ]
-      },
-      "sheet-ink-3": {
-        "role": "neutral",
-        "displayName": "Print Brown, quiet",
-        "canonical": "#7d6650",
-        "tonalRamp": [
-          "#2b2621",
-          "#4d4238",
-          "#73604f",
-          "#9b7f64",
-          "#b09e8c",
-          "#c7bcb2",
-          "#ded9d4",
-          "#f4f2f1"
-        ]
-      },
-      "sheet-rule": {
-        "role": "neutral",
-        "displayName": "Sheet Rule",
-        "canonical": "#cdb98f",
-        "tonalRamp": [
-          "#2f291e",
-          "#544930",
-          "#816c41",
-          "#b0914f",
-          "#bea97e",
-          "#cfc3ab",
-          "#e1dcd0",
-          "#f4f3f0"
-        ]
-      },
-      "sheet-seal-2": {
-        "role": "tertiary",
-        "displayName": "Seal Tint on Sheet",
-        "canonical": "#5b141b",
-        "tonalRamp": [
-          "#34181b",
-          "#60242a",
-          "#962c36",
-          "#d12e3e",
-          "#d36974",
-          "#db9fa4",
-          "#e7cbcd",
-          "#f6eeef"
-        ]
-      },
-      "sheet-moss": {
-        "role": "tertiary",
-        "displayName": "Moss on Sheet",
-        "canonical": "#355a35",
-        "tonalRamp": [
-          "#212c21",
-          "#364f36",
-          "#4b764b",
-          "#5fa05f",
-          "#89b489",
-          "#b0c9b0",
-          "#d3ded3",
-          "#f1f4f1"
-        ]
-      },
-      "sheet-amber": {
-        "role": "tertiary",
-        "displayName": "Amber on Sheet",
-        "canonical": "#8c5e0f",
-        "tonalRamp": [
-          "#382b14",
-          "#684c1c",
-          "#a4731e",
-          "#e69b19",
-          "#e1b05b",
-          "#e3c797",
-          "#ebddc7",
-          "#f7f3ee"
-        ]
-      },
-      "plaque": {
-        "role": "neutral",
-        "displayName": "Label Card",
-        "canonical": "#efe6d2",
-        "tonalRamp": [
-          "#312a1c",
-          "#594b2c",
-          "#887039",
-          "#bc9643",
-          "#c6ad77",
-          "#d3c5a6",
-          "#e3ddce",
-          "#f5f3ef"
-        ]
-      },
-      "plaque-ink": {
-        "role": "neutral",
-        "displayName": "Label Print",
-        "canonical": "#2a1a05",
-        "tonalRamp": [
-          "#382915",
-          "#67471d",
-          "#a26a20",
-          "#e48d1b",
-          "#dfa75d",
-          "#e2c298",
-          "#eadbc7",
-          "#f7f3ee"
-        ]
-      },
-      "plaque-ink-2": {
-        "role": "neutral",
-        "displayName": "Label Print, line",
-        "canonical": "#4a3a26",
-        "tonalRamp": [
-          "#2d271f",
-          "#514433",
-          "#7c6446",
-          "#a88457",
-          "#b9a183",
-          "#ccbeae",
-          "#e0dad2",
-          "#f4f2f0"
-        ]
-      },
-      "chip-gilt": {
-        "role": "secondary",
-        "displayName": "Label Gilt",
-        "canonical": "#e3c77e",
-        "tonalRamp": [
-          "#352d18",
-          "#615024",
-          "#96792c",
-          "#d2a42d",
-          "#d3b669",
-          "#dbca9e",
-          "#e7dfca",
-          "#f6f4ee"
-        ]
-      },
-      "field": {
-        "role": "neutral",
-        "displayName": "Field White",
-        "canonical": "#fffaf0",
-        "tonalRamp": [
-          "#3c2e10",
-          "#725213",
-          "#b47d0e",
-          "#ffaa00",
-          "#f1ba4b",
-          "#eccc8d",
-          "#efe0c3",
-          "#f8f4ec"
-        ]
+        ],
+        "purpose": "The metal of the photographed frames; reference only, never painted in the interface."
       },
       "sight": {
         "role": "neutral",
         "displayName": "Sight",
         "canonical": "#1a1210",
         "tonalRamp": [
-          "#2c2321",
-          "#4e3c37",
-          "#75554d",
-          "#9e6d61",
-          "#b2928a",
-          "#c8b6b1",
-          "#ded6d3",
+          "#2b2321",
+          "#503e39",
+          "#7b5951",
+          "#a17468",
+          "#b59891",
+          "#cbbcb8",
+          "#e2dbda",
           "#f4f1f1"
-        ]
+        ],
+        "purpose": "Dark sight edge inside a frame."
       },
       "mat-linen": {
         "role": "neutral",
         "displayName": "Linen Mat",
-        "canonical": "#ece3cd",
+        "canonical": "#f1ede5",
         "tonalRamp": [
-          "#302a1c",
-          "#584b2d",
-          "#86713c",
-          "#b99846",
-          "#c3ae79",
-          "#d2c6a7",
-          "#e3ddcf",
-          "#f5f3f0"
-        ]
+          "#2d2820",
+          "#534a36",
+          "#816f4b",
+          "#a89161",
+          "#baab8d",
+          "#cec6b6",
+          "#e3e0d9",
+          "#f4f3f1"
+        ],
+        "purpose": "Mat for prints and for making-frames shown in place of a finished image."
       }
     },
     "typographyMeta": {
       "display": {
         "displayName": "Wall Lettering",
-        "purpose": "Headlines painted on the wall and the wordmark; weight 400, one italic word may be gilt."
+        "purpose": "Headlines on the wall and the wordmark; weight 400, one italic word may be ultramarine."
       },
       "headline": {
         "displayName": "Page Title",
@@ -512,7 +304,7 @@
       },
       "title": {
         "displayName": "Sheet Title",
-        "purpose": "Section headings and large figures inside sheets; always weight 600 on ivory."
+        "purpose": "Section headings and large figures inside sheets; always weight 600 on paper."
       },
       "body": {
         "displayName": "Reading",
@@ -546,12 +338,12 @@
     "shadows": [
       {
         "name": "hung-frame",
-        "value": "0 26px 36px -18px rgba(8,0,0,0.85), 0 6px 10px -2px rgba(8,0,0,0.5)",
+        "value": "0 18px 28px -16px rgba(26,24,20,0.45), 0 3px 6px -1px rgba(26,24,20,0.25)",
         "purpose": "Every framed work at rest."
       },
       {
         "name": "hung-frame-approached",
-        "value": "0 34px 44px -18px rgba(8,0,0,0.9), 0 8px 14px -2px rgba(8,0,0,0.55)",
+        "value": "0 28px 40px -18px rgba(26,24,20,0.5), 0 6px 10px -2px rgba(26,24,20,0.3)",
         "purpose": "Framed work on hover or focus within, with a 4px lift."
       },
       {
@@ -561,53 +353,48 @@
       },
       {
         "name": "sheet",
-        "value": "0 1px 0 rgba(255,255,255,0.6) inset, 0 18px 40px -18px rgba(0,0,0,0.75), 0 2px 6px rgba(0,0,0,0.35)",
-        "purpose": "Catalogue sheets hung on the wall."
+        "value": "0 1px 2px rgba(26,24,20,0.04), 0 12px 32px -20px rgba(26,24,20,0.25)",
+        "purpose": "White sheets, with a 1px #e2ddd3 border."
       },
       {
         "name": "label",
-        "value": "0 2px 4px rgba(0,0,0,0.35)",
-        "purpose": "Wall labels."
-      },
-      {
-        "name": "plate",
-        "value": "0 2px 6px rgba(0,0,0,0.3)",
-        "purpose": "Gilt buttons; the seal button uses 0.4 alpha plus inset 0 0 0 1px rgba(233,201,122,0.55)."
+        "value": "0 1px 3px rgba(26,24,20,0.08)",
+        "purpose": "Wall labels and showcase labels, with a 1px #e2ddd3 border."
       },
       {
         "name": "sculpture",
-        "value": "drop-shadow(0 3px 2px rgba(0,0,0,0.55)) drop-shadow(0 12px 10px rgba(0,0,0,0.3))",
+        "value": "drop-shadow(0 3px 2px rgba(26,24,20,0.35)) drop-shadow(0 12px 10px rgba(26,24,20,0.18))",
         "purpose": "Filter shadow following a sculpture cut-out's silhouette."
       },
       {
-        "name": "cornice-light",
-        "value": "radial-gradient(140% 900px at 50% -200px, rgba(255,196,120,0.15), transparent 70%)",
-        "purpose": "The room's single light, over the 160x220px damask tile on the wall."
+        "name": "approach-patch",
+        "value": "radial-gradient(closest-side, rgba(255,255,255,0.9), transparent)",
+        "purpose": "The wall brightening behind an approached work; opacity 0 to 1."
       },
       {
-        "name": "focus-wall",
-        "value": "outline: 2px solid #ecd18a; outline-offset: 3px",
-        "purpose": "Focus ring on the wall; on sheets the outline colour is #7a1e26."
+        "name": "focus",
+        "value": "outline: 2px solid #23399a; outline-offset: 3px",
+        "purpose": "Focus ring, the same on wall and paper."
       },
       {
         "name": "field-focus",
-        "value": "0 0 0 3px rgba(122,30,38,0.15)",
-        "purpose": "Input focus ring on sheets, with a seal border."
+        "value": "0 0 0 3px rgba(35,57,154,0.15)",
+        "purpose": "Input focus ring, with an ultramarine border."
       },
       {
         "name": "finding-aid",
-        "value": "0 14px 30px -18px rgba(0,0,0,0.75)",
-        "purpose": "The ivory strip of showcase controls; with a 1px rgba(110,79,23,0.35) hairline inset 6px."
+        "value": "0 10px 28px -20px rgba(26,24,20,0.3)",
+        "purpose": "The white strip of showcase controls, with a 1px #e2ddd3 border."
       },
       {
         "name": "doorway",
-        "value": "inset 0 0 30px rgba(0,0,0,0.55), 0 10px 30px rgba(0,0,0,0.45)",
-        "purpose": "The room seen through the last doorway; lit only by radial-gradient(70% 45% at 50% 0%, rgba(255,205,140,0.1), transparent 70%) at its top."
+        "value": "inset 0 0 30px rgba(26,24,20,0.08), 0 18px 32px -18px rgba(26,24,20,0.4)",
+        "purpose": "The last doorway: interior flat #efece6, faintly shaded at its edges; the casing casts down like a frame."
       },
       {
         "name": "paint-scrim",
-        "value": "linear-gradient(90deg, rgba(43,10,13,0.92) 0%, rgba(43,10,13,0.78) 34%, rgba(43,10,13,0.15) 62%, transparent 75%), linear-gradient(0deg, rgba(43,10,13,0.6), transparent 30%)",
-        "purpose": "Claret Shadow over the landing hero photograph, left to right. To 760px: linear-gradient(180deg, rgba(43,10,13,0.92) 0%, rgba(43,10,13,0.84) 46%, rgba(43,10,13,0.12) 70%, transparent)."
+        "value": "linear-gradient(90deg, rgba(246,244,239,0.96) 0%, rgba(246,244,239,0.9) 34%, rgba(246,244,239,0.25) 60%, transparent 74%), linear-gradient(0deg, rgba(246,244,239,0.7), transparent 22%)",
+        "purpose": "Gallery White over the landing hero photograph, left to right. To 760px: linear-gradient(180deg, rgba(246,244,239,0.96) 0%, rgba(246,244,239,0.9) 48%, rgba(246,244,239,0.15) 70%, transparent)."
       }
     ],
     "motion": [
@@ -618,7 +405,7 @@
       },
       {
         "name": "approach",
-        "value": "500ms; translateY(-4px) on the frame, wall warm-patch opacity 0 to 1",
+        "value": "500ms; translateY(-4px) on the frame, white wall patch opacity 0 to 1",
         "purpose": "The one authored interaction, on hover and focus within; no movement under reduced motion."
       },
       {
@@ -629,7 +416,7 @@
       {
         "name": "control",
         "value": "200ms",
-        "purpose": "Button colour, shadow and brightness changes."
+        "purpose": "Button and control background, border and colour changes."
       },
       {
         "name": "showcase-arrival",
@@ -738,7 +525,7 @@
           "repeat": "round"
         }
       },
-      "provenance": "public/salon/frames/frames.json and per-file .webp.json records; The Metropolitan Museum of Art Open Access, CC0. Sculpture cut-outs: public/salon/sculpture/sculpture.json. Damask: authored SVG, public/salon/damask.svg. Landing hero: public/salon/hero/wheat-field-brushwork.webp.json."
+      "provenance": "public/salon/frames/frames.json and per-file .webp.json records; The Metropolitan Museum of Art Open Access, CC0. Sculpture cut-outs: public/salon/sculpture/sculpture.json. Landing hero: public/salon/hero/wheat-field-brushwork.webp.json."
     },
     "pictureSizing": {
       "rule": "width: min(var(--cap), calc(var(--h) * var(--ar))); height: auto",
@@ -777,14 +564,15 @@
       },
       "room": {
         "gap": "clamp(96px, 12vw, 168px)",
-        "numeral": "display 2.4rem, gilt-light",
+        "numeral": "display 2.4rem, seal (ultramarine)",
         "textMeasure": "60ch at 1.06rem"
       },
       "lastDoor": {
         "gapAbove": "clamp(110px, 13vw, 180px)",
         "width": "min(100%, 1180px)",
         "casing": "gilt-pattern plate, border clamp(18px, 2.4vw, 32px)",
-        "worksHeight": "clamp(100px, 9vw, 135px); 70px to 640px"
+        "worksHeight": "clamp(100px, 9vw, 135px); 70px to 640px",
+        "interior": "#efece6"
       },
       "provenance": "public/salon/hero/wheat-field-brushwork.webp.json: detail of Wheat Field with Cypresses, Vincent van Gogh, 1889, The Metropolitan Museum of Art Open Access, CC0."
     }
@@ -794,135 +582,141 @@
       "name": "Seal Button",
       "kind": "button",
       "refersTo": "button-seal",
-      "description": "The decisive action in a view: a claret wax-seal plate with a thin gilt inner line.",
-      "html": "<div class=\"ds-wall-seal\"><button class=\"ds-btn-seal\">Walk the hang</button></div>",
-      "css": ".ds-wall-seal{background:#4f161b;padding:24px;} .ds-btn-seal{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;padding:10px 16px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.76rem;letter-spacing:0.13em;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;transition:background-color 200ms,box-shadow 200ms,color 200ms,filter 200ms;color:#f8e9d0;background:#8a222b;box-shadow:0 2px 6px rgba(0,0,0,0.4),inset 0 0 0 1px rgba(233,201,122,0.55);} .ds-btn-seal:hover{filter:brightness(1.12);} .ds-btn-seal:focus-visible{outline:2px solid #ecd18a;outline-offset:3px;} .ds-btn-seal:disabled{opacity:.45;cursor:not-allowed;}"
+      "description": "The decisive action in a view: a flat ultramarine plate with white lettering.",
+      "html": "<div class=\"ds-wall-seal\"><button class=\"ds-btn-seal\">Enter the gallery</button></div>",
+      "css": ".ds-wall-seal{background:#f6f4ef;padding:24px;} .ds-btn-seal{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;padding:10px 16px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.76rem;letter-spacing:0.13em;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;transition:background-color 200ms,box-shadow 200ms,color 200ms,border-color 200ms;color:#ffffff;background:#23399a;} .ds-btn-seal:hover{background:#1a2b78;} .ds-btn-seal:focus-visible{outline:2px solid #23399a;outline-offset:3px;} .ds-btn-seal:disabled{opacity:.45;cursor:not-allowed;}"
     },
     {
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "A gilt-painted plate for ordinary committing actions, mostly inside sheets.",
+      "description": "A near-black plate with white lettering for ordinary committing actions.",
       "html": "<div class=\"ds-sheet-pad\"><button class=\"ds-btn-primary\">Send a tip</button></div>",
-      "css": ".ds-sheet-pad{background:#f3ead6;padding:24px;} .ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;padding:10px 16px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.76rem;letter-spacing:0.13em;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;transition:background-color 200ms,box-shadow 200ms,color 200ms,filter 200ms;color:#2a1a05;background:#d9b866;box-shadow:0 2px 6px rgba(0,0,0,0.3);} .ds-btn-primary:hover{filter:brightness(1.08);} .ds-btn-primary:focus-visible{outline:2px solid #7a1e26;outline-offset:3px;} .ds-btn-primary:disabled{opacity:.45;cursor:not-allowed;}"
+      "css": ".ds-sheet-pad{background:#ffffff;padding:24px;} .ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;padding:10px 16px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.76rem;letter-spacing:0.13em;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;transition:background-color 200ms,box-shadow 200ms,color 200ms,border-color 200ms;color:#ffffff;background:#1a1814;} .ds-btn-primary:hover{background:#33302a;} .ds-btn-primary:focus-visible{outline:2px solid #23399a;outline-offset:3px;} .ds-btn-primary:disabled{opacity:.45;cursor:not-allowed;}"
     },
     {
       "name": "Ghost Button",
       "kind": "button",
       "refersTo": "button-ghost",
-      "description": "Secondary action; a gilt-ruled outline that reads on wall and sheet through the scoped ink.",
+      "description": "Secondary action: a ruled outline in ink that fills white on hover; reads the same on wall and paper.",
       "html": "<div class=\"ds-wall-ghost\"><button class=\"ds-btn-ghost\">Start a piece</button></div>",
-      "css": ".ds-wall-ghost{background:#4f161b;padding:24px;} .ds-btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;padding:10px 16px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.76rem;letter-spacing:0.13em;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;transition:background-color 200ms,box-shadow 200ms,color 200ms,filter 200ms;color:#f4e6c6;background:transparent;border:1px solid rgba(201,162,74,0.7);} .ds-btn-ghost:hover{background:rgba(201,162,74,0.16);} .ds-btn-ghost:focus-visible{outline:2px solid #ecd18a;outline-offset:3px;}"
+      "css": ".ds-wall-ghost{background:#f6f4ef;padding:24px;} .ds-btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;padding:10px 16px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.76rem;letter-spacing:0.13em;text-transform:uppercase;border:none;border-radius:2px;cursor:pointer;transition:background-color 200ms,box-shadow 200ms,color 200ms,border-color 200ms;color:#1a1814;background:transparent;border:1px solid #cfc9be;} .ds-btn-ghost:hover{border-color:#1a1814;background:#ffffff;} .ds-btn-ghost:focus-visible{outline:2px solid #23399a;outline-offset:3px;} .ds-btn-ghost:disabled{opacity:.45;cursor:not-allowed;}"
     },
     {
       "name": "Catalogue Sheet",
       "kind": "card",
       "refersTo": "sheet",
-      "description": "Ivory sheet hung on the wall; carries facts, forms and reading. Inset printed hairline, square corners.",
+      "description": "White sheet on the wall; carries facts, forms and reading. 1px rule border, soft warm-black shadow, square corners.",
       "html": "<div class=\"ds-wall-sheet\"><section class=\"ds-sheet\"><h2 class=\"ds-sheet-title\">Rights</h2><p class=\"ds-sheet-body\">Personal use, with credit to the artist.</p><p class=\"ds-sheet-fine\">5% of every resale goes to the artist.</p></section></div>",
-      "css": ".ds-wall-sheet{background:#4f161b;padding:24px;} .ds-sheet{position:relative;padding:32px;color:#2a1f17;background:linear-gradient(180deg,rgba(255,252,240,0.65),rgba(255,252,240,0) 40%),#f3ead6;box-shadow:0 1px 0 rgba(255,255,255,0.6) inset,0 18px 40px -18px rgba(0,0,0,0.75),0 2px 6px rgba(0,0,0,0.35);outline:1px solid rgba(110,79,23,0.35);outline-offset:-8px;font-family:var(--font-spectral),Georgia,serif;font-size:17px;line-height:1.55;} .ds-sheet-title{margin:0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:600;font-size:1.875rem;line-height:1.2;} .ds-sheet-body{margin:12px 0 0;} .ds-sheet-fine{margin:4px 0 0;font-size:0.875rem;color:#5a4636;}"
+      "css": ".ds-wall-sheet{background:#f6f4ef;padding:24px;} .ds-sheet{position:relative;padding:32px;color:#1a1814;background:#ffffff;border:1px solid #e2ddd3;box-shadow:0 1px 2px rgba(26,24,20,0.04),0 12px 32px -20px rgba(26,24,20,0.25);font-family:var(--font-spectral),Georgia,serif;font-size:17px;line-height:1.55;} .ds-sheet-title{margin:0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:600;font-size:1.875rem;line-height:1.2;} .ds-sheet-body{margin:12px 0 0;} .ds-sheet-fine{margin:4px 0 0;font-size:0.875rem;color:#5b5650;}"
     },
     {
       "name": "Field with Label",
       "kind": "input",
       "refersTo": "field",
-      "description": "Text field on a sheet with its Cinzel label; focus turns the border seal claret with a soft ring.",
+      "description": "Text field on a sheet with its Cinzel label; focus turns the border ultramarine with a soft ring.",
       "html": "<div class=\"ds-field-sheet\"><label class=\"ds-label\" for=\"ds-amount\">Amount (USDC)</label><input id=\"ds-amount\" class=\"ds-field\" placeholder=\"5\" /></div>",
-      "css": ".ds-field-sheet{background:#f3ead6;padding:24px;max-width:280px;} .ds-label{display:block;margin-bottom:6px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:#7d6650;} .ds-field{width:100%;padding:8px 12px;font-family:var(--font-spectral),Georgia,serif;font-size:0.95rem;color:#2a1f17;background:#fffaf0;border:1px solid #cdb98f;border-radius:2px;outline:none;caret-color:#7a1e26;transition:border-color 150ms,box-shadow 150ms;} .ds-field:focus{border-color:#7a1e26;box-shadow:0 0 0 3px rgba(122,30,38,0.15);} .ds-field::placeholder{color:#7d6650;}"
+      "css": ".ds-field-sheet{background:#ffffff;padding:24px;max-width:280px;} .ds-label{display:block;margin-bottom:6px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:#736d66;} .ds-field{width:100%;padding:8px 12px;font-family:var(--font-spectral),Georgia,serif;font-size:0.95rem;color:#1a1814;background:#ffffff;border:1px solid #d9d3c8;border-radius:2px;outline:none;transition:border-color 150ms,box-shadow 150ms;caret-color:#23399a;} .ds-field:focus{border-color:#23399a;box-shadow:0 0 0 3px rgba(35,57,154,0.15);} .ds-field::placeholder{color:#736d66;}"
     },
     {
       "name": "Hung Work with Wall Label",
       "kind": "custom",
       "refersTo": "plaque",
-      "description": "The signature unit: a photographed cassetta frame drawn as a nine-slice plate, a dark sight edge, and a flat printed label beneath. Approaching it lifts the frame 4px and warms the wall. Plate source: /salon/frames/gilt.webp (The Met, CC0), slices from frames.json.",
+      "description": "The signature unit: a photographed cassetta frame drawn as a nine-slice plate, a dark sight edge, and a flat white printed label beneath. Approaching it lifts the frame 4px and brightens the wall. Plate source: /salon/frames/gilt.webp (The Met, CC0), slices from frames.json.",
       "html": "<div class=\"ds-wall-hung\"><figure class=\"ds-hung\" tabindex=\"0\"><span class=\"ds-frame\"><span class=\"ds-sight\"><span class=\"ds-picture\"></span></span></span><figcaption class=\"ds-plaque\"><span class=\"ds-plaque-title\">The Dance Class</span><span class=\"ds-plaque-line\">Edgar Degas, 1874</span><span class=\"ds-plaque-level\">Example</span></figcaption></figure></div>",
-      "css": ".ds-wall-hung{background:#4f161b;padding:40px 24px 28px;display:flex;justify-content:center;} .ds-hung{position:relative;margin:0;display:flex;flex-direction:column;align-items:center;outline:none;} .ds-hung::before{content:'';position:absolute;inset:-14% 0 8% 0;background:radial-gradient(closest-side,rgba(255,210,150,0.22),transparent);opacity:0;pointer-events:none;transition:opacity 500ms cubic-bezier(0.16,1,0.3,1);} .ds-hung:hover::before,.ds-hung:focus-visible::before{opacity:1;} .ds-frame{position:relative;display:inline-block;border-style:solid;border-width:17px;border-image-source:url('/salon/frames/gilt.webp');border-image-slice:133 162 166 162;border-image-width:1;border-image-repeat:stretch;box-shadow:0 26px 36px -18px rgba(8,0,0,0.85),0 6px 10px -2px rgba(8,0,0,0.5);transition:transform 500ms cubic-bezier(0.16,1,0.3,1),box-shadow 500ms cubic-bezier(0.16,1,0.3,1);} .ds-hung:hover .ds-frame,.ds-hung:focus-visible .ds-frame{transform:translateY(-4px);box-shadow:0 34px 44px -18px rgba(8,0,0,0.9),0 8px 14px -2px rgba(8,0,0,0.55);} .ds-sight{position:relative;display:block;background:#1a1210;box-shadow:0 0 0 1px rgba(0,0,0,0.7);} .ds-sight::after{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 6px 9px -4px rgba(0,0,0,0.5),inset 5px 0 8px -5px rgba(0,0,0,0.35);} .ds-picture{display:block;width:240px;height:200px;background:#5a4636;} .ds-plaque{margin-top:14px;padding:8px 14px 9px;min-width:9rem;max-width:20rem;text-align:center;color:#2a1a05;background:#efe6d2;box-shadow:0 2px 4px rgba(0,0,0,0.35);font-family:var(--font-spectral),Georgia,serif;} .ds-plaque-title{display:block;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:700;font-size:0.72rem;line-height:1.3;letter-spacing:0.1em;text-transform:uppercase;} .ds-plaque-line{display:block;margin-top:1px;font-size:0.82rem;line-height:1.3;font-style:italic;color:#4a3a26;} .ds-plaque-level{display:block;margin-top:3px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:#7a1e26;} @media (prefers-reduced-motion: reduce){.ds-frame{transition:none;} .ds-hung:hover .ds-frame,.ds-hung:focus-visible .ds-frame{transform:none;}}"
+      "css": ".ds-wall-hung{background:#f6f4ef;padding:40px 24px 28px;display:flex;justify-content:center;} .ds-hung{position:relative;margin:0;display:flex;flex-direction:column;align-items:center;outline:none;} .ds-hung::before{content:'';position:absolute;inset:-14% 0 8% 0;background:radial-gradient(closest-side,rgba(255,255,255,0.9),transparent);opacity:0;pointer-events:none;transition:opacity 500ms cubic-bezier(0.16,1,0.3,1);} .ds-hung:hover::before,.ds-hung:focus-visible::before{opacity:1;} .ds-frame{position:relative;display:inline-block;border-style:solid;border-width:17px;border-image-source:url('/salon/frames/gilt.webp');border-image-slice:133 162 166 162;border-image-width:1;border-image-repeat:stretch;box-shadow:0 18px 28px -16px rgba(26,24,20,0.45),0 3px 6px -1px rgba(26,24,20,0.25);transition:transform 500ms cubic-bezier(0.16,1,0.3,1),box-shadow 500ms cubic-bezier(0.16,1,0.3,1);} .ds-hung:hover .ds-frame,.ds-hung:focus-visible .ds-frame{transform:translateY(-4px);box-shadow:0 28px 40px -18px rgba(26,24,20,0.5),0 6px 10px -2px rgba(26,24,20,0.3);} .ds-sight{position:relative;display:block;background:#1a1210;box-shadow:0 0 0 1px rgba(0,0,0,0.7);} .ds-sight::after{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 6px 9px -4px rgba(0,0,0,0.5),inset 5px 0 8px -5px rgba(0,0,0,0.35);} .ds-picture{display:block;width:240px;height:200px;background:#5b5650;} .ds-plaque{position:relative;margin-top:14px;padding:8px 14px 9px;min-width:9rem;max-width:20rem;text-align:center;color:#1a1814;background:#ffffff;border:1px solid #e2ddd3;box-shadow:0 1px 3px rgba(26,24,20,0.08);font-family:var(--font-spectral),Georgia,serif;} .ds-plaque-title{display:block;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:700;font-size:0.72rem;line-height:1.3;letter-spacing:0.1em;text-transform:uppercase;} .ds-plaque-line{display:block;margin-top:1px;font-size:0.82rem;line-height:1.3;font-style:italic;color:#5b5650;} .ds-plaque-level{display:block;margin-top:3px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:#23399a;} @media (prefers-reduced-motion: reduce){.ds-frame{transition:none;} .ds-hung:hover .ds-frame,.ds-hung:focus-visible .ds-frame{transform:none;}}"
     },
     {
       "name": "Chips",
       "kind": "chip",
       "refersTo": "chip",
-      "description": "Small printed state labels: gilt for the current state, quiet ruled for secondary states.",
+      "description": "Small printed state labels: paper shade for the current state, quiet ruled for secondary states.",
       "html": "<div class=\"ds-wall-chip\"><span class=\"ds-chip\">Published</span> <span class=\"ds-chip ds-chip-quiet\">Draft</span></div>",
-      "css": ".ds-wall-chip{background:#4f161b;padding:24px;} .ds-chip{display:inline-block;padding:4px 12px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;color:#2a1a05;background:#e3c77e;} .ds-chip-quiet{color:#dcc49b;background:transparent;box-shadow:inset 0 0 0 1px rgba(233,201,122,0.28);}"
+      "css": ".ds-wall-chip{background:#f6f4ef;padding:24px;} .ds-chip{display:inline-block;padding:4px 12px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.7rem;letter-spacing:0.14em;text-transform:uppercase;color:#1a1814;background:#efece6;} .ds-chip-quiet{color:#5b5650;background:transparent;box-shadow:inset 0 0 0 1px #e2ddd3;}"
     },
     {
       "name": "Picture Rail",
       "kind": "nav",
-      "description": "The header: wordmark (links to the landing) and Cinzel links, the first to the gallery, above a flat 2px gilt line running the width of the room.",
+      "description": "The header rail: wordmark (links to the landing) and Cinzel links, the first to the gallery, above a 1px rule line running the width of the room.",
       "html": "<header class=\"ds-rail\"><div class=\"ds-rail-row\"><a class=\"ds-rail-mark\" href=\"#\"><span class=\"ds-rail-name\">Soulprint</span><span class=\"ds-rail-sub\">Salon</span></a><nav class=\"ds-rail-nav\"><a href=\"#\">The gallery</a><a href=\"#\">Rate notes</a><a href=\"#\">Studio</a></nav></div><div class=\"ds-rail-line\"></div></header>",
-      "css": ".ds-rail{background:#4f161b;} .ds-rail-row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px;padding:24px 32px 16px;} .ds-rail-mark{display:flex;align-items:baseline;gap:12px;text-decoration:none;} .ds-rail-name{font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-size:2.4rem;line-height:1;letter-spacing:-0.01em;color:#f4e6c6;} .ds-rail-sub{font-family:var(--font-plaque),'Trajan Pro',serif;font-size:0.66rem;letter-spacing:0.3em;text-transform:uppercase;color:#bd9e75;} .ds-rail-nav{display:flex;flex-wrap:wrap;gap:8px 24px;font-family:var(--font-plaque),'Trajan Pro',serif;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;} .ds-rail-nav a{color:#dcc49b;text-decoration:none;} .ds-rail-nav a:hover{color:#f4e6c6;} .ds-rail-nav a:focus-visible,.ds-rail-mark:focus-visible{outline:2px solid #ecd18a;outline-offset:3px;border-radius:2px;} .ds-rail-line{height:2px;background:#c9a24a;}"
+      "css": ".ds-rail{background:#f6f4ef;} .ds-rail-row{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px;padding:24px 32px 16px;} .ds-rail-mark{display:flex;align-items:baseline;gap:12px;text-decoration:none;} .ds-rail-name{font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-size:2.4rem;line-height:1;letter-spacing:-0.01em;color:#1a1814;} .ds-rail-sub{font-family:var(--font-plaque),'Trajan Pro',serif;font-size:0.66rem;letter-spacing:0.3em;text-transform:uppercase;color:#736d66;} .ds-rail-nav{display:flex;flex-wrap:wrap;gap:8px 24px;font-family:var(--font-plaque),'Trajan Pro',serif;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;} .ds-rail-nav a{color:#5b5650;text-decoration:none;} .ds-rail-nav a:hover{color:#1a1814;} .ds-rail-nav a:focus-visible,.ds-rail-mark:focus-visible{outline:2px solid #23399a;outline-offset:3px;border-radius:2px;} .ds-rail-line{height:1px;background:#e2ddd3;}"
     },
     {
       "name": "Pull Quote",
       "kind": "custom",
-      "description": "The artist's words on a sheet, opened by a drawn quotation mark in seal claret.",
+      "description": "The artist's words on a sheet, opened by a drawn quotation mark in ultramarine.",
       "html": "<div class=\"ds-quote-sheet\"><blockquote class=\"ds-pull-quote\">Ink first, then washes.</blockquote></div>",
-      "css": ".ds-quote-sheet{background:#f3ead6;padding:28px 24px;} .ds-pull-quote{position:relative;margin:0;padding-left:1.6em;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:600;font-style:italic;font-size:1.25rem;line-height:1.6;color:#5a4636;} .ds-pull-quote::before{content:'\\201C';position:absolute;left:0;top:-0.15em;font-size:2.4em;line-height:1;font-style:normal;color:#7a1e26;}"
+      "css": ".ds-quote-sheet{background:#ffffff;border:1px solid #e2ddd3;padding:28px 24px;} .ds-pull-quote{position:relative;margin:0;padding-left:1.6em;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:600;font-style:italic;font-size:1.25rem;line-height:1.6;color:#5b5650;} .ds-pull-quote::before{content:'\\201C';position:absolute;left:0;top:-0.15em;font-size:2.4em;line-height:1;font-style:normal;color:#23399a;}"
     },
     {
       "name": "Finding Aid",
       "kind": "custom",
       "refersTo": "finding-aid",
-      "description": "The showcase's controls: one ivory strip with a printed hairline. Every change rewrites the address; the Clear filters slot is always reserved.",
+      "description": "The showcase's controls: one white strip with a 1px rule border. Every change rewrites the address; the Clear filters slot is always reserved.",
       "html": "<div class=\"ds-fa-wall\"><form class=\"ds-fa\" role=\"search\"><label class=\"ds-fa-search\"><span class=\"ds-fa-label\">Search</span><input class=\"ds-fa-field\" placeholder=\"Title or artist\" /></label><label><span class=\"ds-fa-label\">Record</span><select class=\"ds-fa-field\"><option>Any record</option><option>Declared</option><option>Recorded while made</option><option>Live checks passed</option></select></label><label><span class=\"ds-fa-label\">Sort</span><select class=\"ds-fa-field\"><option>Newest first</option><option>Price, low to high</option><option>Strongest record first</option></select></label><label class=\"ds-fa-toggle\"><input type=\"checkbox\" checked /><span>Show examples</span></label><div class=\"ds-fa-actions\"><button type=\"button\" class=\"ds-fa-btn\">Search</button><button type=\"button\" class=\"ds-fa-reset\">Clear filters</button></div></form></div>",
-      "css": ".ds-fa-wall{background:#4f161b;padding:24px;} .ds-fa{display:grid;grid-template-columns:minmax(10rem,1.6fr) repeat(2,minmax(8rem,1fr)) auto auto;align-items:end;gap:14px 16px;padding:18px 20px;background:#f3ead6;color:#2a1f17;box-shadow:0 14px 30px -18px rgba(0,0,0,0.75);outline:1px solid rgba(110,79,23,0.35);outline-offset:-6px;font-family:var(--font-spectral),Georgia,serif;font-size:17px;} .ds-fa label{display:flex;flex-direction:column;gap:4px;min-width:0;} .ds-fa-label{font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:#7d6650;} .ds-fa-field{width:100%;padding:7px 10px;font-family:var(--font-spectral),Georgia,serif;font-size:0.95rem;color:#2a1f17;background:#fffaf0;border:1px solid #cdb98f;border-radius:2px;outline:none;transition:border-color 150ms,box-shadow 150ms;} .ds-fa-field:focus{border-color:#7a1e26;box-shadow:0 0 0 3px rgba(122,30,38,0.15);} .ds-fa-field::placeholder{color:#7d6650;} .ds-fa label.ds-fa-toggle{flex-direction:row;align-items:center;gap:8px;padding-bottom:9px;white-space:nowrap;} .ds-fa-toggle input{accent-color:#7a1e26;width:16px;height:16px;} .ds-fa-actions{display:flex;align-items:center;gap:12px;} .ds-fa-btn{padding:8px 16px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.76rem;letter-spacing:0.13em;text-transform:uppercase;color:#2a1f17;background:transparent;border:1px solid rgba(201,162,74,0.7);border-radius:2px;cursor:pointer;transition:background-color 200ms;} .ds-fa-btn:hover{background:rgba(201,162,74,0.16);} .ds-fa-btn:focus-visible,.ds-fa-reset:focus-visible{outline:2px solid #7a1e26;outline-offset:3px;} .ds-fa-reset{font-family:var(--font-spectral),Georgia,serif;font-size:0.82rem;color:#7a1e26;background:none;border:none;padding:0;text-decoration:underline;text-underline-offset:0.2em;cursor:pointer;white-space:nowrap;} @media (max-width:1100px){.ds-fa{grid-template-columns:repeat(2,minmax(0,1fr));} .ds-fa-search{grid-column:1 / -1;}}"
+      "css": ".ds-fa-wall{background:#f6f4ef;padding:24px;} .ds-fa{display:grid;grid-template-columns:minmax(10rem,1.6fr) repeat(2,minmax(8rem,1fr)) auto auto;align-items:end;gap:14px 16px;padding:18px 20px;background:#ffffff;color:#1a1814;border:1px solid #e2ddd3;box-shadow:0 10px 28px -20px rgba(26,24,20,0.3);font-family:var(--font-spectral),Georgia,serif;font-size:17px;} .ds-fa label{display:flex;flex-direction:column;gap:4px;min-width:0;} .ds-fa-label{font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:#736d66;} .ds-fa-field{width:100%;padding:7px 10px;font-family:var(--font-spectral),Georgia,serif;font-size:0.95rem;color:#1a1814;background:#ffffff;border:1px solid #d9d3c8;border-radius:2px;outline:none;transition:border-color 150ms,box-shadow 150ms;} .ds-fa-field:focus{border-color:#23399a;box-shadow:0 0 0 3px rgba(35,57,154,0.15);} .ds-fa-field::placeholder{color:#736d66;} .ds-fa label.ds-fa-toggle{flex-direction:row;align-items:center;gap:8px;padding-bottom:9px;white-space:nowrap;} .ds-fa-toggle input{accent-color:#23399a;width:16px;height:16px;} .ds-fa-actions{display:flex;align-items:center;gap:12px;} .ds-fa-btn{padding:8px 16px;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.76rem;letter-spacing:0.13em;text-transform:uppercase;color:#1a1814;background:transparent;border:1px solid #cfc9be;border-radius:2px;cursor:pointer;transition:background-color 200ms,border-color 200ms;} .ds-fa-btn:hover{border-color:#1a1814;background:#ffffff;} .ds-fa-btn:focus-visible,.ds-fa-reset:focus-visible{outline:2px solid #23399a;outline-offset:3px;} .ds-fa-reset{font-family:var(--font-spectral),Georgia,serif;font-size:0.82rem;color:#23399a;background:none;border:none;padding:0;text-decoration:underline;text-underline-offset:0.2em;cursor:pointer;white-space:nowrap;} @media (max-width:1100px){.ds-fa{grid-template-columns:repeat(2,minmax(0,1fr));} .ds-fa-search{grid-column:1 / -1;}}"
     },
     {
       "name": "Showcase Cell",
       "kind": "card",
       "refersTo": "showcase-label",
-      "description": "A framed work in an equal showcase cell, sized from its aspect ratio, with a printed label: title, artist, the level in claret and the price or status in dark print.",
+      "description": "A framed work in an equal showcase cell, sized from its aspect ratio, with a printed white label: title, artist, the level in ultramarine and the price or status in ink.",
       "html": "<div class=\"ds-sc-wall\"><div class=\"ds-sc-cell\"><a class=\"ds-sc-art\" href=\"#\"><span class=\"ds-sc-frame\"><span class=\"ds-sc-sight\"><span class=\"ds-sc-picture\" style=\"--ar:1.25\"></span></span></span></a><div class=\"ds-sc-label\"><p class=\"ds-sc-title\">Harbour Study</p><p class=\"ds-sc-line\">artist.test.near</p><div class=\"ds-sc-meta\"><span class=\"ds-sc-level\">Declared</span><span class=\"ds-sc-price\">Not for sale</span></div></div></div></div>",
-      "css": ".ds-sc-wall{background:#4f161b;padding:32px 24px 28px;display:flex;justify-content:center;} .ds-sc-cell{--h:200px;--cap:230px;display:flex;flex-direction:column;align-items:center;width:17rem;} .ds-sc-art{display:flex;align-items:flex-end;justify-content:center;width:100%;height:calc(var(--h) + 42px);text-decoration:none;} .ds-sc-frame{display:inline-block;border-style:solid;border-width:17px;border-image-source:url('/salon/frames/walnut.webp');border-image-slice:184 199 176 213;border-image-width:1;border-image-repeat:stretch;box-shadow:0 26px 36px -18px rgba(8,0,0,0.85),0 6px 10px -2px rgba(8,0,0,0.5);transition:transform 500ms cubic-bezier(0.16,1,0.3,1),box-shadow 500ms cubic-bezier(0.16,1,0.3,1);} .ds-sc-art:hover .ds-sc-frame,.ds-sc-art:focus-visible .ds-sc-frame{transform:translateY(-4px);box-shadow:0 34px 44px -18px rgba(8,0,0,0.9),0 8px 14px -2px rgba(8,0,0,0.55);} .ds-sc-art:focus-visible{outline:2px solid #ecd18a;outline-offset:3px;} .ds-sc-sight{position:relative;display:block;background:#1a1210;box-shadow:0 0 0 1px rgba(0,0,0,0.7);} .ds-sc-sight::after{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 6px 9px -4px rgba(0,0,0,0.5),inset 5px 0 8px -5px rgba(0,0,0,0.35);} .ds-sc-picture{display:block;width:min(var(--cap),calc(var(--h) * var(--ar)));aspect-ratio:var(--ar);background:#5a4636;} .ds-sc-label{width:100%;max-width:17rem;margin-top:14px;padding:9px 12px 10px;text-align:center;background:#efe6d2;color:#2a1a05;box-shadow:0 2px 4px rgba(0,0,0,0.35);font-family:var(--font-spectral),Georgia,serif;} .ds-sc-title{margin:0;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:700;font-size:0.72rem;line-height:1.3;letter-spacing:0.1em;text-transform:uppercase;} .ds-sc-line{margin:1px 0 0;font-size:0.82rem;line-height:1.3;font-style:italic;color:#4a3a26;} .ds-sc-meta{display:flex;justify-content:center;align-items:baseline;gap:10px;margin-top:4px;flex-wrap:wrap;} .ds-sc-level{font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:#7a1e26;} .ds-sc-price{font-size:0.82rem;font-weight:600;font-variant-numeric:tabular-nums;color:#2a1a05;} @media (prefers-reduced-motion: reduce){.ds-sc-frame{transition:none;} .ds-sc-art:hover .ds-sc-frame,.ds-sc-art:focus-visible .ds-sc-frame{transform:none;}}"
+      "css": ".ds-sc-wall{background:#f6f4ef;padding:32px 24px 28px;display:flex;justify-content:center;} .ds-sc-cell{--h:200px;--cap:230px;display:flex;flex-direction:column;align-items:center;width:17rem;} .ds-sc-art{display:flex;align-items:flex-end;justify-content:center;width:100%;height:calc(var(--h) + 42px);text-decoration:none;} .ds-sc-frame{display:inline-block;border-style:solid;border-width:17px;border-image-source:url('/salon/frames/walnut.webp');border-image-slice:184 199 176 213;border-image-width:1;border-image-repeat:stretch;box-shadow:0 18px 28px -16px rgba(26,24,20,0.45),0 3px 6px -1px rgba(26,24,20,0.25);transition:transform 500ms cubic-bezier(0.16,1,0.3,1),box-shadow 500ms cubic-bezier(0.16,1,0.3,1);} .ds-sc-art:hover .ds-sc-frame,.ds-sc-art:focus-visible .ds-sc-frame{transform:translateY(-4px);box-shadow:0 28px 40px -18px rgba(26,24,20,0.5),0 6px 10px -2px rgba(26,24,20,0.3);} .ds-sc-art:focus-visible{outline:2px solid #23399a;outline-offset:3px;} .ds-sc-sight{position:relative;display:block;background:#1a1210;box-shadow:0 0 0 1px rgba(0,0,0,0.7);} .ds-sc-sight::after{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 6px 9px -4px rgba(0,0,0,0.5),inset 5px 0 8px -5px rgba(0,0,0,0.35);} .ds-sc-picture{display:block;width:min(var(--cap),calc(var(--h) * var(--ar)));aspect-ratio:var(--ar);background:#5b5650;} .ds-sc-label{width:100%;max-width:17rem;margin-top:14px;padding:9px 12px 10px;text-align:center;color:#1a1814;background:#ffffff;border:1px solid #e2ddd3;box-shadow:0 1px 3px rgba(26,24,20,0.08);font-family:var(--font-spectral),Georgia,serif;} .ds-sc-title{margin:0;font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:700;font-size:0.72rem;line-height:1.3;letter-spacing:0.1em;text-transform:uppercase;} .ds-sc-line{margin:1px 0 0;font-size:0.82rem;line-height:1.3;font-style:italic;color:#5b5650;} .ds-sc-meta{display:flex;justify-content:center;align-items:baseline;gap:10px;margin-top:4px;flex-wrap:wrap;} .ds-sc-level{font-family:var(--font-plaque),'Trajan Pro',serif;font-weight:600;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:#23399a;} .ds-sc-price{font-size:0.82rem;font-weight:600;font-variant-numeric:tabular-nums;color:#1a1814;} @media (prefers-reduced-motion: reduce){.ds-sc-frame{transition:none;} .ds-sc-art:hover .ds-sc-frame,.ds-sc-art:focus-visible .ds-sc-frame{transform:none;}}"
     },
     {
       "name": "Paint Hero",
       "kind": "custom",
-      "description": "The landing's first screen: a full-bleed museum photograph of paint under a Claret Shadow scrim, hero lettering with one gilt italic word, and the whole painting framed small with its label. Source: /salon/hero/wheat-field-brushwork.webp (The Met, CC0).",
+      "description": "The landing's first screen: a full-bleed museum photograph of paint under a Gallery White scrim, hero lettering in ink with one ultramarine italic word, and the whole painting framed small with its label. Source: /salon/hero/wheat-field-brushwork.webp (The Met, CC0).",
       "html": "<section class=\"ds-hero\"><img class=\"ds-hero-paint\" src=\"/salon/hero/wheat-field-brushwork.webp\" alt=\"\" /><div class=\"ds-hero-copy\"><h1 class=\"ds-hero-title\">Real art, hung with its <em>making</em>.</h1><p class=\"ds-hero-text\">Up close, every stroke shows how a picture was made.</p></div></section>",
-      "css": ".ds-hero{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;min-height:420px;padding:32px;background:#2b0a0d;} .ds-hero-paint{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 40%;z-index:-2;} .ds-hero::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(43,10,13,0.92) 0%,rgba(43,10,13,0.78) 34%,rgba(43,10,13,0.15) 62%,transparent 75%),linear-gradient(0deg,rgba(43,10,13,0.6),transparent 30%);} .ds-hero-copy{max-width:46rem;} .ds-hero-title{margin:0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:400;font-size:clamp(3rem,6.2vw,6rem);line-height:0.94;letter-spacing:-0.025em;color:#f4e6c6;text-wrap:balance;} .ds-hero-title em{color:#ecd18a;} .ds-hero-text{margin:24px 0 0;max-width:38ch;font-family:var(--font-spectral),Georgia,serif;font-size:1.125rem;line-height:1.55;color:#dcc49b;}"
+      "css": ".ds-hero{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;min-height:420px;padding:32px;background:#f6f4ef;} .ds-hero-paint{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 40%;z-index:-2;} .ds-hero::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(246,244,239,0.96) 0%,rgba(246,244,239,0.9) 34%,rgba(246,244,239,0.25) 60%,transparent 74%),linear-gradient(0deg,rgba(246,244,239,0.7),transparent 22%);} .ds-hero-copy{max-width:46rem;} .ds-hero-title{margin:0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:400;font-size:clamp(3rem,6.2vw,6rem);line-height:0.94;letter-spacing:-0.025em;color:#1a1814;text-wrap:balance;} .ds-hero-title em{color:#23399a;} .ds-hero-text{margin:24px 0 0;max-width:38ch;font-family:var(--font-spectral),Georgia,serif;font-size:1.125rem;line-height:1.55;color:#5b5650;}"
     },
     {
       "name": "Room",
       "kind": "custom",
-      "description": "One idea of the landing: a roman room number in gilt display type, a headline-size title and wall text held to 60ch.",
+      "description": "One idea of the landing: a roman room number in ultramarine display type, a headline-size title and wall text held to 60ch.",
       "html": "<section class=\"ds-room\"><p class=\"ds-room-numeral\">II</p><h2 class=\"ds-room-title\">A label says only what the record shows</h2><p class=\"ds-room-text\">Nobody can prove from a picture that no machine was involved, and Soulprint never claims to. Each label states one of three things, in the same words every time.</p></section>",
-      "css": ".ds-room{background:#4f161b;padding:40px 32px;color:#f4e6c6;} .ds-room-numeral{margin:0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-size:2.4rem;line-height:1;color:#ecd18a;} .ds-room-title{margin:10px 0 0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:400;font-size:clamp(2.2rem,4vw,3.4rem);line-height:1.05;letter-spacing:-0.01em;} .ds-room-text{margin:18px 0 0;max-width:60ch;font-family:var(--font-spectral),Georgia,serif;font-size:1.06rem;line-height:1.55;color:#dcc49b;}"
+      "css": ".ds-room{background:#f6f4ef;padding:40px 32px;color:#1a1814;} .ds-room-numeral{margin:0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-size:2.4rem;line-height:1;color:#23399a;} .ds-room-title{margin:10px 0 0;font-family:var(--font-bodoni),'Bodoni 72',Didot,serif;font-weight:400;font-size:clamp(2.2rem,4vw,3.4rem);line-height:1.05;letter-spacing:-0.01em;} .ds-room-text{margin:18px 0 0;max-width:60ch;font-family:var(--font-spectral),Georgia,serif;font-size:1.06rem;line-height:1.55;color:#5b5650;}"
     }
   ],
   "narrative": {
     "northStar": "The Salon Hang",
-    "overview": "Soulprint is one room: a claret wall, lit once from the cornice, hung close with works in real period frames. Every work carries a flat printed label that states what its record shows and nothing more. The reference is a Paris Salon wall of the 1880s, where pictures touch shoulders and sizes vary, and it replaces the online-shop pattern of unframed images in a white grid.\n\nThere are two materials and they never blur. **The wall** (claret, damask, gilt, light lettering) carries the art, the headlines and navigation. **The sheet** (ivory catalogue paper with dark print) carries facts, forms and reading. The same token names (`ink`, `ink-2`, `ink-3`, `rule`, `paper-2`, `seal-2`, `moss`, `amber`) resolve to light values on the wall and dark values inside a sheet, so a component reads correctly in either place without a variant.\n\nThe physical parts are photographs, not drawings. The frames are four empty cassetta frames from The Metropolitan Museum of Art (Open Access, CC0) cut into nine-slice plates with measured slices; sculpture is cut from its museum photograph and stands on its own base. Each raster ships with a provenance record next to it. Operate screens (studio, rooms, vault, pay) live in the same room and simply use more sheet and less wall.\n\nThe room has three ways of showing work. **The hang** is the close salon wall of mixed sizes (artist pages). **The showcase** (`/gallery`) is the catalogue room: an even wall of equal cells, every work framed, under a printed finding aid. **The landing** (`/`) opens on the one unframed, full-bleed picture in the system, a museum photograph of real paint seen close, then walks through four numbered rooms to a doorway into the gallery.",
+    "overview": "Soulprint is one room: a gallery-white wall in even light, hung close with works in real period frames. Every work carries a flat printed label that states what its record shows and nothing more. The hang is a Paris Salon's, where pictures touch shoulders and sizes vary; the wall is a present-day museum's warm white, so the photographed frames and the pictures carry all the colour. What separates it from an online shop's white grid is the frame, the label and the hang, never the colour of the wall.\n\nThere are two surfaces and one ink. **The wall** (warm white) carries the art, the headlines and navigation. **The sheet** (pure white paper with a ruled edge and a soft shadow) carries facts, forms and reading. Both take the same near-black ink (`ink`, `ink-2`, `ink-3`) and the same `rule`; a sheet differs from the wall by one step of white, a 1px border and its shadow, so a component reads the same in either place. One accent, ultramarine, marks the decisive action and the few emphasised words.\n\nThe physical parts are photographs, not drawings. The frames are four empty cassetta frames from The Metropolitan Museum of Art (Open Access, CC0) cut into nine-slice plates with measured slices; sculpture is cut from its museum photograph and stands on its own base. Each raster ships with a provenance record next to it. Operate screens (studio, rooms, vault, pay) live in the same room and simply use more sheet and less wall.\n\nThe room has three ways of showing work. **The hang** is the close salon wall of mixed sizes (artist pages). **The showcase** (`/gallery`) is the catalogue room: an even wall of equal cells, every work framed, under a printed finding aid. **The landing** (`/`) opens on the one unframed, full-bleed picture in the system, a museum photograph of real paint seen close, then walks through four numbered rooms to a doorway into the gallery.",
     "keyCharacteristics": [
-      "One claret wall, one light from the top, an authored tone-on-tone damask.",
+      "One warm-white wall in even light: no pattern, no wall colour.",
       "Photographed period frames as nine-slice border plates; four mouldings, one per work for life.",
-      "Flat ivory wall labels: Cinzel title, italic Spectral line, claret level.",
-      "Ivory catalogue sheets with an inset hairline for every fact and form.",
+      "Flat white wall labels with a ruled edge: Cinzel title, italic Spectral line, ultramarine level.",
+      "White sheets with a 1px rule border and a soft warm-black shadow for every fact and form.",
       "Square forms; the only radius is 2px on controls.",
-      "One authored interaction: a work steps forward and the wall behind it warms.",
+      "One authored interaction: a work steps forward and the wall behind it brightens.",
       "Pictures are sized from their own proportions, so every picture fills its frame.",
-      "One full-bleed photograph of paint on the landing; everywhere else a picture is framed."
+      "One full-bleed photograph of paint on the landing; everywhere else a picture is framed.",
+      "One accent, ultramarine; gilt exists only in the photographed frames."
     ],
     "rules": [
       {
-        "name": "The Two Inks Rule",
-        "body": "Never hard-code a text colour for wall or sheet. Use `ink`, `ink-2`, `ink-3`, `rule`; the scope (`:root`/`.on-wall` versus `.card`/`.sheet`/`.on-paper`) picks the value.",
+        "name": "The One Ink Rule",
+        "body": "Text is `ink`, `ink-2` or `ink-3` and lines are `rule`, on the wall and on paper alike. There are no surface scopes and no light-on-dark variants to maintain; never hard-code a text colour.",
         "section": "colors"
       },
       {
         "name": "The Seal Is One Decision Rule",
-        "body": "The claret seal button marks the one decisive action in a view (walk the hang, start a piece, the committing step of a flow). Ordinary actions are gilt plates or ghosts.",
+        "body": "The ultramarine seal button marks the one decisive action in a view (enter the gallery, start a piece, the committing step of a flow). Ordinary actions are near-black plates or ghosts.",
         "section": "colors"
       },
       {
-        "name": "The Claret Level Rule",
-        "body": "On a label, the only coloured line is the level or the word \"Example\", in seal claret. Colour never grades a work; green, amber and red are for system state only.",
+        "name": "The Ultramarine Level Rule",
+        "body": "On a label, the only coloured line is the level or the word \"Example\", in ultramarine. Colour never grades a work; green, amber and red are for system state only.",
+        "section": "colors"
+      },
+      {
+        "name": "The Pictures Carry The Colour Rule",
+        "body": "Wall, paper and ink are neutral, and ultramarine is the single accent. Every other colour on a screen comes from a photographed frame or a picture. Gilt is never drawn.",
         "section": "colors"
       },
       {
         "name": "The Heavier-On-Paper Rule",
-        "body": "Bodoni's hairlines break at small sizes on ivory. Any display type inside a sheet is weight 600; weight 400 is for large lettering on the wall.",
+        "body": "Bodoni's hairlines break at small sizes on paper. Any display type inside a sheet is weight 600; weight 400 is for large lettering on the wall.",
         "section": "typography"
       },
       {
@@ -942,13 +736,13 @@
       },
       {
         "name": "The One Light Rule",
-        "body": "Light comes from the top of the room. Shadows fall down, inner shading sits on the top and left of a picture, and nothing is lit from below or from the side.",
+        "body": "Light is even and comes from above. Shadows fall straight down in warm black, inner shading sits on the top and left of a picture, and nothing is lit from below or from the side.",
         "section": "elevation"
       }
     ],
     "dos": [
       "Do put the art and the headlines on the wall and every fact, form and long text on a sheet.",
-      "Do use the scoped ink tokens so the same component reads on wall and sheet.",
+      "Do use the one set of ink tokens (`ink`, `ink-2`, `ink-3`, `rule`) on wall and paper alike.",
       "Do frame every picture with one of the four photographed plates and its measured slices from `public/salon/frames/frames.json`; add a new moulding only as a new photographed plate with its provenance file. The landing hero is the single exception (The One Unframed Painting Rule).",
       "Do keep works close on the hang: gaps stay within 14 to 28px and sizes follow the rhythm. On the showcase keep cells equal and labels on one line per row.",
       "Do give every work a wall label and take the evidence sentence from the wording table unchanged.",
@@ -957,25 +751,28 @@
       "Do give keyboard focus the same approach response as hover, and remove movement under reduced motion.",
       "Do keep product copy on creator and client screens free of \"NFT\", \"mint\", \"gas\" and \"wallet\".",
       "Do size a picture from its aspect ratio with `--h`, `--cap` and `--ar` (The Proportion Rule), and give every new layout its own `--h` and `--cap`.",
-      "Do put filters and sorting on an ivory strip, never loose on the wall, and make every filtered view a link.",
-      "Do keep a scrim between a photograph and any type set over it, in Claret Shadow, strong enough that wall lettering keeps its contrast.",
-      "Do ship every new photograph with its provenance record beside it."
+      "Do put filters and sorting on a white strip, never loose on the wall, and make every filtered view a link.",
+      "Do keep a scrim between a photograph and any type set over it, in Gallery White, strong enough that ink lettering keeps its contrast.",
+      "Do ship every new photograph with its provenance record beside it.",
+      "Do keep errors and refusals red (`seal-2`); ultramarine is for decisions and emphasis."
     ],
     "donts": [
       "Don't draw a frame with CSS borders, gradients or bevels; frames are photographs.",
-      "Don't hang unframed images in an evenly spaced grid on a pale ground. The showcase is an even grid, but every work in it is framed, labelled and on the claret wall.",
+      "Don't hang a picture unframed or unlabelled. The wall is pale, so the photographed frame, the printed label and the hang are what make it a gallery and not a shop grid.",
       "Don't round anything beyond 2px, and don't use pills or circular controls.",
-      "Don't add a second light: no side or bottom glows, no coloured shadows, no hard offset shadows.",
+      "Don't add a second light: no side or bottom glows, no coloured shadows, no hard offset shadows, no gradient on the wall.",
       "Don't put a form field or a long paragraph directly on the wall; the wall select in the rail is the only wall control.",
-      "Don't use moss, amber or red to grade a work; a label's only colour is the claret level line.",
+      "Don't use moss, amber or red to grade a work; a label's only colour is the ultramarine level line.",
       "Don't show a level, price, record or collect control on an example work.",
       "Don't use Cinzel for sentences or in lowercase, and don't use the mono face for anything but checkable values.",
       "Don't use a coloured side stripe for quotes or callouts.",
-      "Don't introduce cool greys, pure white or pure black; every neutral is warm.",
+      "Don't introduce cool greys or pure black; every neutral is warm, and pure white is kept for paper (sheets, labels, fields) and the lettering on filled buttons.",
       "Don't crop, stretch or letterbox a picture to fit a cell; change `--h` or `--cap` instead.",
       "Don't add a second full-bleed or unframed painting; the landing hero is the only one.",
       "Don't use the Hero size anywhere but the landing headline.",
-      "Don't let the finding aid change height or shift when a filter is set or cleared."
+      "Don't let the finding aid change height or shift when a filter is set or cleared.",
+      "Don't bring back a coloured or patterned wall, and don't draw gilt: no gilt lines, plates, borders or lettering outside the photographed frames.",
+      "Don't add a second accent, and don't spend ultramarine on decoration, borders of ordinary sheets or body text."
     ]
   }
 }

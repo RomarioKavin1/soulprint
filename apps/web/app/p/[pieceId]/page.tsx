@@ -115,9 +115,9 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
             <Link className="text-ink underline" href={`/a/${piece.artist}`} data-testid="artist-link">{m.artist}</Link>
             {pub.title ? <span className="text-ink-3"> · piece {m.tokenId}</span> : null}
           </p>
-          <p className="mt-8 font-display text-[1.65rem] italic leading-snug text-[color:var(--color-gilt-light)]" data-testid="evidence-sentence">{sentence}.</p>
+          <p className="mt-8 font-display text-[1.65rem] italic leading-snug text-seal" data-testid="evidence-sentence">{sentence}.</p>
           <div className="mt-5 flex flex-wrap gap-2">
-            {m.badge && <span className="btn-seal pointer-events-none px-3 py-1" data-testid="badge">{BADGE_TEXT}</span>}
+            {m.badge && <span className="chip" data-testid="badge">{BADGE_TEXT}</span>}
             <span className="font-plaque border border-rule px-3 py-1 text-[0.7rem] uppercase tracking-[0.16em] text-ink-2">Level E{shown.level}</span>
           </div>
           {shown.note && <p className="mt-4 border border-[color:var(--color-amber)] px-3 py-2 text-sm">{shown.note}</p>}

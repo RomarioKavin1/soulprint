@@ -18,7 +18,7 @@ export function Timeline({ pieceId, frames }: { pieceId: string; frames: F[] }) 
           </span>
         </span>
       </div>
-      <input type="range" className="mt-4 w-full accent-[#7a1e26]" min={0} max={frames.length - 1} value={i} onChange={(e) => setI(Number(e.target.value))} aria-label="Timeline" />
+      <input type="range" className="mt-4 w-full accent-[color:var(--color-seal)]" min={0} max={frames.length - 1} value={i} onChange={(e) => setI(Number(e.target.value))} aria-label="Timeline" />
       <p className="mt-1 text-xs text-ink-3">
         Frame {f.index + 1} · {new Date(f.deviceTs).toLocaleString()} (device clock) · {i + 1} of {frames.length} shown
       </p>

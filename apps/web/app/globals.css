@@ -1,60 +1,37 @@
 @import "tailwindcss";
 
 /*
- * The Salon (13 Nov): a claret wall, photographed period frames, printed labels and ivory sheets.
- * Colour tokens are scoped: on the wall `ink` is the light lettering, inside a sheet (.card,
- * .sheet) `ink` is the dark print. Components keep using ink/paper/rule and read in both places.
+ * Gallery white (13 Nov, owner: "the dark red makes it look very old … switch to light colors"):
+ * warm white walls, near-black type, white labels and sheets; the photographed gilt frames and the
+ * paintings carry the colour; one ultramarine accent for actions and emphasis.
  */
 @theme {
-  /* sheet (paper) tokens; re-pointed on the wall below */
-  --color-paper: #f3ead6;
-  --color-paper-2: #e8dbbd;
-  --color-ink: #2a1f17;
-  --color-ink-2: #5a4636;
-  --color-ink-3: #7d6650;
-  --color-rule: #cdb98f;
-  --color-seal: #7a1e26;
-  --color-seal-2: #5b141b;
-  --color-moss: #355a35;
-  --color-amber: #8c5e0f;
-  /* the room */
-  --color-wall: #4f161b;
-  --color-wall-deep: #2b0a0d;
+  --color-wall: #f6f4ef;
+  --color-wall-deep: #ece8e0;
+  --color-paper: #ffffff;
+  --color-paper-2: #efece6;
+  --color-ink: #1a1814;
+  --color-ink-2: #5b5650;
+  --color-ink-3: #736d66;
+  --color-rule: #e2ddd3;
+  /* the accent: ultramarine, the painter's lapis blue */
+  --color-seal: #23399a;
+  --color-accent-2: #1a2b78;
+  /* errors and refusals stay red */
+  --color-seal-2: #a3261e;
+  --color-moss: #2f6b3f;
+  --color-amber: #8a5a0c;
+  /* gilt: only the frames' own metal and the thin picture rail */
   --color-gilt: #c9a24a;
-  --color-gilt-light: #ecd18a;
   --color-gilt-dark: #6e4f17;
-  --color-brass: #b58f45;
   --font-display: var(--font-bodoni), "Bodoni 72", Didot, serif;
   --font-plaque: var(--font-cinzel), "Trajan Pro", serif;
   --font-sans: var(--font-spectral), Georgia, serif;
   --font-mono: var(--font-jbmono), ui-monospace, Menlo, monospace;
 }
 
-/* On the wall the lettering is light. */
-:root, .on-wall {
-  --color-ink: #f4e6c6;
-  --color-ink-2: #dcc49b;
-  --color-ink-3: #bd9e75;
-  --color-rule: rgba(233, 201, 122, 0.28);
-  --color-paper-2: rgba(0, 0, 0, 0.22);
-  --color-seal-2: #f1a08e;
-  --color-moss: #a9d29d;
-  --color-amber: #f0c56a;
-  color-scheme: dark;
-}
-/* Inside a catalogue sheet the print is dark again. */
-.card, .sheet, .on-paper {
-  --color-ink: #2a1f17;
-  --color-ink-2: #5a4636;
-  --color-ink-3: #7d6650;
-  --color-rule: #cdb98f;
-  --color-paper-2: #e8dbbd;
-  --color-seal-2: #5b141b;
-  --color-moss: #355a35;
-  --color-amber: #8c5e0f;
-  color-scheme: light;
-  color: var(--color-ink);
-}
+:root { color-scheme: light; }
+.card, .sheet, .on-paper { color: var(--color-ink); }
 
 html {
   background-color: var(--color-wall-deep);
@@ -68,66 +45,53 @@ body {
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "kern", "liga", "onum";
   background-color: var(--color-wall);
-  /* the wall: damask stencil, then light falling from the top and gathering at the skirting */
-  /* light falls from the cornice; the damask runs the height of the room */
-  background-image:
-    radial-gradient(140% 900px at 50% -200px, rgba(255, 196, 120, 0.15), transparent 70%),
-    url("/salon/damask.svg");
-  background-size: 100% 1400px, 160px 220px;
-  background-repeat: no-repeat, repeat;
   min-height: 100vh;
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
-::selection { background: var(--color-gilt); color: #2a1f17; }
-:focus-visible { outline: 2px solid var(--color-gilt-light); outline-offset: 3px; border-radius: 2px; }
-.card :focus-visible, .sheet :focus-visible { outline-color: var(--color-seal); }
+::selection { background: var(--color-seal); color: #ffffff; }
+:focus-visible { outline: 2px solid var(--color-seal); outline-offset: 3px; border-radius: 2px; }
 a { text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
-input, textarea, select { caret-color: var(--color-seal); }
-* { scrollbar-color: var(--color-gilt-dark) transparent; scrollbar-width: thin; }
+input, textarea, select { caret-color: var(--color-seal); accent-color: var(--color-seal); }
+* { scrollbar-color: #c9c3b8 transparent; scrollbar-width: thin; }
 code, .tabular { font-variant-numeric: tabular-nums; }
 
 /* ---------------- controls ---------------- */
 
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap px-4 py-2.5 text-[0.76rem] uppercase tracking-[0.13em] transition-[background-color,box-shadow,color,filter] duration-200 disabled:cursor-not-allowed disabled:opacity-45;
+  @apply inline-flex items-center justify-center gap-2 whitespace-nowrap px-4 py-2.5 text-[0.76rem] uppercase tracking-[0.13em] transition-[background-color,box-shadow,color,border-color] duration-200 disabled:cursor-not-allowed disabled:opacity-45;
   font-family: var(--font-plaque);
   font-weight: 600;
   border-radius: 2px;
 }
-/* a gilt-painted plate */
+/* a strong secondary action: near-black */
 @utility btn-primary {
   @apply btn;
-  color: #2a1a05;
-  background: #d9b866;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  &:hover:not(:disabled) { filter: brightness(1.08); }
+  color: #ffffff;
+  background: var(--color-ink);
+  &:hover:not(:disabled) { background: #33302a; }
 }
-/* the wax seal: the decisive action */
+/* the decisive action: ultramarine */
 @utility btn-seal {
   @apply btn;
-  color: #f8e9d0;
-  background: #8a222b;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(233, 201, 122, 0.55);
-  &:hover:not(:disabled) { filter: brightness(1.12); }
+  color: #ffffff;
+  background: var(--color-seal);
+  &:hover:not(:disabled) { background: var(--color-accent-2); }
 }
 @utility btn-ghost {
   @apply btn border;
   color: var(--color-ink);
-  border-color: color-mix(in srgb, var(--color-gilt) 70%, transparent);
+  border-color: #cfc9be;
   background: transparent;
-  &:hover:not(:disabled) { background: color-mix(in srgb, var(--color-gilt) 16%, transparent); }
+  &:hover:not(:disabled) { border-color: var(--color-ink); background: #ffffff; }
 }
 
-/* a catalogue sheet hung on the wall */
+/* a white sheet on the wall */
 @utility card {
   @apply relative p-6 sm:p-8;
-  background:
-    linear-gradient(180deg, rgba(255, 252, 240, 0.65), rgba(255, 252, 240, 0) 40%),
-    #f3ead6;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 18px 40px -18px rgba(0, 0, 0, 0.75), 0 2px 6px rgba(0, 0, 0, 0.35);
-  outline: 1px solid rgba(110, 79, 23, 0.35);
-  outline-offset: -8px;
+  background: #ffffff;
+  border: 1px solid var(--color-rule);
+  box-shadow: 0 1px 2px rgba(26, 24, 20, 0.04), 0 12px 32px -20px rgba(26, 24, 20, 0.25);
 }
 @utility label {
   @apply text-[0.72rem] uppercase tracking-[0.2em];
@@ -137,12 +101,12 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 }
 @utility field {
   @apply w-full px-3 py-2 text-[0.95rem] outline-none transition-[border-color,box-shadow];
-  background: #fffaf0;
-  color: #2a1f17;
-  border: 1px solid #cdb98f;
+  background: #ffffff;
+  color: var(--color-ink);
+  border: 1px solid #d9d3c8;
   border-radius: 2px;
-  &:focus { border-color: #7a1e26; box-shadow: 0 0 0 3px rgba(122, 30, 38, 0.15); }
-  &::placeholder { color: #7d6650; }
+  &:focus { border-color: var(--color-seal); box-shadow: 0 0 0 3px rgba(35, 57, 154, 0.15); }
+  &::placeholder { color: var(--color-ink-3); }
 }
 
 /* ---------------- the salon ---------------- */
@@ -160,7 +124,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   border-width: var(--m);
   border-image-repeat: stretch;
   border-image-width: 1;
-  box-shadow: 0 26px 36px -18px rgba(8, 0, 0, 0.85), 0 6px 10px -2px rgba(8, 0, 0, 0.5);
+  box-shadow: 0 18px 28px -16px rgba(26, 24, 20, 0.45), 0 3px 6px -1px rgba(26, 24, 20, 0.25);
   transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 500ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .frame[data-moulding="gilt"] { border-image-source: url("/salon/frames/gilt.webp"); border-image-slice: 133 162 166 162; }
@@ -173,7 +137,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   background: #1a1210;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7);
 }
-.frame-sight[data-mat="linen"] { padding: clamp(10px, 1.6vw, 26px); background: #ece3cd; }
+.frame-sight[data-mat="linen"] { padding: clamp(10px, 1.6vw, 26px); background: #f1ede5; }
 .frame-sight img { display: block; }
 /* the moulding's depth shades the picture's top and left edges */
 .frame-sight::after {
@@ -185,15 +149,15 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 }
 
 /*
- * The room has one light, from the cornice (see body). Approaching a work, it steps forward a
- * little and the wall behind it warms: the one authored interaction.
+ * The room is evenly lit from above. Approaching a work, it steps forward a
+ * little and the wall behind it brightens: the one authored interaction.
  */
 .hung { position: relative; display: flex; flex-direction: column; align-items: center; }
 .hung::before {
   content: "";
   position: absolute;
   inset: -14% 0 8% 0;
-  background: radial-gradient(closest-side, rgba(255, 210, 150, 0.22), transparent);
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.9), transparent);
   opacity: 0;
   pointer-events: none;
   transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -201,10 +165,10 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 .hung:hover::before, .hung:focus-within::before { opacity: 1; }
 .hung:hover .frame, .hung:focus-within .frame {
   transform: translateY(-4px);
-  box-shadow: 0 34px 44px -18px rgba(8, 0, 0, 0.9), 0 8px 14px -2px rgba(8, 0, 0, 0.55);
+  box-shadow: 0 28px 40px -18px rgba(26, 24, 20, 0.5), 0 6px 10px -2px rgba(26, 24, 20, 0.3);
 }
 /* Arrival: the hang comes out of the dark once, work by work. */
-@keyframes picture-up { from { filter: brightness(0.35) saturate(0.6); } to { filter: none; } }
+@keyframes picture-up { from { opacity: 0; filter: saturate(0.6); } to { filter: none; } }
 @media (prefers-reduced-motion: no-preference) {
   .hang .hung .frame, .hang .sculpture img { animation: picture-up 1100ms cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(var(--i, 0) * 60ms + 120ms); }
 }
@@ -217,9 +181,10 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   min-width: 9rem;
   max-width: min(100%, 20rem);
   text-align: center;
-  color: #2a1a05;
-  background: #efe6d2;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  color: var(--color-ink);
+  background: #ffffff;
+  border: 1px solid var(--color-rule);
+  box-shadow: 0 1px 3px rgba(26, 24, 20, 0.08);
 }
 .plaque-title {
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
@@ -230,8 +195,8 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.plaque-line { display: block; margin-top: 1px; font-size: 0.82rem; line-height: 1.3; font-style: italic; color: #4a3a26; }
-.plaque-note { display: block; margin-top: 4px; font-size: 0.78rem; line-height: 1.35; color: #4a3a26; }
+.plaque-line { display: block; margin-top: 1px; font-size: 0.82rem; line-height: 1.3; font-style: italic; color: var(--color-ink-2); }
+.plaque-note { display: block; margin-top: 4px; font-size: 0.78rem; line-height: 1.35; color: var(--color-ink-2); }
 .plaque-story { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-style: italic; }
 .plaque-level {
   display: block;
@@ -241,7 +206,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   font-size: 0.7rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #7a1e26;
+  color: var(--color-seal);
 }
 
 /* Sculpture: the work itself, cut from its museum photograph, standing on its own base. */
@@ -252,7 +217,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   width: auto;
   max-width: min(70vw, 420px);
   object-fit: contain;
-  filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.55)) drop-shadow(0 12px 10px rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 3px 2px rgba(26, 24, 20, 0.35)) drop-shadow(0 12px 10px rgba(26, 24, 20, 0.18));
 }
 
 /* The hang: one centre line, frames close together, small works stacked in pairs. */
@@ -274,7 +239,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 .hang-img { display: block; height: var(--h); width: auto; max-width: min(70vw, 520px); object-fit: contain; }
 .hang-blank {
   display: flex; align-items: center; justify-content: center; height: var(--h); aspect-ratio: 4 / 5; padding: 1rem;
-  text-align: center; font-size: 0.8rem; font-style: italic; color: #7d6650;
+  text-align: center; font-size: 0.8rem; font-style: italic; color: var(--color-ink-3);
 }
 .hang-caption {
   max-width: 20rem; margin-top: 8px; text-align: center; font-size: 0.84rem; line-height: 1.4;
@@ -285,7 +250,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   margin-top: 8px; padding: 3px 10px; font-family: var(--font-plaque); font-size: 0.72rem; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--color-ink-2); border: 1px solid var(--color-rule); text-decoration: none;
 }
-.hang-note:hover { color: var(--color-ink); border-color: var(--color-gilt); }
+.hang-note:hover { color: var(--color-ink); border-color: var(--color-ink); }
 /* Lettering painted on the wall, hung in line with the frames. */
 .hang-lettering { flex: 0 1 clamp(18rem, 24vw, 24rem); max-width: clamp(18rem, 24vw, 24rem); padding: 0 clamp(4px, 0.8vw, 12px); text-align: left; }
 /* The hang runs past the page column, wall to wall. */
@@ -314,7 +279,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 /* A small printed label for states (status, published). */
 .chip {
   display: inline-block; padding: 4px 12px; font-family: var(--font-plaque); font-weight: 600; font-size: 0.7rem;
-  letter-spacing: 0.14em; text-transform: uppercase; color: #2a1a05; background: #e3c77e;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-ink); background: var(--color-paper-2);
 }
 .chip-quiet { color: var(--color-ink-2); background: transparent; box-shadow: inset 0 0 0 1px var(--color-rule); }
 
@@ -326,12 +291,12 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   font-size: 0.85rem;
   color: var(--color-ink);
   background: transparent;
-  border: 1px solid color-mix(in srgb, var(--color-gilt) 55%, transparent);
+  border: 1px solid #d9d3c8;
   border-radius: 2px;
   appearance: auto;
 }
-.wall-select:hover { border-color: var(--color-gilt); }
-.wall-select option { color: #2a1f17; background: #f3ead6; }
+.wall-select:hover { border-color: var(--color-ink); }
+.wall-select option { color: var(--color-ink); background: #ffffff; }
 /* On narrow screens the welcome lettering leads, before the first work. */
 @media (max-width: 1023px) { .hang-lettering[data-key="welcome"] { order: -1; } }
 
@@ -350,29 +315,27 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 
 /* ---------------- the showcase (/gallery) ---------------- */
 
-/* The finding aid: one printed bar of controls on an ivory strip. */
+/* The finding aid: one printed bar of controls on a white strip. */
 .finding-aid {
   display: grid;
   grid-template-columns: minmax(14rem, 1.6fr) repeat(4, minmax(9rem, 1fr)) auto auto;
   align-items: end;
   gap: 14px 16px;
   padding: 18px 20px;
-  background: #f3ead6;
-  color: #2a1f17;
-  box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.75);
-  outline: 1px solid rgba(110, 79, 23, 0.35);
-  outline-offset: -6px;
-  --color-ink: #2a1f17; --color-ink-2: #5a4636; --color-ink-3: #7d6650; --color-rule: #cdb98f;
+  background: #ffffff;
+  color: var(--color-ink);
+  border: 1px solid var(--color-rule);
+  box-shadow: 0 10px 28px -20px rgba(26, 24, 20, 0.3);
   transition: opacity 200ms;
 }
 .finding-aid[data-pending] { opacity: 0.7; }
 .finding-aid label { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .finding-aid .field { padding: 7px 10px; }
 .fa-toggle { flex-direction: row !important; align-items: center; gap: 8px !important; padding-bottom: 9px; white-space: nowrap; }
-.fa-toggle input { accent-color: #7a1e26; width: 16px; height: 16px; }
+.fa-toggle input { accent-color: var(--color-seal); width: 16px; height: 16px; }
 .fa-actions { display: flex; align-items: center; gap: 12px; }
-.fa-actions .btn-ghost { color: #2a1f17; padding-block: 8px; }
-.fa-reset { font-size: 0.82rem; color: #7a1e26; text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; white-space: nowrap; }
+.fa-actions .btn-ghost { padding-block: 8px; }
+.fa-reset { font-size: 0.82rem; color: var(--color-seal); text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; white-space: nowrap; }
 @media (max-width: 1100px) { .finding-aid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fa-search { grid-column: 1 / -1; } }
 @media (max-width: 520px) { .finding-aid { padding: 14px; gap: 10px 12px; } .fa-toggle { padding-bottom: 0; align-self: center; } .fa-actions { justify-content: flex-end; } }
 
@@ -400,18 +363,18 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 .showcase-art img[style*="--ar"], .room-img[style*="--ar"] { width: min(var(--cap), calc(var(--h) * var(--ar))); max-width: none; height: auto; max-height: none; object-fit: fill; }
 .showcase-art .frame { max-width: 100%; }
 .showcase-art .frame img { max-width: calc(100% - 0px); }
-.showcase-art:hover .frame, .showcase-art:focus-visible .frame { transform: translateY(-4px); box-shadow: 0 34px 44px -18px rgba(8, 0, 0, 0.9), 0 8px 14px -2px rgba(8, 0, 0, 0.55); }
-.showcase-sculpture img { filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.55)) drop-shadow(0 12px 10px rgba(0, 0, 0, 0.3)); height: calc(var(--h) + 30px); }
-.showcase-blank { display: flex; align-items: center; justify-content: center; height: var(--h); aspect-ratio: 4 / 5; padding: 1rem; text-align: center; font-size: 0.8rem; font-style: italic; color: #7d6650; }
+.showcase-art:hover .frame, .showcase-art:focus-visible .frame { transform: translateY(-4px); box-shadow: 0 28px 40px -18px rgba(26, 24, 20, 0.5), 0 6px 10px -2px rgba(26, 24, 20, 0.3); }
+.showcase-sculpture img { filter: drop-shadow(0 3px 2px rgba(26, 24, 20, 0.35)) drop-shadow(0 12px 10px rgba(26, 24, 20, 0.18)); height: calc(var(--h) + 30px); }
+.showcase-blank { display: flex; align-items: center; justify-content: center; height: var(--h); aspect-ratio: 4 / 5; padding: 1rem; text-align: center; font-size: 0.8rem; font-style: italic; color: var(--color-ink-3); }
 .showcase-label {
   width: 100%; max-width: 17rem; margin-top: 14px; padding: 9px 12px 10px; text-align: center;
-  background: #efe6d2; color: #2a1a05; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  background: #ffffff; color: var(--color-ink); border: 1px solid var(--color-rule); box-shadow: 0 1px 3px rgba(26, 24, 20, 0.08);
 }
 .showcase-label a { color: inherit; text-decoration: none; }
 .showcase-label a:hover { text-decoration: underline; }
 .showcase-meta { display: flex; justify-content: center; align-items: baseline; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
 .showcase-meta .plaque-level { display: inline; margin-top: 0; }
-.showcase-price { font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600; color: #2a1a05; }
+.showcase-price { font-family: var(--font-sans); font-size: 0.82rem; font-weight: 600; color: var(--color-ink); }
 @media (prefers-reduced-motion: no-preference) {
   .showcase-cell { animation: picture-up 900ms cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(min(var(--i, 0), 12) * 40ms); }
 }
@@ -444,18 +407,17 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   border-width: calc(30px * var(--t));
   border-image-repeat: stretch;
   border-image-width: 1;
-  /* each room beyond is darker; the cornice light falls on the far wall */
+  /* the doorway interior: a paler bay of the same wall */
   background:
-    radial-gradient(70% 45% at 50% 0%, rgba(255, 205, 140, calc(0.1 - var(--d, 0) * 0.015)), transparent 70%),
-    color-mix(in srgb, #4f161b calc(100% - var(--d, 0) * 13%), #12030a);
-  box-shadow: inset 0 0 calc(30px + var(--d, 0) * 10px) rgba(0, 0, 0, 0.55), 0 10px 30px rgba(0, 0, 0, 0.45);
+    #efece6;
+  box-shadow: inset 0 0 30px rgba(26, 24, 20, 0.08), 0 18px 32px -18px rgba(26, 24, 20, 0.4);
 }
 .door[data-moulding="gilt"] { border-image-source: url("/salon/frames/gilt.webp"); border-image-slice: var(--slice-gilt); }
 .door[data-moulding="gilt-pattern"] { border-image-source: url("/salon/frames/gilt-pattern.webp"); border-image-slice: var(--slice-gilt-pattern); }
 .door[data-moulding="walnut"] { border-image-source: url("/salon/frames/walnut.webp"); border-image-slice: var(--slice-walnut); }
 /* The rooms below: one idea each, generous wall between them. */
 .room { margin-top: clamp(96px, 12vw, 168px); }
-.room-numeral { font-family: var(--font-display); font-size: 2.4rem; line-height: 1; color: var(--color-gilt-light); }
+.room-numeral { font-family: var(--font-display); font-size: 2.4rem; line-height: 1; color: var(--color-seal); }
 .room-title { margin-top: 10px; font-family: var(--font-display); font-size: clamp(2.2rem, 4vw, 3.4rem); line-height: 1.05; letter-spacing: -0.01em; }
 .room-text { margin-top: 18px; max-width: 60ch; font-size: 1.06rem; color: var(--color-ink-2); }
 .room-work, .room-img { --h: clamp(260px, 30vw, 420px); --cap: min(80vw, 560px); }
@@ -479,7 +441,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 .hero-brush { position: relative; height: max(640px, calc(100svh - 70px)); overflow: hidden; isolation: isolate; display: flex; align-items: center; }
 .hero-brush-paint { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 40%; z-index: -2; }
 .hero-brush::before { content: ""; position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(90deg, rgba(43, 10, 13, 0.92) 0%, rgba(43, 10, 13, 0.78) 34%, rgba(43, 10, 13, 0.15) 62%, transparent 75%), linear-gradient(0deg, rgba(43, 10, 13, 0.6), transparent 30%); }
+  background: linear-gradient(90deg, rgba(246, 244, 239, 0.96) 0%, rgba(246, 244, 239, 0.9) 34%, rgba(246, 244, 239, 0.25) 60%, transparent 74%), linear-gradient(0deg, rgba(246, 244, 239, 0.7), transparent 22%); }
 .hero-brush-copy { max-width: 46rem; padding-left: clamp(8px, 2vw, 32px); }
 .hero-brush-whole { position: absolute; right: clamp(16px, 3vw, 48px); bottom: clamp(20px, 4vh, 44px); --h: clamp(120px, 13vw, 190px); }
 .hero-brush-whole-img { height: var(--h); width: auto; display: block; }
@@ -487,7 +449,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   /* the phone header is taller; keep the framed whole and its full label inside the first screen */
   .hero-brush { height: max(560px, calc(100svh - 150px)); align-items: flex-start; padding-top: 28px; }
   .hero-brush-paint { object-position: 72% 30%; }
-  .hero-brush::before { background: linear-gradient(180deg, rgba(43, 10, 13, 0.92) 0%, rgba(43, 10, 13, 0.84) 46%, rgba(43, 10, 13, 0.12) 70%, transparent); }
+  .hero-brush::before { background: linear-gradient(180deg, rgba(246, 244, 239, 0.96) 0%, rgba(246, 244, 239, 0.9) 48%, rgba(246, 244, 239, 0.15) 70%, transparent); }
   .hero-brush-whole { --h: 84px; bottom: 16px; }
 }
 @supports (animation-timeline: scroll()) {
