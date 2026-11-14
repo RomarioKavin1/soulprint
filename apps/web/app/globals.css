@@ -597,7 +597,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   }
 }
 
-/* ---------------- the pitch (/pitch): five slides on the Manmade wall ---------------- */
+/* ---------------- the pitch (/pitch): six slides on the Manmade wall ---------------- */
 .deck {
   position: fixed; inset: 0; z-index: 60; overflow: hidden;
   background-color: var(--color-wall);
@@ -651,6 +651,31 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 .deck-art .sculpture img { height: min(56vh, 500px); width: auto; }
 .deck-split .deck-h { max-width: 14ch; }
 
+/* 3. the joke: a too-perfect sunset in a gilt frame, a speech bubble, and the label that tells the truth */
+.joke-scene { position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 96px; }
+.joke-sunset {
+  /* the parody: the glossy, frictionless "AI sunset" — a gradient is the content here, not decoration */
+  display: block; width: min(30vw, 400px); aspect-ratio: 4 / 3;
+  background:
+    radial-gradient(circle at 50% 58%, #fff6d6 0 7%, #ffd27a 8% 11%, transparent 12%),
+    linear-gradient(180deg, transparent 0 62%, #2c4a8a 62%, #1f3566 100%),
+    linear-gradient(180deg, #3a2a8f 0%, #b2479b 30%, #ff7a59 52%, #ffc56b 62%);
+}
+.joke-bubble {
+  position: absolute; top: 0; left: -8%; max-width: 19rem; z-index: 2;
+  padding: 14px 18px; background: #ffffff; border: 1px solid var(--color-ink); border-radius: 10px;
+  font-family: var(--font-display); font-weight: 500; font-size: clamp(1.2rem, 1.6vw, 1.45rem); line-height: 1.2;
+}
+.joke-bubble em { color: var(--color-seal); }
+.joke-who { display: block; margin-top: 4px; font-family: var(--font-sans); font-size: 0.82rem; font-style: italic; color: var(--color-ink-3); }
+.joke-note { margin-top: 10px; font-size: 0.82rem; font-style: italic; color: var(--color-ink-3); }
+.joke-bubble::after {
+  /* the tail, pointing down at the frame */
+  content: ""; position: absolute; left: 52px; bottom: -14px; width: 22px; height: 22px;
+  background: #ffffff; border-right: 1px solid var(--color-ink); border-bottom: 1px solid var(--color-ink);
+  transform: skewY(28deg) rotate(30deg);
+}
+
 /* 3. the making: five steps along one hairline */
 .deck-steps { margin-top: clamp(32px, 6vh, 64px); display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid var(--color-ink-3); }
 .deck-steps li { position: relative; padding: 22px 22px 0 0; }
@@ -700,6 +725,9 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   .deck-body { padding-bottom: 96px; }
   .deck-nav { bottom: 12px; padding: 6px 10px; }
   .deck-art { display: none; }
+  .joke-scene { padding-top: 110px; }
+  .joke-sunset { width: 72vw; }
+  .joke-bubble { left: 0; }
   .deck-body { padding-bottom: 110px; }
   .deck-why > div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--color-rule); }
   .deck-steps { grid-template-columns: minmax(0, 1fr); border-top: 0; border-left: 1px solid var(--color-ink-3); }

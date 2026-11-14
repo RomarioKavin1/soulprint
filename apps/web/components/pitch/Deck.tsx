@@ -5,11 +5,11 @@ import { classic, shortTitle } from "@/lib/classics";
 import { Hung, Plaque, Sculpture } from "@/components/salon/Frame";
 
 /**
- * The pitch: five slides over the Manmade wall. Arrow keys, Page Up/Down, space, Home/End and the
- * controls move between them; the slide is in the URL hash (#1–#5) so a slide can be linked.
+ * The pitch: six slides over the Manmade wall. Arrow keys, Page Up/Down, space, Home/End and the
+ * controls move between them; the slide is in the URL hash (#1–#6) so a slide can be linked.
  */
 export function Deck() {
-  const slides = [<Title key="t" />, <Why key="w" />, <Making key="m" />, <Tech key="x" />, <Flow key="f" />];
+  const slides = [<Title key="t" />, <Why key="w" />, <Joke key="j" />, <Making key="m" />, <Tech key="x" />, <Flow key="f" />];
   const [i, setI] = useState(0);
   const n = slides.length;
   const go = useCallback((k: number) => setI(Math.max(0, Math.min(n - 1, k))), [n]);
@@ -126,7 +126,31 @@ function Why() {
   );
 }
 
-/* ---------- 3. The making, on record ---------- */
+/* ---------- 3. Our take on the "AI artist" meme ---------- */
+function Joke() {
+  return (
+    <div className="deck-body deck-split deck-joke">
+      <div>
+        <h2 className="deck-h">The record doesn&rsquo;t <em>argue</em>.</h2>
+        <p className="deck-honest">
+          No accusations, no detectors. A piece hangs with what its record shows. Declared is not a verdict — it just means there was little making to show.
+        </p>
+      </div>
+      <div className="joke-scene">
+        <p className="joke-bubble">It took me <em>ages!</em> The prompt was forty words long.<span className="joke-who">— @golden.hours</span></p>
+        <Hung
+          moulding="gilt"
+          plaque={<Plaque title="Golden Hour, Hand-Made" line="@golden.hours, 2026" level="Declared · 1 frame · 4 seconds" />}
+        >
+          <span className="joke-sunset" role="img" aria-label="A glossy, too-perfect sunset: a sun, a gradient sky and a calm sea" />
+        </Hung>
+        <p className="joke-note">Illustration · not a real piece</p>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- 4. The making, on record ---------- */
 const STEPS: { h: string; p: string }[] = [
   { h: "Record", p: "Screen for digital work and photo editing, a camera for anything made by hand." },
   { h: "Sign", p: "Each frame is signed on the artist’s device and chained to the last." },
@@ -164,7 +188,7 @@ function Check({ children }: { children: ReactNode }) {
   );
 }
 
-/* ---------- 4. Not a token: an account ---------- */
+/* ---------- 5. Not a token: an account ---------- */
 const TECH: { k: string; v: string }[] = [
   { k: "It holds the making", v: "Frame-chain anchors and a verifier-signed report; withdrawn keys downgrade old records." },
   { k: "It holds money", v: "Commission escrow: payment stages, revisions, refusal deposits, two arbitrators." },
@@ -191,7 +215,7 @@ function Tech() {
   );
 }
 
-/* ---------- 5. How it fits together ---------- */
+/* ---------- 6. How it fits together ---------- */
 type Node = { id: string; x: number; y: number; w: number; h: number; t: string; s: string; main?: boolean };
 const NODES: Node[] = [
   { id: "collection", x: 380, y: 0, w: 240, h: 84, t: "Collection", s: "creates pieces · NEP-171" },
