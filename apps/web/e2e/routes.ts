@@ -19,6 +19,7 @@ export const CREATOR_CLIENT_ROUTES: string[] = [
   // Showcase pivot: the artist page and a piece page with Collect / Support.
   "/a/artist.test.near",
   "/gallery",
+  "/faucet",
   "/gallery?sort=price-asc&availability=for-sale",
   "/notes",
   "/notes?as=buyer.test.near",

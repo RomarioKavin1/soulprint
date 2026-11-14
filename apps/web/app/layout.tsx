@@ -64,6 +64,7 @@ function Header({ networkBadge }: { networkBadge: string | null }) {
           <Link href="/gallery" className="text-ink-2 no-underline hover:text-ink">The gallery</Link>
           <Link href="/notes" className="text-ink-2 no-underline hover:text-ink">Reader questions</Link>
           <Link href="/studio" className="text-ink-2 no-underline hover:text-ink">Studio</Link>
+          {networkBadge && <Link href="/faucet" className="text-ink-2 no-underline hover:text-ink">Test funds</Link>}
           <span className="normal-case tracking-normal"><SignIn /></span>
         </nav>
       </div>
