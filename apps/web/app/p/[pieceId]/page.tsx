@@ -204,10 +204,10 @@ export default async function ProofPage({ params }: { params: Promise<{ pieceId:
               {piece.final_file_hash ?? "—"}
             </Row>
             <Row k="Attesting key" note="The evidence service key that signed the report.">
-              #{proof.attestation.key_id}{revokedIds.includes(proof.attestation.key_id) ? " (withdrawn)" : ""}, thresholds {pub.public.thresholds}
+              key #{proof.attestation.key_id}{revokedIds.includes(proof.attestation.key_id) ? " (withdrawn)" : ""} · judged by {pub.public.thresholds}
             </Row>
             {proof.segments.map((sg, i) => (
-              <Row key={sg.key} k={`Recording device ${i + 1}`} note={`${plural(sg.count, "frame")} anchored on the piece account; the chain head below.`} copy={sg.key}>
+              <Row key={sg.key} k={`Recording device ${i + 1}`} note={`${plural(sg.count, "frame")} anchored on the piece account; the device key, then the head of its frame chain.`} copy={sg.key}>
                 {sg.key} · head {sg.head}
               </Row>
             ))}

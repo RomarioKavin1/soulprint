@@ -1,4 +1,5 @@
 "use client";
+import { PieceName } from "@/components/piece/PieceName";
 import Link from "next/link";
 import { useNearOptional } from "@/components/useNearOptional";
 import { usePoll, when } from "@/components/ui";
@@ -54,7 +55,7 @@ function Group({ title, pieces, empty, hrefFor, decimals }: { title: string; pie
             <li key={p.piece_id}>
               <Link href={hrefFor(p)} className="grid items-center gap-x-6 gap-y-1 px-5 py-4 no-underline hover:bg-paper-2/60 sm:grid-cols-[minmax(0,1fr)_7rem_11rem_9rem]">
                 <span>
-                  <span className="font-display text-lg">Piece {p.token_id}</span>
+                  <span className="font-display text-lg"><PieceName pieceId={p.piece_id} tokenId={p.token_id} /></span>
                   <span className="ml-3 text-sm text-ink-3">{p.mode === "Commission" ? `for ${p.owner === p.artist ? "an open client" : p.owner}` : "your own piece"}</span>
                 </span>
                 <span className="tabular text-sm text-ink-2 sm:text-right">{p.mode === "Commission" ? money(p.price, p.currency, decimals) : ""}</span>

@@ -32,8 +32,9 @@ export function NearProvider({ config, children }: { config: PublicConfig; child
       const a = config.demoAccounts.find((d) => d.accountId === accountId || d.role === accountId);
       setSigner(a ? new KeySigner(a.accountId, a.secretKey, config.rpcUrls) : null);
       try {
-        if (a) localStorage.setItem(SANDBOX_KEY, a.accountId);
-        else localStorage.removeItem(SANDBOX_KEY);
+        // per window: an Artist window and a Visitor window side by side keep their own person
+        if (a) sessionStorage.setItem(SANDBOX_KEY, a.accountId);
+        else sessionStorage.removeItem(SANDBOX_KEY);
       } catch {}
     },
     [config],
@@ -43,7 +44,7 @@ export function NearProvider({ config, children }: { config: PublicConfig; child
     if (config.network === "sandbox") {
       let saved: string | null = null;
       try {
-        saved = new URLSearchParams(location.search).get("as") ?? localStorage.getItem(SANDBOX_KEY);
+        saved = new URLSearchParams(location.search).get("as") ?? sessionStorage.getItem(SANDBOX_KEY);
       } catch {}
       if (saved) useDemo(saved);
       return;

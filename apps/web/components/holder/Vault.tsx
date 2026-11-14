@@ -1,4 +1,5 @@
 "use client";
+import { PieceName } from "@/components/piece/PieceName";
 import Link from "next/link";
 import { useNear } from "@/components/NearProvider";
 import { ErrorNote, Section, Stat, useAction, usePoll } from "@/components/ui";
@@ -39,7 +40,7 @@ export function Vault({ pieceId }: { pieceId: string }) {
   return (
     <div className="space-y-8 page-top">
       <div>
-        <h1 className="title-page">{isOwner ? "Your piece" : "Piece"} {piece.token_id}</h1>
+        <h1 className="title-page">{isOwner ? "Yours: " : ""}<PieceName pieceId={piece.piece_id} tokenId={piece.token_id} /></h1>
         <p className="mt-3 text-sm text-ink-2">
           By {piece.artist} · {piece.piece_id} · <Link className="underline" href={`/p/${pieceId}`}>its page</Link>
         </p>
@@ -91,7 +92,7 @@ export function Vault({ pieceId }: { pieceId: string }) {
 
       {isOwner && piece.status === "Settled" && <SellPanel piece={piece} acc={acc} listing={listing} onChange={reload} />}
       <Earnings pieceId={pieceId} acc={acc} onChange={reload} />
-      <History pieceId={pieceId} currency={piece.currency} decimals={d} />
+      <History pieceId={pieceId} currency={piece.currency} decimals={d} artist={piece.artist} />
       <ErrorNote error={error} />
     </div>
   );

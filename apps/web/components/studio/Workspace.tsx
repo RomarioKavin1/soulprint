@@ -1,4 +1,5 @@
 "use client";
+import { PieceName } from "@/components/piece/PieceName";
 import Link from "next/link";
 import { useNear } from "@/components/NearProvider";
 import { Stat, usePoll, when } from "@/components/ui";
@@ -45,7 +46,7 @@ export function Workspace({ pieceId }: { pieceId: string }) {
     <div className="space-y-8 page-top">
       <div>
         <div className="flex flex-wrap items-baseline justify-between gap-4">
-          <h1 className="title-page">Piece {piece.token_id}</h1>
+          <h1 className="title-page"><PieceName pieceId={piece.piece_id} tokenId={piece.token_id} /></h1>
           <span className="chip" data-testid="status">
             {statusText(piece)}
           </span>

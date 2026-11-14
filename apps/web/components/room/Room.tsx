@@ -1,4 +1,5 @@
 "use client";
+import { PieceName } from "@/components/piece/PieceName";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -78,7 +79,7 @@ export function Room({ pieceId }: { pieceId: string }) {
     <div className="space-y-8 page-top">
       <div>
         <div className="flex flex-wrap items-baseline justify-between gap-4">
-          <h1 className="title-page">Piece {piece.token_id}</h1>
+          <h1 className="title-page"><PieceName pieceId={piece.piece_id} tokenId={piece.token_id} /></h1>
           <span className="chip" data-testid="room-status">
             {STATUS_TEXT[piece.status]}
           </span>
@@ -275,7 +276,7 @@ export function Room({ pieceId }: { pieceId: string }) {
       <Earnings pieceId={pieceId} acc={acc} onChange={reload} />
       {isParty && piece.owner !== piece.artist && <Progress pieceId={pieceId} />}
       {t && <TermsCard t={t} decimals={d} />}
-      <History pieceId={pieceId} currency={piece.currency} decimals={d} />
+      <History pieceId={pieceId} currency={piece.currency} decimals={d} artist={piece.artist} />
       {isParty && piece.owner !== piece.artist && <Notes pieceId={pieceId} artist={piece.artist} />}
     </div>
   );

@@ -73,6 +73,7 @@ export function CapturePanel({ pieceId, segments, open, onChange }: { pieceId: s
 
   async function start(kind: "screen" | "camera") {
     await run("Starting", async () => {
+      try { localStorage.setItem(`soulprint.source.${pieceId}`, kind); } catch { /* storage blocked */ }
       const src = kind === "screen" ? await screenSource() : await cameraSource();
       await session.current!.start(src, { intervalMs: fast ? 5_000 : INTERVAL_MS[kind], pauseWhenHidden: kind === "camera" });
     });
@@ -118,6 +119,9 @@ export function CapturePanel({ pieceId, segments, open, onChange }: { pieceId: s
                 <button className="btn-ghost" disabled={!!busy} onClick={() => start("camera")}>
                   Record with camera
                 </button>
+                {busy === "Starting" && (
+                  <span className="text-sm text-ink-2" role="status">Allow the camera or choose a screen in your browser&rsquo;s prompt.</span>
+                )}
               </>
             ) : (
               <>

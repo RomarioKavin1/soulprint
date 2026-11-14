@@ -34,7 +34,7 @@ export function levelReasons(level: number, thresholds: string | undefined, cap:
     if (cap.finalMatch == null) missing.push("no finished file was checked against the recording");
   }
   if (missing.length === 0)
-    return [`Why E0 and not “Recorded while made”: everything this report shows in detail passed, so the record fell short on a rule it states only roughly — at least ${r.minActiveMinutes} minutes of active time, with the recording anchored on-chain up to its last frame.`];
+    return [`Why E0 and not “Recorded while made”: the frames, build-up and largest jump all passed, so one of two rules the report does not spell out was missed — at least ${r.minActiveMinutes} minutes of active drawing time (pauses between frames do not count), or the recording anchored on-chain up to its last frame.`];
   const list = missing.length === 1 ? missing[0]! : `${missing.slice(0, -1).join("; ")}; and ${missing.at(-1)}`;
   return [`Why E0 and not “Recorded while made”: ${list}.`];
 }

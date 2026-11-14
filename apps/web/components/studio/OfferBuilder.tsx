@@ -210,7 +210,7 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
           <div className="grid gap-2">
             {(Object.keys(GRANT_TEXT) as GrantKind[]).map((k) => (
               <label key={k} className={`flex cursor-pointer gap-3 rounded-sm border p-3 ${offer.grant.kind === k ? "border-ink bg-paper-2" : "border-rule"}`}>
-                <input type="radio" name="grant" checked={offer.grant.kind === k} onChange={() => set({ grant: { ...offer.grant, kind: k } })} />
+                <input type="radio" name="grant" aria-label={GRANT_TEXT[k].title} checked={offer.grant.kind === k} onChange={() => set({ grant: { ...offer.grant, kind: k } })} />
                 <span>
                   <span className="font-medium">{GRANT_TEXT[k].title}</span>
                   <span className="block text-sm text-ink-2">{GRANT_TEXT[k].plain}</span>
@@ -250,7 +250,7 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
                 {fmtNs(offer.reviewWindowNs)} to review, {offer.revisionRounds} revision round{offer.revisionRounds === 1 ? "" : "s"}.
               </li>
               <li>
-                Refusing a delivery costs a {priceText ? `${fromUnits(bond, decimals)} ${currencyName(offer.currency)}` : `${offer.rejectBondBps / 100}% of the price`} deposit; arbitrators decide.
+                Refusing a delivery costs a deposit of {priceText ? `${fromUnits(bond, decimals)} ${currencyName(offer.currency)}` : `${offer.rejectBondBps / 100}% of the price`}; arbitrators decide.
               </li>
               <li>
                 Rights: {GRANT_TEXT[offer.grant.kind].title.toLowerCase()}

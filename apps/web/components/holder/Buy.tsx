@@ -1,4 +1,5 @@
 "use client";
+import { PieceName } from "@/components/piece/PieceName";
 import Link from "next/link";
 import { useNear } from "@/components/NearProvider";
 import { ErrorNote, Section, Stat, useAction, usePoll } from "@/components/ui";
@@ -21,7 +22,7 @@ export function Buy({ pieceId }: { pieceId: string }) {
   return (
     <div className="space-y-8 page-top">
       <div>
-        <h1 className="title-page">Piece {piece.token_id} by {piece.artist}</h1>
+        <h1 className="title-page"><PieceName pieceId={piece.piece_id} tokenId={piece.token_id} /> by {piece.artist}</h1>
         <p className="mt-3 text-sm text-ink-3">{listing ? "For sale" : bought ? "Yours" : "Not for sale right now"} · {piece.piece_id}</p>
         <Link className="mt-2 inline-block text-sm underline" href={`/p/${pieceId}`}>See how it was made</Link>
       </div>

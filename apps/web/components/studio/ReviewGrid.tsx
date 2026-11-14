@@ -19,9 +19,10 @@ export function ReviewGrid({ pieceId, commission = true }: { pieceId: string; co
   const { busy, error, run } = useAction();
   // Plan 3 review I6: page through every frame; poll only the page on screen.
   const [page, setPage] = useState(0);
+  const load = () => evidence<{ total: number; frames: Frame[] }>("GET", `/pieces/${pieceId}/progress?from=${page * PAGE}&limit=${PAGE}`);
   const { data, reload } = usePoll(
-    () => evidence<{ total: number; frames: Frame[] }>("GET", `/pieces/${pieceId}/progress?from=${page * PAGE}&limit=${PAGE}`),
-    15_000,
+    load,
+    5_000,
     [pieceId, accountId, page],
   );
   const frames = data?.frames ?? [];
@@ -75,7 +76,12 @@ export function ReviewGrid({ pieceId, commission = true }: { pieceId: string; co
             <button className="btn-ghost py-1 text-seal-2" disabled={!chosen.length || !!busy} onClick={discard}>
               Discard images
             </button>
-            <button className="ml-auto text-ink-3 underline" onClick={() => setSel(new Set(frames.filter((f) => !f.discarded).map(id)))}>
+            <button className="ml-auto text-ink-3 underline" onClick={async () => {
+              // the newest frame may have reached the record since the last poll (just after Stop)
+              const fresh = (await load().catch(() => null))?.frames ?? frames;
+              await reload();
+              setSel(new Set(fresh.filter((f) => !f.discarded).map(id)));
+            }}>
               Select all on this page
             </button>
           </div>

@@ -8,7 +8,7 @@ interface H { events: { height: number; at: number; event: string; data: any }[]
 
 const QUIET = new Set(["anchored", "transfer_pending", "capture_key_added"]);
 
-export function History({ pieceId, currency, decimals }: { pieceId: string; currency: Currency; decimals: number }) {
+export function History({ pieceId, currency, decimals, artist }: { pieceId: string; currency: Currency; decimals: number; artist?: string }) {
   const { data, error } = usePoll(() => fetch(`/indexer/pieces/${pieceId}/history`).then((r) => (r.ok ? (r.json() as Promise<H>) : Promise.reject(new Error("indexer")))), 6000, [pieceId]);
   if (error && !data) return null; // history is optional; the piece itself is the truth
   if (!data) return null;
@@ -25,7 +25,7 @@ export function History({ pieceId, currency, decimals }: { pieceId: string; curr
         {shown.map((e) => (
           <li key={`${e.height}-${e.event}-${JSON.stringify(e.data).length}`} className="flex gap-3">
             <span className="w-36 shrink-0 text-ink-3">{fmtDate(e.at)}</span>
-            <span>{describeEvent(e, currency, decimals)}</span>
+            <span>{describeEvent(e, currency, decimals, artist)}</span>
           </li>
         ))}
       </ol>

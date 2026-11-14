@@ -1,4 +1,5 @@
 "use client";
+import { PieceName } from "@/components/piece/PieceName";
 import { useState } from "react";
 import { useNear } from "@/components/NearProvider";
 import { ErrorNote, Section, useAction, usePoll } from "@/components/ui";
@@ -20,7 +21,7 @@ export function Pay({ pieceId }: { pieceId: string }) {
   return (
     <div className="space-y-8 page-top">
       <div>
-        <h1 className="title-page">Pay piece {piece.token_id} by {piece.artist}</h1>
+        <h1 className="title-page">Pay into <PieceName pieceId={piece.piece_id} tokenId={piece.token_id} /> by {piece.artist}</h1>
         <p className="mt-2 text-ink-2">Payments for using this work (licences, prints) go into the piece and belong to whoever holds it.</p>
       </div>
       {piece.grant.kind === "Personal" || !piece.grant_active ? (

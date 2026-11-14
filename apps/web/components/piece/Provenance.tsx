@@ -2,7 +2,6 @@
 import { usePoll } from "@/components/ui";
 import { describeEvent, lagNotice } from "@/lib/history";
 import { fmtDate, type Currency } from "@/lib/terms";
-import { money } from "@/lib/money";
 import { useNear } from "@/components/NearProvider";
 import { blockUrl, explorerFor } from "@/lib/explorer";
 import { ChainLink } from "@/components/piece/ChainLink";
@@ -29,8 +28,7 @@ export function Provenance({ pieceId, artist, currency, decimals }: { pieceId: s
     if (e.event === "anchored" || e.event === "transfer_pending" || e.event === "capture_key_added") continue;
     // A piece of the artist's own settles with nothing to pay: not an event a visitor needs.
     if (e.event === "settled" && BigInt(e.data?.artist_amount ?? 0) === 0n) continue;
-    let text = describeEvent(e, currency, decimals);
-    if (e.event === "sold" && e.data?.seller === artist) text = `${artist} sold it to ${e.data.buyer} for ${money(e.data.price, currency, decimals)}`;
+    const text = describeEvent(e, currency, decimals, artist);
     rows.push({ at: e.at, height: e.height, text, key: `${e.height}-${e.event}-${rows.length}` });
   }
   if (anchors.length > 0) {

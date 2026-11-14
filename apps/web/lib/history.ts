@@ -14,7 +14,7 @@ export function historyNotice(s: { hasData: boolean; refreshFailed: boolean }): 
   return s.hasData && s.refreshFailed ? "History could not be refreshed; showing what was last loaded. Balances on the piece itself are always current." : null;
 }
 
-export function describeEvent(e: { event: string; data: any }, currency: Currency | "Ft", decimals: number): string {
+export function describeEvent(e: { event: string; data: any }, currency: Currency | "Ft", decimals: number, artist?: string): string {
   const c: Currency = currency === "Ft" ? { Ft: "" } : currency;
   const $ = (v: string) => money(v, c, decimals);
   const d = e.data;
@@ -24,7 +24,7 @@ export function describeEvent(e: { event: string; data: any }, currency: Currenc
     case "milestone_released": return `Stage ${d.index + 1} released: ${$(d.amount)} to the artist`;
     case "delivered": return "The artist delivered";
     case "changes_requested": return `Changes requested (round ${d.round})`;
-    case "settled": return `Complete: ${$(d.artist_amount)} to the artist`;
+    case "settled": return BigInt(d.artist_amount ?? 0) === 0n ? "The artist finished the piece" : `Complete: ${$(d.artist_amount)} to the artist`;
     case "rejected": return `${d.by} refused the delivery`;
     case "bond_posted": return `${d.by} posted a ${$(d.amount)} refusal deposit`;
     case "bond_paid": return `Refusal deposit of ${$(d.amount)} paid to ${d.to}`;
@@ -36,7 +36,7 @@ export function describeEvent(e: { event: string; data: any }, currency: Currenc
     case "withdraw": return `${d.owner} took ${$(d.amount)} of holder income`;
     case "listed": return `Listed for ${$(d.price)}`;
     case "delisted": return "Taken off sale";
-    case "sold": return `${d.seller} sold it to ${d.buyer} for ${$(d.price)} (${$(d.royalty)} royalty to the artist)`;
+    case "sold": return d.seller === artist || BigInt(d.royalty ?? 0) === 0n ? `${d.seller} sold it to ${d.buyer} for ${$(d.price)}` : `${d.seller} sold it to ${d.buyer} for ${$(d.price)} (${$(d.royalty)} royalty to the artist)`;
     case "owner_changed": return `Now owned by ${d.new_owner}`;
     case "claim": return `${d.creditor} collected ${$(d.amount)}`;
     case "claim_restored": return `A payout to ${d.creditor} bounced; ${$(d.amount)} is back in their credit`;

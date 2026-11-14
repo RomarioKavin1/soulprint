@@ -13,7 +13,9 @@ export function DeliverPanel({ piece, onChange }: { piece: PieceInfo; onChange: 
   const { signer } = useNear();
   const evidence = useEvidence();
   const [file, setFile] = useState<File | null>(null);
-  const [source, setSource] = useState<"screen" | "camera">("screen");
+  const [source, setSource] = useState<"screen" | "camera">(() => {
+    try { return localStorage.getItem(`soulprint.source.${piece.piece_id}`) === "camera" ? "camera" : "screen"; } catch { return "screen"; }
+  });
   const [report, setReport] = useState<{ level: number; reportHash: string; finalFileHash: string } | null>(null);
   const { busy, error, run } = useAction();
   // Plan 3 review I4: frames still on this device would be missing from the record (and refused after delivery).

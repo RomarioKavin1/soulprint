@@ -16,7 +16,7 @@ describe("levelReasons", () => {
     const s = levelReasons(0, T, { ...good, coverage: 0.2, largestJump: 0.9 }, 0)[0]!;
     expect(s).toMatch(/only 20%/); expect(s).toMatch(/90%/); expect(s).toMatch(/; and /);
   });
-  it("falls back to time when every visible rule passed", () => expect(levelReasons(0, T, good, 0)[0]).toMatch(/at least 30 minutes of active time/));
+  it("falls back to time when every visible rule passed", () => expect(levelReasons(0, T, good, 0)[0]).toMatch(/at least 30 minutes of active drawing time/));
   it("handles unmeasured frames", () => expect(levelReasons(0, T, { ...good, frames: 0 }, 0)[0]).toMatch(/none of its frames/));
   it("handles unknown thresholds", () => expect(levelReasons(0, "v9", good, 0)[0]).toMatch(/did not meet/));
 });

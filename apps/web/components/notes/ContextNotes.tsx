@@ -122,7 +122,7 @@ function AddNote({ pieceId, onAdded }: { pieceId: string; onAdded: () => void })
         <div className="mt-1 grid gap-1 text-sm">
           {(Object.keys(REQUEST_TEXT) as EvidenceRequest[]).map((r) => (
             <label key={r} className="flex items-start gap-2">
-              <input type="radio" name="request" className="mt-1" checked={request === r} onChange={() => setRequest(r)} /> {REQUEST_TEXT[r]}
+              <input type="radio" name="request" className="mt-1" aria-label={REQUEST_TEXT[r]} checked={request === r} onChange={() => setRequest(r)} /> {REQUEST_TEXT[r]}
             </label>
           ))}
         </div>

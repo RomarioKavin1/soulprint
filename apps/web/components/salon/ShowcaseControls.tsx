@@ -62,7 +62,7 @@ export function ShowcaseControls({ query, artists }: { query: Query; artists: st
         </select>
       </label>
       <label className="fa-toggle">
-        <input type="checkbox" name="examples" value="show" checked={view.examples} onChange={(e) => go({ examples: e.target.checked })} />
+        <input type="checkbox" name="examples" value="show" aria-label="Show examples" checked={view.examples} onChange={(e) => go({ examples: e.target.checked })} />
         <span>Show examples</span>
       </label>
       <div className="fa-actions">
