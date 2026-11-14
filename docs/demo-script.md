@@ -11,8 +11,8 @@ Prepare: run `make demo` (a fresh local chain) right before recording. Two windo
 | # | Do | Say |
 |---|---|---|
 | 1 | Live site, landing: let the Van Gogh brushwork sit for a beat, scroll once. | "AI is useful, but the soul of real art should be protected. Manmade hangs every work with the record of how it was made." |
-| 2 | **Enter the gallery**. **Sort** → *Title, A–Z*; **Availability** → *For sale* (one testnet piece is listed); then back to *All works*. Point at a label's level. | "Each label says only what the record shows: declared, recorded while made, or with live checks passed. Never 'proven not AI'." |
-| 3 | Open a piece. In **The making**, click a frame: it hangs on the wall. **Back to the finished work**. | "Every piece carries its own making." |
+| 2 | **Enter the gallery**. **Sort** → *Title, A–Z*; toggle **Show examples**. (The deploy's test pieces are hidden from the walls; your own published pieces appear here.) | "Each label says only what the record shows: declared, recorded while made, or with live checks passed. Never 'proven not AI'." |
+| 3 | Open a piece: your own if you published one on testnet, otherwise the test piece by direct link https://manmade-seven.vercel.app/p/p159.soulprint-v1.soulprint-owner-12f173.testnet (hidden from the walls, still on-chain, listed at 5 USDC). In **The making**, click a frame: it hangs on the wall. **Back to the finished work**. | "Every piece carries its own making." |
 | 4 | Point at **Token #N of the Manmade collection, on NEAR's NEP-171 token standard** → **See it on NearBlocks** (NearBlocks names the contract by its code name, "Soulprint"). | "Every artwork is its own NEAR account and a token in the collection — an NFT that carries its making, rights and income." |
 | 5 | Back: **The record** tab → the ✓ **Recomputed in your browser** line → open **On-chain details** (accounts and token link out). **Provenance** tab. | "Anyone can recompute the report's fingerprint here and check it on-chain." |
 

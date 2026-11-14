@@ -27,10 +27,23 @@ export async function loadGallery(evidenceUrl: string, q: { artist?: string; lim
   try {
     const r = await fetch(`${evidenceUrl}/gallery${params.size ? `?${params}` : ""}`, { cache: "no-store" });
     if (!r.ok) return null;
-    return ((await r.json()) as { pieces: GalleryPiece[] }).pieces;
+    return hideListed(((await r.json()) as { pieces: GalleryPiece[] }).pieces);
   } catch {
     return null;
   }
+}
+
+/**
+ * Artists whose pieces stay off the public walls (gallery, landing, artist pages): GALLERY_HIDE_ARTISTS,
+ * comma-separated. Used on the hosted testnet site to keep the deploy's test pieces out of view; the
+ * pieces themselves are untouched and their pages still open by direct link.
+ */
+export function hiddenArtists(): Set<string> {
+  return new Set((process.env.GALLERY_HIDE_ARTISTS ?? "").split(",").map((a) => a.trim()).filter(Boolean));
+}
+function hideListed(pieces: GalleryPiece[]): GalleryPiece[] {
+  const hidden = hiddenArtists();
+  return hidden.size ? pieces.filter((p) => !hidden.has(p.artist)) : pieces;
 }
 
 /** "p7.soulprint.test.near" → "7". */
