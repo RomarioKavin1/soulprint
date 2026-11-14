@@ -8,12 +8,12 @@ Before posting:
 - Tweet 7: replace `[#hackathon tag]` with the official tag, or delete the line.
 - `@NEARProtocol` appears once (tweet 1); check the handle before posting.
 
-## Tweet 1 (273/280)
+## Tweet 1 (270/280)
 
 ```
 1/ Real art, hung with its making.
 
-manmade.works is a gallery where every artwork is its own NEAR account, carrying the record of how it was made. Paint, clay, photography, digital: any medium.
+manmade.works is a gallery where every piece is its own NEAR account, carrying the record of how it was made. Paint, clay, photography, digital: any medium.
 
 My entry for "NFTs That Do Something" on @NEARProtocol. Demo below.
 ```
