@@ -8,6 +8,7 @@
 
 ## Services — OCI_ARM_1 (ssh alias in ~/.ssh/config)
 - Everything under `~/manmade`: `app/` (this repo, pulled with a read-only deploy key in `keys/`), `data/{evidence,indexer,relayer}`, `env/services.env` (secret keys, chmod 600, never in git).
+- `env/services.env` also sets `NOTES_OPERATORS=soulprint-owner-12f173.testnet` (who may remove reported reader questions; without it nobody can).
 - `deploy/oci/compose.yml`: evidence, indexer, relayer, a Caddy proxy (`/ev`, `/ix`; relayer private) and a cloudflared quick tunnel.
 - Auto-deploy: `.github/workflows/deploy-services.yml` on pushes to `main` touching services/packages/deploy. It SSHes with a key the host restricts to `deploy/oci/deploy.sh` (line tagged `manmade-actions` in `~/.ssh/authorized_keys`). Secrets: `OCI_SSH_KEY`, `OCI_HOST`, `OCI_KNOWN_HOSTS`.
 - Manual: `ssh OCI_ARM_1 ~/manmade/app/deploy/oci/deploy.sh`.
