@@ -452,13 +452,15 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 .finding-aid[data-pending] { opacity: 0.7; }
 .finding-aid label { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .finding-aid .field { padding: 7px 10px; }
-.fa-toggle { flex-direction: row !important; align-items: center; gap: 8px !important; padding-bottom: 9px; white-space: nowrap; }
+.fa-toggles { display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; padding-bottom: 9px; }
+.fa-toggles:has(> :only-child) { padding-bottom: 9px; }
+.fa-toggle { flex-direction: row !important; align-items: center; gap: 8px !important; white-space: nowrap; }
 .fa-toggle input { accent-color: var(--color-seal); width: 16px; height: 16px; }
 .fa-actions { display: flex; align-items: center; gap: 12px; }
 .fa-actions .btn-ghost { padding-block: 8px; }
 .fa-reset { font-size: 0.82rem; color: var(--color-seal); text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; white-space: nowrap; }
 @media (max-width: 1100px) { .finding-aid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fa-search { grid-column: 1 / -1; } }
-@media (max-width: 520px) { .finding-aid { padding: 14px; gap: 10px 12px; } .fa-toggle { padding-bottom: 0; align-self: center; } .fa-actions { justify-content: flex-end; } }
+@media (max-width: 520px) { .finding-aid { padding: 14px; gap: 10px 12px; } .fa-toggles { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; gap: 6px 20px; padding-bottom: 0; } .fa-actions { grid-column: 1 / -1; justify-content: flex-end; } }
 
 /* The even wall: equal cells, each work framed and centred in its cell, label beneath. */
 .showcase {

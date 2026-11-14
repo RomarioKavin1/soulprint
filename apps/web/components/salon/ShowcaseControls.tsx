@@ -61,6 +61,7 @@ export function ShowcaseControls({ query, artists, testCount = 0 }: { query: Que
           {Object.entries(SORTS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
       </label>
+      <div className="fa-toggles">
       <label className="fa-toggle">
         <input type="checkbox" name="examples" value="show" aria-label="Show examples" checked={view.examples} onChange={(e) => go({ examples: e.target.checked })} />
         <span>Show examples</span>
@@ -73,6 +74,7 @@ export function ShowcaseControls({ query, artists, testCount = 0 }: { query: Que
           <span>Hide test pieces</span>
         </label>
       )}
+      </div>
       <div className="fa-actions">
         <button type="submit" className="btn-ghost">Search</button>
         {/* the slot is always there, so the bar never shifts when a filter is set */}
