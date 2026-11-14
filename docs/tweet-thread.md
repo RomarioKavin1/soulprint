@@ -1,92 +1,41 @@
 # manmade.works: submission thread
 
-Counts use X's rules: every link counts as 23 (including the bare `manmade.works` in tweet 1 and the `[repo link]` placeholder). `[#hackathon tag]` is counted at its placeholder length (16).
+4 tweets. Counts use X's rules: every link counts as 23 (including the bare `manmade.works` in tweet 1 and the `[repo link]` placeholder). `[#hackathon tag]` is counted at its placeholder length (16).
 
 Before posting:
 - Attach the demo video to tweet 1.
-- Tweet 7: replace `[repo link]` once the GitHub repo is public (it is still private).
-- Tweet 7: replace `[#hackathon tag]` with the official tag, or delete the line.
+- Tweet 4: replace `[repo link]` once the GitHub repo is public (it is still private), or delete that line.
+- Tweet 4: replace `[#hackathon tag]` with the official tag, or delete the line.
 - `@NEARProtocol` appears once (tweet 1); check the handle before posting.
 
-## Tweet 1 (270/280)
+## Tweet 1 (269/280)
 
 ```
-1/ Real art, hung with its making.
-
-manmade.works is a gallery where every piece is its own NEAR account, carrying the record of how it was made. Paint, clay, photography, digital: any medium.
-
-My entry for "NFTs That Do Something" on @NEARProtocol. Demo below.
+1/ AI slop is burying real art. AI is a good tool, but people who make things deserve to be seen. So for the @NEARProtocol hackathon I built manmade.works, where every piece is its own NEAR account with a signed, on-chain record of how it was made. Demo below
 ```
 
-## Tweet 2 (275/280)
+## Tweet 2 (262/280)
 
 ```
-2/ I'm not anti-AI. In an artist's hands it's a good tool: references, clean-up, ideas.
-
-The problem is sloppy generative AI flooding feeds with images nobody stands behind.
-
-Art a person makes carries hours, choices and mistakes. That's its soul, and it deserves to be seen.
+2/ While the artist works, their screen (or a camera pointed at the canvas) gets recorded. Each frame is signed on their device and chained to the one before, and the chain is anchored on NEAR as they go. Nothing can be slipped in later, and anyone can check it.
 ```
 
-## Tweet 3 (273/280)
+## Tweet 3 (280/280)
 
 ```
-3/ For an artist:
+3/ The track is "NFTs That Do Something", and these ones hold real things. A piece's account keeps its making and its rights, and when it sells through the piece the artist gets a royalty. Still a normal NEP-171 token.
 
-Record: your screen for digital work, a camera for anything made by hand.
-Sign: each frame is signed on your device and chained to the last.
-Anchor: the chain is written to the piece on NEAR as you work.
-Label: the piece hangs with what its record shows.
+You can tip the artist, or collect a piece if it's for sale.
 ```
 
-## Tweet 4 (278/280)
+## Tweet 4 (275/280)
 
 ```
-4/ For a visitor: the making, frame by frame, and a label in plain words. Declared, Recorded while made, or + live checks passed.
+4/ Fair warning, it doesn't detect AI and I never say "proven not AI". Pieces get a plain label like "Recorded while made" and anyone can recheck it.
 
-Anyone can recompute the record's fingerprint in the browser and compare it on-chain.
-
-Love a piece? Tip the artist, or collect it if it's offered.
-```
-
-## Tweet 5 (277/280)
-
-```
-5/ Why it's not a basic NFT: each piece is its own NEAR account, created from one shared contract by code hash.
-
-It holds the making's anchors, the signed report, rights and commission escrow. Sales through the piece pay the artist a royalty.
-
-Still NEP-171 for standard tools.
-```
-
-## Tweet 6 (278/280)
-
-```
-6/ The honest part: it doesn't detect AI and never says "proven not AI". A record is evidence, not proof.
-
-"Declared" is not a verdict. It means there was little making to show.
-
-No accusations: readers ask rated questions, and people the artist invites can request a live code.
-```
-
-## Tweet 7 (254/280)
-
-```
-7/ Try it, live on NEAR testnet: https://manmade.works
-Pitch: https://manmade.works/pitch
-Code: [repo link]
-
-Built for the "NFTs That Do Something" track (NFTs as accounts). Thank you to the NEAR team for the push to build it.
+Live on NEAR testnet at https://manmade.works
+Pitch https://manmade.works/pitch
+Code [repo link]
 
 [#hackathon tag]
-```
-
-## Alternative hook for tweet 1 (262/280)
-
-```
-1/ Every artwork has a making. Mostly, nobody gets to see it.
-
-manmade.works hangs real art with its making on record. Each piece is its own NEAR account that carries that record.
-
-My @NEARProtocol hackathon entry, "NFTs That Do Something". Demo below.
 ```
