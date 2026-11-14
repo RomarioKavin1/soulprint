@@ -1,7 +1,7 @@
 "use client";
 import { useCallback } from "react";
 import { useNear } from "@/components/NearProvider";
-import { evidenceBytes, evidenceFetch } from "./auth.ts";
+import { evidenceBytes, evidenceFetch, hasSession } from "./auth.ts";
 
 export const EVIDENCE_BASE = "/evidence";
 
@@ -13,6 +13,12 @@ export function useEvidence() {
       evidenceFetch<T>(EVIDENCE_BASE, config.evidenceRecipient, opts.anonymous ? null : signer, method, path, body),
     [signer, config.evidenceRecipient],
   );
+}
+
+/** Whether the current person can make signed calls without a new wallet prompt. */
+export function useHasEvidenceSession() {
+  const { accountId, config } = useNear();
+  return !!accountId && hasSession(EVIDENCE_BASE, config.evidenceRecipient, accountId);
 }
 
 /** Authenticated byte download from the evidence service (reference images). */

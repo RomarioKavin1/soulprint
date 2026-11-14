@@ -18,6 +18,11 @@ export class StreamSource implements FrameSource {
     this.ready = this.video.play();
   }
 
+  /** The live stream, so the page can show exactly what is being recorded. */
+  get mediaStream(): MediaStream {
+    return this.stream;
+  }
+
   async grab() {
     await this.ready;
     const vw = this.video.videoWidth, vh = this.video.videoHeight;

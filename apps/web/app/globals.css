@@ -368,6 +368,21 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 .fold > summary::before { content: ""; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform 160ms; }
 .fold[open] > summary::before { transform: rotate(45deg) translate(-2px, -1px); }
 .fold > summary:hover { color: var(--color-ink); }
+/* recording: two clear choices, then a live preview of what each frame captures */
+.capture-choices { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.capture-choice { display: flex; flex-direction: column; gap: 6px; text-align: left; padding: 16px 18px; background: #ffffff; border: 1px solid var(--color-rule); transition: border-color 160ms; }
+.capture-choice:hover:not(:disabled) { border-color: var(--color-ink); }
+.capture-choice:disabled { opacity: 0.5; cursor: wait; }
+.capture-choice-title { font-family: var(--font-plaque); font-weight: 600; font-size: 0.76rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--color-seal); }
+.capture-choice-text { font-size: 0.92rem; color: var(--color-ink-2); }
+.capture-preview { margin: 0; border: 1px solid var(--color-rule); background: #1a1814; }
+.capture-preview video { display: block; width: 100%; max-height: 60vh; object-fit: contain; }
+.capture-preview figcaption { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; padding: 8px 12px; background: #ffffff; font-size: 0.82rem; color: var(--color-ink-2); }
+.capture-live { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-plaque); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-seal-2); }
+.capture-dot { width: 8px; height: 8px; background: var(--color-seal-2); animation: capture-blink 1.4s steps(2, start) infinite; }
+@keyframes capture-blink { to { visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { .capture-dot { animation: none; } }
+
 /* links out to the public explorer: underlined ink with a drawn arrow */
 .chain-link { display: inline-flex; align-items: baseline; gap: 4px; color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-rule); text-underline-offset: 0.22em; overflow-wrap: anywhere; }
 .chain-link:hover { text-decoration-color: currentColor; color: var(--color-seal); }
@@ -439,7 +454,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 /* The finding aid: one printed bar of controls on a white strip. */
 .finding-aid {
   display: grid;
-  grid-template-columns: minmax(14rem, 1.6fr) repeat(4, minmax(9rem, 1fr)) auto auto;
+  grid-template-columns: minmax(14rem, 1.6fr) repeat(4, minmax(9rem, 1fr));
   align-items: end;
   gap: 14px 16px;
   padding: 18px 20px;
@@ -452,15 +467,15 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 .finding-aid[data-pending] { opacity: 0.7; }
 .finding-aid label { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .finding-aid .field { padding: 7px 10px; }
-.fa-toggles { display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; padding-bottom: 9px; }
-.fa-toggles:has(> :only-child) { padding-bottom: 9px; }
+/* the toggles get their own row under the fields; Search and Clear sit at its right end */
+.fa-toggles { grid-column: 1 / span 4; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; }
 .fa-toggle { flex-direction: row !important; align-items: center; gap: 8px !important; white-space: nowrap; }
 .fa-toggle input { accent-color: var(--color-seal); width: 16px; height: 16px; }
-.fa-actions { display: flex; align-items: center; gap: 12px; }
+.fa-actions { grid-column: -2 / -1; display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
 .fa-actions .btn-ghost { padding-block: 8px; }
 .fa-reset { font-size: 0.82rem; color: var(--color-seal); text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; white-space: nowrap; }
-@media (max-width: 1100px) { .finding-aid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fa-search { grid-column: 1 / -1; } }
-@media (max-width: 520px) { .finding-aid { padding: 14px; gap: 10px 12px; } .fa-toggles { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; gap: 6px 20px; padding-bottom: 0; } .fa-actions { grid-column: 1 / -1; justify-content: flex-end; } }
+@media (max-width: 1100px) { .finding-aid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fa-search { grid-column: 1 / -1; } .fa-toggles { grid-column: 1 / -1; } .fa-actions { grid-column: 1 / -1; } }
+@media (max-width: 520px) { .finding-aid { padding: 14px; gap: 10px 12px; } .fa-toggles { gap: 6px 20px; } .fa-actions { grid-column: 1 / -1; justify-content: flex-end; } }
 
 /* The even wall: equal cells, each work framed and centred in its cell, label beneath. */
 .showcase {

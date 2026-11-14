@@ -76,13 +76,13 @@ export function ShowcaseControls({ query, artists, testCount = 0 }: { query: Que
       )}
       </div>
       <div className="fa-actions">
-        <button type="submit" className="btn-ghost">Search</button>
         {/* the slot is always there, so the bar never shifts when a filter is set */}
         {(
           <button type="button" className="fa-reset" disabled={!anyFilter} aria-hidden={!anyFilter || undefined} tabIndex={anyFilter ? undefined : -1} style={anyFilter ? undefined : { visibility: "hidden" }} onClick={() => { setQ(""); const cleared = { ...view, q: "", level: "any" as const, availability: "any" as const, artist: "", examples: true, tests: false }; setView(cleared); start(() => router.replace(`${path}${queryString({ sort: view.sort })}`, { scroll: false })); }}>
             Clear filters
           </button>
         )}
+        <button type="submit" className="btn-ghost">Search</button>
       </div>
     </form>
   );

@@ -113,10 +113,12 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
               <label className="block sm:col-span-2">
                 <span className="label">Client account (optional)</span>
                 <input className="field mt-1" placeholder="Leave empty to let anyone with the link take the commission" value={offer.client ?? ""} onChange={(e) => set({ client: e.target.value.trim() || null })} />
+                <span className="mt-1 block text-xs text-ink-3">The NEAR account of the person paying, e.g. alice.testnet. Only they can pay in; leave it empty to share an open link.</span>
               </label>
               <label className="block">
                 <span className="label">Price</span>
                 <input className="field mt-1" inputMode="decimal" placeholder="250" value={priceText} onChange={(e) => setPriceText(e.target.value)} aria-label="Price" />
+                <span className="mt-1 block text-xs text-ink-3">The whole fee. The client pays it into the piece up front; it waits there until stages are released.</span>
               </label>
               <label className="block">
                 <span className="label">Paid in</span>
@@ -124,6 +126,7 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
                   <option value="usdc">USDC</option>
                   <option value="near">NEAR</option>
                 </select>
+                <span className="mt-1 block text-xs text-ink-3">USDC is a dollar-pegged token; NEAR is the network's own currency.</span>
               </label>
               <label className="block">
                 <span className="label">Deadline</span>
@@ -133,15 +136,16 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
                   value={new Date(Number(offer.deadlineNs / 1_000_000n) - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 16)}
                   onChange={(e) => set({ deadlineNs: BigInt(new Date(e.target.value).getTime()) * 1_000_000n })}
                 />
+                <span className="mt-1 block text-xs text-ink-3">When you promise to deliver.</span>
               </label>
-              <DurationInput label="Grace after the deadline" value={offer.graceNs} onChange={(v) => set({ graceNs: v })} hint="Before the client can ask for a refund." />
+              <DurationInput label="Grace after the deadline" value={offer.graceNs} onChange={(v) => set({ graceNs: v })} hint="Extra time after the deadline before the client may take their money back undelivered." />
             </div>
           </Section>
         )}
 
         {mode === "commission" && (
           <Section title="Payment stages">
-            <p className="mb-3 text-sm text-ink-2">The client releases each stage when they are happy with progress. The last stage releases on acceptance.</p>
+            <p className="mb-3 text-sm text-ink-2">Split the fee into parts paid as the work progresses (e.g. 30% after the sketch, 70% on delivery). The client releases each stage when they are happy with progress; the last stage is paid when they accept the finished piece. The stages must add up to 100%.</p>
             <div className="flex flex-wrap items-end gap-3">
               {offer.milestones.map((m, i) => (
                 <label key={i} className="block w-28">
@@ -173,8 +177,9 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
               <label className="block">
                 <span className="label">Revision rounds</span>
                 <input className="field mt-1" type="number" min={0} max={10} value={offer.revisionRounds} onChange={(e) => set({ revisionRounds: Number(e.target.value) })} />
+                <span className="mt-1 block text-xs text-ink-3">How many times the client may ask for changes after a delivery.</span>
               </label>
-              <DurationInput label="Time per revision" value={offer.revisionPeriodNs} onChange={(v) => set({ revisionPeriodNs: v })} />
+              <DurationInput label="Time per revision" value={offer.revisionPeriodNs} onChange={(v) => set({ revisionPeriodNs: v })} hint="How long you have to redeliver after changes are asked for." />
             </div>
           </Section>
         )}
@@ -182,15 +187,17 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
         {mode === "commission" && (
           <Section title="If you disagree">
             <div className="grid gap-4 sm:grid-cols-2">
-              <Pct label="Refusal deposit" bps={offer.rejectBondBps} max={1000} onChange={(v) => set({ rejectBondBps: v })} hint="Paid by the client to refuse a delivery; returned if they are right." />
-              <Pct label="Your share if nobody decides" bps={offer.timeoutArtistBps} max={BPS} onChange={(v) => set({ timeoutArtistBps: v })} hint="Only if both arbitrators stay silent." />
+              <Pct label="Refusal deposit" bps={offer.rejectBondBps} max={1000} onChange={(v) => set({ rejectBondBps: v })} hint="A share of the fee the client must put up to refuse a delivery, so refusals are serious. They get it back if the arbitrator agrees with them." />
+              <Pct label="Your share if nobody decides" bps={offer.timeoutArtistBps} max={BPS} onChange={(v) => set({ timeoutArtistBps: v })} hint="What you receive if there is a dispute and neither arbitrator decides in time; the rest goes back to the client." />
               <label className="block">
                 <span className="label">Arbitrator</span>
                 <input className="field mt-1" value={offer.arbitrator} onChange={(e) => set({ arbitrator: e.target.value.trim() })} />
+                <span className="mt-1 block text-xs text-ink-3">A NEAR account you both trust to settle a refused delivery.</span>
               </label>
               <label className="block">
                 <span className="label">Fallback arbitrator</span>
                 <input className="field mt-1" value={offer.fallbackArbitrator} onChange={(e) => set({ fallbackArbitrator: e.target.value.trim() })} />
+                <span className="mt-1 block text-xs text-ink-3">Decides only if the first arbitrator does not answer in time.</span>
               </label>
             </div>
           </Section>
@@ -205,15 +212,17 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
                 <option value="usdc">USDC</option>
                 <option value="near">NEAR</option>
               </select>
+              <span className="mt-1 block text-xs text-ink-3">The currency a collector pays in if you later offer it for sale. You set the price then.</span>
             </label>
           )}
+          <p className="mb-3 text-sm text-ink-2">What the person who owns the piece may do with the image. You always remain its author.</p>
           <div className="grid gap-2">
             {(Object.keys(GRANT_TEXT) as GrantKind[]).map((k) => (
               <label key={k} className={`flex cursor-pointer gap-3 rounded-sm border p-3 ${offer.grant.kind === k ? "border-ink bg-paper-2" : "border-rule"}`}>
                 <input type="radio" name="grant" aria-label={GRANT_TEXT[k].title} checked={offer.grant.kind === k} onChange={() => set({ grant: { ...offer.grant, kind: k } })} />
                 <span>
                   <span className="font-medium">{GRANT_TEXT[k].title}</span>
-                  <span className="block text-sm text-ink-2">{GRANT_TEXT[k].plain}</span>
+                  <span className="block text-sm text-ink-2">{GRANT_TEXT[k].guide}</span>
                 </span>
               </label>
             ))}
@@ -221,17 +230,20 @@ export function OfferBuilder({ mode }: { mode: "commission" | "standalone" }) {
           <div className="mt-4 flex flex-wrap gap-6 text-sm">
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={offer.grant.attribution} onChange={(e) => set({ grant: { ...offer.grant, attribution: e.target.checked } })} /> Credit me when it is used
+              <span className="text-xs text-ink-3">(your name shown wherever the image is used)</span>
             </label>
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={offer.grant.transferable} onChange={(e) => set({ grant: { ...offer.grant, transferable: e.target.checked } })} /> Rights pass to whoever owns the piece next
+              <span className="text-xs text-ink-3">(if it is resold, the new owner gets these rights; untick to keep them with the first owner only)</span>
             </label>
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Pct label="Resale royalty" bps={offer.royaltyBps} max={1500} onChange={(v) => set({ royaltyBps: v })} hint="Paid to you every time the piece is resold (0–15%)." />
+            <Pct label="Resale royalty" bps={offer.royaltyBps} max={1500} onChange={(v) => set({ royaltyBps: v })} hint="Your cut of every later sale of the piece, paid automatically (0–15%)." />
           </div>
           <label className="mt-4 block">
             <span className="label">Licence notes (optional)</span>
-            <textarea className="field mt-1 min-h-24" value={offer.licenceText} onChange={(e) => set({ licenceText: e.target.value })} placeholder="Anything specific about how the work may be used." />
+            <textarea className="field mt-1 min-h-24" value={offer.licenceText} onChange={(e) => set({ licenceText: e.target.value })} placeholder="Anything specific, e.g. “no use in political campaigns”." />
+            <span className="mt-1 block text-xs text-ink-3">Fingerprinted into the piece with the rights above, so it cannot be changed later.</span>
           </label>
         </Section>
         </RightsWrap>

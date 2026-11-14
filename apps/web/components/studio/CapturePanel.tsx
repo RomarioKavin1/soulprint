@@ -44,6 +44,7 @@ export function CapturePanel({ pieceId, segments, open, onChange }: { pieceId: s
   const session = useRef<CaptureSession | null>(null);
   const [status, setStatus] = useState<CaptureStatus | null>(null);
   const [phoneKey, setPhoneKey] = useState("");
+  const [live, setLive] = useState<{ stream: MediaStream; kind: "screen" | "camera" } | null>(null);
   const { busy, error, run, setError } = useAction();
   const fast = config.network === "sandbox";
 
@@ -75,11 +76,15 @@ export function CapturePanel({ pieceId, segments, open, onChange }: { pieceId: s
     await run("Starting", async () => {
       try { localStorage.setItem(`soulprint.source.${pieceId}`, kind); } catch { /* storage blocked */ }
       const src = kind === "screen" ? await screenSource() : await cameraSource();
+      setLive({ stream: src.mediaStream, kind });
+      // when the person ends the share from the browser's own bar, the preview goes with it
+      src.mediaStream.getVideoTracks()[0]?.addEventListener("ended", () => setLive(null));
       await session.current!.start(src, { intervalMs: fast ? 5_000 : INTERVAL_MS[kind], pauseWhenHidden: kind === "camera" });
     });
   }
 
   const v = status ? captureStatusView(status) : null;
+  useEffect(() => { if (status && !status.capturing) setLive(null); }, [status?.capturing]);
   return (
     <Section title="Record your process" aside={v && <span className="text-sm text-ink-3">{v.progress}</span>}>
       {key === undefined ? (
@@ -106,36 +111,48 @@ export function CapturePanel({ pieceId, segments, open, onChange }: { pieceId: s
         <p className="text-ink-2">Recording is closed for this piece.</p>
       ) : (
         <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className={`inline-flex items-center gap-2 text-sm ${status?.capturing ? "text-seal" : "text-ink-2"}`}>
-              <span className={`h-2.5 w-2.5 rounded-full ${status?.capturing && !status.paused ? "animate-pulse bg-seal" : "bg-ink-3"}`} />
-              {v?.headline}
-            </span>
-            {!status?.capturing ? (
-              <>
-                <button className="btn-seal" disabled={!!busy} onClick={() => start("screen")}>
-                  Record my screen
+          {!status?.capturing ? (
+            <div>
+              <p className="text-ink-2">Record while you make the piece. Choose what Manmade should watch:</p>
+              <div className="capture-choices mt-4">
+                <button type="button" className="capture-choice" disabled={!!busy} onClick={() => start("screen")}>
+                  <span className="capture-choice-title">Record my screen</span>
+                  <span className="capture-choice-text">For digital work. Your browser asks which window to share: pick the drawing app.</span>
                 </button>
-                <button className="btn-ghost" disabled={!!busy} onClick={() => start("camera")}>
-                  Record with camera
+                <button type="button" className="capture-choice" disabled={!!busy} onClick={() => start("camera")}>
+                  <span className="capture-choice-title">Record with camera</span>
+                  <span className="capture-choice-text">For paper, canvas or clay. Point this device&rsquo;s camera at the work and keep it still.</span>
                 </button>
-                {busy === "Starting" && (
-                  <span className="text-sm text-ink-2" role="status">Allow the camera or choose a screen in your browser&rsquo;s prompt.</span>
-                )}
-              </>
-            ) : (
-              <>
+              </div>
+              {busy === "Starting" && (
+                <p className="mt-3 text-sm text-ink-2" role="status">Allow the camera or choose a window in your browser&rsquo;s prompt.</p>
+              )}
+              <p className="mt-3 text-sm text-ink-3">{v?.headline}</p>
+            </div>
+          ) : (
+            <div>
+              {live && (
+                <figure className="capture-preview">
+                  <video autoPlay muted playsInline ref={(el) => { if (el && el.srcObject !== live.stream) el.srcObject = live.stream; }} aria-label={`Live preview of what is being recorded (${live.kind})`} />
+                  <figcaption>
+                    <span className="capture-live"><span aria-hidden className="capture-dot" />Live</span>
+                    <span>This is exactly what each frame captures.</span>
+                  </figcaption>
+                </figure>
+              )}
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <span className="text-sm text-ink-2">{v?.headline}</span>
                 <button className="btn-ghost" onClick={() => run("Capturing", () => session.current!.captureNow().then(() => session.current!.flush()))}>
                   Take a frame now
                 </button>
                 <button className="btn-primary" onClick={() => run("Stopping", () => session.current!.stop())}>
                   Stop
                 </button>
-              </>
-            )}
-          </div>
+              </div>
+            </div>
+          )}
           <p className="mt-3 text-xs text-ink-3">
-            A frame every {fast ? "5 seconds (demo timing)" : "minute for screens, two minutes for cameras"}. Each frame is signed on this device and chained to the last; nothing can be slipped in later.
+            Manmade keeps a frame every {fast ? "5 seconds (demo timing)" : "minute for screens, two minutes for cameras"}, plus any you take. Each frame is signed on this device and chained to the last, so none can be added later. Frames stay private until you choose which to show.
           </p>
           {v?.problem && (
             <div role="status" className="mt-3 flex flex-wrap items-center gap-3 rounded-sm border border-amber/40 bg-amber/10 px-3 py-2 text-sm">

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { useNear } from "@/components/NearProvider";
 import { ErrorNote, useAction, usePoll } from "@/components/ui";
-import { useEvidence } from "@/lib/evidence";
+import { useEvidence, useHasEvidenceSession } from "@/lib/evidence";
 import {
   CONCERN_QUESTION, CONCERN_TEXT, HELPFUL_TEXT, NOTE_MIN_CHARS, ratingLine, REPORT_TEXT, REQUEST_TEXT, requestLine, UNHELPFUL_TEXT,
   type Concern, type ContextNote, type EvidenceRequest,
@@ -17,12 +17,18 @@ import {
  * report; operators can remove.
  */
 export function ContextNotes({ pieceId, artist, bare = false }: { pieceId: string; artist: string; bare?: boolean }) {
-  const { accountId } = useNear();
+  const { accountId, config } = useNear();
   const evidence = useEvidence();
+  // Reading questions never asks the wallet to sign: signed-in readers read anonymously until they act,
+  // or until they choose to see the questions waiting for ratings (one signature, then a session).
+  const sessionReady = useHasEvidenceSession();
+  const [wantsQueue, setWantsQueue] = useState(false);
+  // demo accounts on the local chain sign silently, so they always read as themselves
+  const authed = !!accountId && (config.network === "sandbox" || sessionReady || wantsQueue);
   const { data, reload } = usePoll(
-    () => evidence<{ notes: ContextNote[]; canModerate: boolean }>("GET", `/pieces/${pieceId}/context-notes`, undefined, { anonymous: !accountId }),
+    () => evidence<{ notes: ContextNote[]; canModerate: boolean }>("GET", `/pieces/${pieceId}/context-notes`, undefined, { anonymous: !authed }),
     8000,
-    [pieceId, accountId],
+    [pieceId, accountId, authed],
   );
   if (!data) return null;
   const isArtist = accountId === artist;
@@ -48,6 +54,11 @@ export function ContextNotes({ pieceId, artist, bare = false }: { pieceId: strin
         <ul className="mt-4 space-y-4">{shown.map(card)}</ul>
       )}
 
+      {accountId && !authed && (
+        <button type="button" className="mt-4 text-sm text-ink-2 underline" onClick={() => setWantsQueue(true)}>
+          See questions waiting for ratings (your account signs once to open a 30-minute session)
+        </button>
+      )}
       {accountId && pending.length > 0 && (
         <Fold className="mt-5" initiallyOpen={isArtist || pending.some((n) => n.author === accountId || !n.myRating)}
           summary={<span className="text-sm font-medium">Waiting for ratings ({pending.length}) — not shown to visitors</span>}>

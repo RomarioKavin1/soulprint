@@ -53,17 +53,27 @@ export interface TermsJson {
   client: string | null;
 }
 
-export const GRANT_TEXT: Record<GrantKind, { title: string; plain: string }> = {
-  Personal: { title: "Personal use", plain: "The owner may keep, display and share the work privately. No commercial use." },
+export const GRANT_TEXT: Record<GrantKind, { title: string; plain: string; guide: string }> = {
+  Personal: {
+    title: "Personal use",
+    plain: "The owner may keep, display and share the work privately. No commercial use.",
+    guide: "The owner may keep, display and share it privately; no commercial use. Right for most collectors.",
+  },
   CommercialNonExclusive: {
     title: "Commercial, non-exclusive",
     plain: "The owner may use the work commercially. The artist may still use and license it to others.",
+    guide: "The owner may use it commercially (e.g. on merchandise or in an ad); you may still use and license it to others.",
   },
   CommercialExclusive: {
     title: "Commercial, exclusive",
     plain: "The owner may use the work commercially and the artist will not license it to anyone else. The artist keeps authorship.",
+    guide: "The owner may use it commercially and you will not license it to anyone else (e.g. a logo); you keep authorship.",
   },
-  FullAssignment: { title: "Full assignment", plain: "Copyright passes to the owner. The artist may keep it in their portfolio only if attribution is on." },
+  FullAssignment: {
+    title: "Full assignment",
+    plain: "Copyright passes to the owner. The artist may keep it in their portfolio only if attribution is on.",
+    guide: "Copyright passes to the owner; you may show it in your portfolio only if “Credit me” is on.",
+  },
 };
 
 /**

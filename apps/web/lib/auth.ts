@@ -28,9 +28,40 @@ export class EvidenceError extends Error {
 
 /**
  * Plan 3 review I2: one wallet signature opens a 30-minute session with the evidence service;
- * requests then carry `Session <token>`. Cached per (service, account) in memory only.
+ * requests then carry `Session <token>`. Cached per (service, account) in memory and in the browser's
+ * storage until it expires, so moving between pages or tabs does not ask the wallet to sign again.
  */
-const sessions = new Map<string, { token: string; expiresAt: number }>();
+const STORE = "manmade.evidence-session.";
+const sessions = {
+  get(k: string): { token: string; expiresAt: number } | undefined {
+    try {
+      const v = typeof localStorage !== "undefined" ? localStorage.getItem(STORE + k) : null;
+      const s = v ? (JSON.parse(v) as { token: string; expiresAt: number }) : undefined;
+      if (s && s.expiresAt > Date.now()) return s;
+      if (s) localStorage.removeItem(STORE + k);
+    } catch { /* storage blocked: memory only */ }
+    return memory.get(k);
+  },
+  set(k: string, v: { token: string; expiresAt: number }) {
+    memory.set(k, v);
+    try { localStorage.setItem(STORE + k, JSON.stringify(v)); } catch { /* storage blocked */ }
+  },
+  delete(k: string) {
+    memory.delete(k);
+    try { localStorage.removeItem(STORE + k); } catch { /* storage blocked */ }
+  },
+  clear() {
+    memory.clear();
+    try { for (const key of Object.keys(localStorage)) if (key.startsWith(STORE)) localStorage.removeItem(key); } catch { /* storage blocked */ }
+  },
+};
+const memory = new Map<string, { token: string; expiresAt: number }>();
+
+/** True when this account already has a live session, so a signed request will not prompt the wallet. */
+export function hasSession(base: string, recipient: string, accountId: string): boolean {
+  const s = sessions.get(`${base}|${recipient}|${accountId}`);
+  return !!s && s.expiresAt - 60_000 > Date.now();
+}
 const pendingSessions = new Map<string, Promise<string>>();
 
 export function forgetSessions() {
