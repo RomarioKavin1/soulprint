@@ -4,7 +4,7 @@
 - Project `manmade` (scope romario-kavins-projects), root directory `apps/web`, Node 22.
 - Live: https://manmade-seven.vercel.app (domain manmade.works not attached yet).
 - Every push to `main` deploys (Vercel git integration). Manual: `vercel deploy --prod --scope romario-kavins-projects` from the repo root.
-- Env (production + preview): `SOULPRINT_NETWORK=testnet`, `SOULPRINT_CONFIG_JSON` (the `testnet` entry of config/networks.json — no secrets), `EVIDENCE_URL=<tunnel>/ev`, `INDEXER_URL=<tunnel>/ix`, `GALLERY_HIDE_ARTISTS=soulprint-v1-artist.soulprint-owner-12f173.testnet` (keeps the deploy's test pieces off the walls; their pages still open by link — remove the variable to show them again).
+- Env (production + preview): `SOULPRINT_NETWORK=testnet`, `SOULPRINT_CONFIG_JSON` (the `testnet` entry of config/networks.json — no secrets), `EVIDENCE_URL=<tunnel>/ev`, `INDEXER_URL=<tunnel>/ix`, `GALLERY_TEST_ARTISTS=soulprint-v1-artist.soulprint-owner-12f173.testnet` (marks the deploy's test pieces: the gallery's **Hide test pieces** option, ticked by default, hides them; the landing and artist pages leave them out; their pages still open by link).
 
 ## Services — OCI_ARM_1 (ssh alias in ~/.ssh/config)
 - Everything under `~/manmade`: `app/` (this repo, pulled with a read-only deploy key in `keys/`), `data/{evidence,indexer,relayer}`, `env/services.env` (secret keys, chmod 600, never in git).

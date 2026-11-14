@@ -121,3 +121,19 @@ describe("showcase: sorting and filtering", async () => {
     expect(queryString({ sort: "price-asc", examples: false, q: "dune" })).toBe("?sort=price-asc&q=dune&examples=hide");
   });
 });
+
+describe("test pieces", () => {
+  it("are hidden by default and shown with tests=show", async () => {
+    const { applyQuery, buildItems, parseQuery, queryString } = await import("../lib/showcase.ts");
+    const g = [
+      { ...base, pieceId: "p1.c", artist: "tester.near", publishedAt: 2 },
+      { ...base, pieceId: "p2.c", artist: "real.near", publishedAt: 1 },
+    ];
+    const items = buildItems(g as any, [], [], new Set(["tester.near"]));
+    expect(items.find((i) => i.id === "p1.c")!.test).toBe(true);
+    expect(applyQuery(items, parseQuery({})).map((i) => i.id)).toEqual(["p2.c"]);
+    expect(applyQuery(items, parseQuery({ tests: "show" })).map((i) => i.id)).toEqual(["p1.c", "p2.c"]);
+    expect(queryString({ tests: true })).toBe("?tests=show");
+    expect(queryString({ tests: false })).toBe("");
+  });
+});

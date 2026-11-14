@@ -37,6 +37,8 @@ export interface ShowcaseItem {
   reserved: boolean;
   collected: boolean;
   questions: number;
+  /** A piece by a test account (hidden unless the visitor shows test pieces). */
+  test?: boolean;
   /** Neutral note when readers asked a question that is shown (says when the artist answered). */
   notesBadge: string | null;
   date?: string;
@@ -62,6 +64,8 @@ export interface Query {
   q: string;
   artist: string;
   examples: boolean;
+  /** Show test pieces (off by default). */
+  tests: boolean;
 }
 
 /** URL search params → a query, tolerating anything a visitor types into the address bar. */
@@ -75,6 +79,7 @@ export function parseQuery(sp: Record<string, string | string[] | undefined>): Q
     q: one("q").slice(0, 80),
     artist: one("artist").slice(0, 100),
     examples: one("examples") !== "hide",
+    tests: one("tests") === "show",
   };
 }
 
@@ -87,11 +92,12 @@ export function queryString(q: Partial<Query>): string {
   if (q.q) p.set("q", q.q);
   if (q.artist) p.set("artist", q.artist);
   if (q.examples === false) p.set("examples", "hide");
+  if (q.tests) p.set("tests", "show");
   const s = p.toString();
   return s ? `?${s}` : "";
 }
 
-export function buildItems(gallery: GalleryPiece[], market: MarketRow[], classics: Classic[]): ShowcaseItem[] {
+export function buildItems(gallery: GalleryPiece[], market: MarketRow[], classics: Classic[], testArtists: Set<string> = new Set()): ShowcaseItem[] {
   const byId = new Map(market.map((m) => [m.pieceId, m]));
   const pieces: ShowcaseItem[] = gallery.map((p) => {
     const m = byId.get(p.pieceId);
@@ -111,6 +117,7 @@ export function buildItems(gallery: GalleryPiece[], market: MarketRow[], classic
       collected: !!m && ((m.owner !== null && m.owner !== p.artist) || m.sales > 0),
       questions: p.notes?.shown ?? 0,
       notesBadge: galleryBadge(p.notes),
+      test: testArtists.has(p.artist),
     };
   });
   const examples: ShowcaseItem[] = classics.map((c, i) => ({
@@ -142,6 +149,7 @@ export function applyQuery(items: ShowcaseItem[], q: Query): ShowcaseItem[] {
   const needle = q.q.trim().toLowerCase();
   const out = items.filter((it) => {
     if (it.kind === "example" && !q.examples) return false;
+    if (it.test && !q.tests) return false;
     if (q.artist && it.artist !== q.artist) return false;
     if (needle && !`${it.title} ${it.artist}`.toLowerCase().includes(needle)) return false;
     if (q.level !== "any") {
@@ -169,6 +177,6 @@ export function applyQuery(items: ShowcaseItem[], q: Query): ShowcaseItem[] {
 }
 
 /** Artists with at least one piece, for the artist filter. */
-export function artistsOf(items: ShowcaseItem[]) {
-  return [...new Set(items.filter((i) => i.kind === "piece").map((i) => i.artist))].sort();
+export function artistsOf(items: ShowcaseItem[], includeTests = true) {
+  return [...new Set(items.filter((i) => i.kind === "piece" && (includeTests || !i.test)).map((i) => i.artist))].sort();
 }

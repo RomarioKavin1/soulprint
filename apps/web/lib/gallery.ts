@@ -20,30 +20,31 @@ export interface GalleryPiece {
 }
 
 /** Server side: the evidence service directly. `null` means it could not be reached (not "empty"). */
-export async function loadGallery(evidenceUrl: string, q: { artist?: string; limit?: number } = {}): Promise<GalleryPiece[] | null> {
+export async function loadGallery(evidenceUrl: string, q: { artist?: string; limit?: number; includeTests?: boolean } = {}): Promise<GalleryPiece[] | null> {
   const params = new URLSearchParams();
   if (q.artist) params.set("artist", q.artist);
   if (q.limit) params.set("limit", String(q.limit));
   try {
     const r = await fetch(`${evidenceUrl}/gallery${params.size ? `?${params}` : ""}`, { cache: "no-store" });
     if (!r.ok) return null;
-    return hideListed(((await r.json()) as { pieces: GalleryPiece[] }).pieces);
+    const pieces = ((await r.json()) as { pieces: GalleryPiece[] }).pieces;
+    return q.includeTests ? pieces : withoutTests(pieces);
   } catch {
     return null;
   }
 }
 
 /**
- * Artists whose pieces stay off the public walls (gallery, landing, artist pages): GALLERY_HIDE_ARTISTS,
- * comma-separated. Used on the hosted testnet site to keep the deploy's test pieces out of view; the
- * pieces themselves are untouched and their pages still open by direct link.
+ * Test accounts whose pieces are test pieces: GALLERY_TEST_ARTISTS, comma-separated (set on the hosted
+ * testnet site for the deploy's own test artist). The gallery hides them by default behind a "Hide test
+ * pieces" option; the landing and artist pages leave them out. Their pages still open by direct link.
  */
-export function hiddenArtists(): Set<string> {
-  return new Set((process.env.GALLERY_HIDE_ARTISTS ?? "").split(",").map((a) => a.trim()).filter(Boolean));
+export function testArtists(): Set<string> {
+  return new Set((process.env.GALLERY_TEST_ARTISTS ?? process.env.GALLERY_HIDE_ARTISTS ?? "").split(",").map((a) => a.trim()).filter(Boolean));
 }
-function hideListed(pieces: GalleryPiece[]): GalleryPiece[] {
-  const hidden = hiddenArtists();
-  return hidden.size ? pieces.filter((p) => !hidden.has(p.artist)) : pieces;
+function withoutTests(pieces: GalleryPiece[]): GalleryPiece[] {
+  const tests = testArtists();
+  return tests.size ? pieces.filter((p) => !tests.has(p.artist)) : pieces;
 }
 
 /** "p7.soulprint.test.near" → "7". */

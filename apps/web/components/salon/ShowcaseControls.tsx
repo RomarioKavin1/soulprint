@@ -7,7 +7,7 @@ import { AVAILABILITY, LEVELS, queryString, SORTS, type Query } from "@/lib/show
  * The finding aid: one printed bar of controls. Every change rewrites the URL (so any view is a
  * link) and the server re-hangs the wall. Works as a plain GET form without JavaScript.
  */
-export function ShowcaseControls({ query, artists }: { query: Query; artists: string[] }) {
+export function ShowcaseControls({ query, artists, testCount = 0 }: { query: Query; artists: string[]; testCount?: number }) {
   const router = useRouter();
   const path = usePathname();
   const [q, setQ] = useState(query.q);
@@ -65,11 +65,19 @@ export function ShowcaseControls({ query, artists }: { query: Query; artists: st
         <input type="checkbox" name="examples" value="show" aria-label="Show examples" checked={view.examples} onChange={(e) => go({ examples: e.target.checked })} />
         <span>Show examples</span>
       </label>
+      {testCount > 0 && (
+        <label className="fa-toggle" title={`${testCount} pieces made by the test accounts while building Manmade`}>
+          {/* checked = hidden; the URL carries tests=show when unticked */}
+          <input type="checkbox" aria-label="Hide test pieces" checked={!view.tests} onChange={(e) => go({ tests: !e.target.checked })} />
+          <input type="hidden" name="tests" value={view.tests ? "show" : ""} disabled={!view.tests} />
+          <span>Hide test pieces</span>
+        </label>
+      )}
       <div className="fa-actions">
         <button type="submit" className="btn-ghost">Search</button>
         {/* the slot is always there, so the bar never shifts when a filter is set */}
         {(
-          <button type="button" className="fa-reset" disabled={!anyFilter} aria-hidden={!anyFilter || undefined} tabIndex={anyFilter ? undefined : -1} style={anyFilter ? undefined : { visibility: "hidden" }} onClick={() => { setQ(""); const cleared = { ...view, q: "", level: "any" as const, availability: "any" as const, artist: "", examples: true }; setView(cleared); start(() => router.replace(`${path}${queryString({ sort: view.sort })}`, { scroll: false })); }}>
+          <button type="button" className="fa-reset" disabled={!anyFilter} aria-hidden={!anyFilter || undefined} tabIndex={anyFilter ? undefined : -1} style={anyFilter ? undefined : { visibility: "hidden" }} onClick={() => { setQ(""); const cleared = { ...view, q: "", level: "any" as const, availability: "any" as const, artist: "", examples: true, tests: false }; setView(cleared); start(() => router.replace(`${path}${queryString({ sort: view.sort })}`, { scroll: false })); }}>
             Clear filters
           </button>
         )}
