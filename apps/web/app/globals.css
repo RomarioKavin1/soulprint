@@ -597,7 +597,7 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   }
 }
 
-/* ---------------- the pitch (/pitch): four slides on the Manmade wall ---------------- */
+/* ---------------- the pitch (/pitch): five slides on the Manmade wall ---------------- */
 .deck {
   position: fixed; inset: 0; z-index: 60; overflow: hidden;
   background-color: var(--color-wall);
@@ -619,7 +619,8 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 .deck-dots { display: flex; gap: 8px; }
 .deck-dots button { display: block; width: 22px; height: 3px; background: var(--color-rule); }
 .deck-dots button[aria-current] { background: var(--color-seal); }
-.deck-exit { font-family: var(--font-display); font-style: italic; font-size: 1.05rem; color: var(--color-ink-2); text-decoration: none; padding-left: 12px; border-left: 1px solid var(--color-rule); }
+.deck-exit { font-family: var(--font-display); font-weight: 500; font-size: 1.1rem; color: var(--color-ink); text-decoration: none; padding-left: 12px; border-left: 1px solid var(--color-rule); }
+.deck-exit span { font-style: italic; font-size: 0.72em; color: var(--color-seal); }
 .deck-exit:hover { color: var(--color-seal); }
 
 /* 1. title: the brushwork, the wordmark, the line */
@@ -631,7 +632,8 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 .deck-wordmark span { font-style: italic; font-size: 0.72em; color: var(--color-seal); }
 .deck-title-h { margin-top: clamp(24px, 4vh, 44px); font-family: var(--font-display); font-weight: 500; font-size: clamp(3rem, 6.2vw, 6rem); line-height: 0.96; letter-spacing: -0.025em; }
 .deck-title-sub { margin-top: 26px; max-width: 34ch; font-size: clamp(1.1rem, 1.4vw, 1.3rem); color: var(--color-ink-2); }
-.deck-title-meta { margin-top: 34px; font-family: var(--font-plaque); font-weight: 600; font-size: 0.74rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-ink-3); }
+.deck-title-media { margin-top: 10px; font-family: var(--font-display); font-style: italic; font-size: clamp(1.15rem, 1.5vw, 1.35rem); color: var(--color-ink); }
+.deck-title-meta { margin-top: 30px; font-family: var(--font-plaque); font-weight: 600; font-size: 0.74rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-ink-3); }
 .deck-title-whole { position: absolute; right: var(--edge); bottom: 96px; --h: clamp(110px, 12vw, 170px); }
 .deck-title-whole img { height: var(--h); width: auto; display: block; }
 
@@ -640,9 +642,14 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 .deck-why > div { padding: 26px 32px 28px 0; font-size: clamp(1.05rem, 1.3vw, 1.25rem); color: var(--color-ink-2); }
 .deck-why > div + div { padding-left: 32px; border-left: 1px solid var(--color-rule); }
 .deck-col-h { margin-bottom: 10px; font-family: var(--font-plaque); font-weight: 600; font-size: 0.76rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-ink); }
-.deck-why > div + div .deck-col-h { color: var(--color-seal-2); }
 .deck-quote { margin-top: clamp(28px, 5vh, 52px); max-width: 30ch; font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: clamp(1.7rem, 2.6vw, 2.5rem); line-height: 1.18; color: var(--color-ink); }
 .deck-honest { margin-top: 22px; max-width: 58ch; color: var(--color-ink-2); }
+
+/* 2. why: words left, a sculpture standing on the right */
+.deck-split { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: clamp(32px, 5vw, 80px); align-items: center; }
+.deck-art { display: flex; justify-content: center; }
+.deck-art .sculpture img { height: min(56vh, 500px); width: auto; }
+.deck-split .deck-h { max-width: 14ch; }
 
 /* 3. the making: five steps along one hairline */
 .deck-steps { margin-top: clamp(32px, 6vh, 64px); display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid var(--color-ink-3); }
@@ -655,16 +662,45 @@ code, .tabular { font-variant-numeric: tabular-nums; }
 .deck-check { display: flex; gap: 12px; align-items: baseline; color: var(--color-ink); }
 .deck-check svg { flex: none; color: var(--color-moss); transform: translateY(2px); }
 
+/* 4. tech: one lead idea, then a ruled ledger */
+.deck-lead { margin-top: clamp(24px, 4vh, 44px); padding: 20px 0 22px; border-block: 2px solid var(--color-ink); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px 40px; align-items: baseline; }
+.deck-lead-k { font-family: var(--font-display); font-weight: 500; font-style: italic; font-size: clamp(1.6rem, 2.4vw, 2.2rem); line-height: 1.1; color: var(--color-seal); }
+.deck-lead-v { font-size: clamp(1.02rem, 1.25vw, 1.15rem); color: var(--color-ink); }
+
 /* 4. tech: a ruled ledger */
-.deck-ledger { margin-top: clamp(28px, 5vh, 56px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 48px; }
-.deck-ledger > div { display: grid; gap: 6px; padding-block: 18px; border-top: 1px solid var(--color-rule); }
+.deck-lead + .deck-ledger > div:nth-child(-n + 2) { border-top: 0; }
+.deck-ledger { margin-top: 6px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 48px; }
+.deck-ledger > div { display: grid; align-content: start; gap: 6px; padding-block: 18px; border-top: 1px solid var(--color-rule); }
 .deck-ledger dt { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.35rem, 1.8vw, 1.75rem); line-height: 1.1; }
 .deck-ledger dd { color: var(--color-ink-2); }
-.deck-close { margin-top: 28px; font-family: var(--font-plaque); font-weight: 600; font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-ink-3); }
+.deck-close { margin-top: 8px; font-family: var(--font-plaque); font-weight: 600; font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-ink-3); }
 .deck-close a { color: var(--color-seal); }
 
+/* 5. the flowchart: printed boxes and hairline arrows on the wall */
+.deck-flow { margin: clamp(20px, 4vh, 40px) 0 0; }
+.deck-flow svg { display: block; width: 100%; height: auto; max-height: 52vh; overflow: visible; }
+.flow-node rect { fill: #ffffff; stroke: var(--color-rule); stroke-width: 1.2; }
+.flow-main rect { stroke: var(--color-ink); stroke-width: 2; }
+.flow-box { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; }
+.flow-t { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: 24px; line-height: 1.1; color: var(--color-ink); }
+.flow-main .flow-t { font-size: 30px; color: var(--color-seal); font-style: italic; }
+.flow-s { margin: 0; font-family: var(--font-sans); font-size: 15px; line-height: 1.35; color: var(--color-ink-2); }
+.flow-link { color: var(--color-ink-3); }
+.flow-link path { fill: none; stroke: currentColor; stroke-width: 1.3; }
+.flow-link text { font-family: var(--font-plaque); font-weight: 600; font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; fill: var(--color-ink-2); paint-order: stroke; stroke: var(--color-wall); stroke-width: 7px; stroke-linejoin: round; }
+.deck-final { margin-top: clamp(12px, 2.4vh, 24px); font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: clamp(1.5rem, 2.2vw, 2.1rem); line-height: 1.15; }
+.deck-flow-list { display: none; }
+@media (max-height: 760px) and (min-width: 901px) {
+  .deck-body { padding-top: 36px; padding-bottom: 96px; }
+  .deck-h { font-size: clamp(2.2rem, 4vw, 3.6rem); }
+}
 @media (max-width: 900px) {
-  .deck-why, .deck-ledger { grid-template-columns: minmax(0, 1fr); }
+  .deck-why, .deck-ledger, .deck-split, .deck-lead { grid-template-columns: minmax(0, 1fr); }
+  .deck-art .sculpture img { height: 40vh; }
+  .deck-body { padding-bottom: 96px; }
+  .deck-nav { bottom: 12px; padding: 6px 10px; }
+  .deck-art { display: none; }
+  .deck-body { padding-bottom: 110px; }
   .deck-why > div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--color-rule); }
   .deck-steps { grid-template-columns: minmax(0, 1fr); border-top: 0; border-left: 1px solid var(--color-ink-3); }
   .deck-steps li { padding: 0 0 22px 22px; }
@@ -672,4 +708,8 @@ code, .tabular { font-variant-numeric: tabular-nums; }
   .deck-title-whole { display: none; }
   .deck-title::before { background: linear-gradient(180deg, rgba(246, 244, 239, 0.94) 0%, rgba(246, 244, 239, 0.86) 62%, rgba(246, 244, 239, 0.25) 100%); }
   .deck-exit { display: none; }
+  .deck-flow svg { display: none; }
+  .deck-flow-list { display: grid; gap: 12px; counter-reset: flow; }
+  .deck-flow-list li { padding: 12px 14px; background: #ffffff; border: 1px solid var(--color-rule); color: var(--color-ink-2); }
+  .deck-flow-list b { color: var(--color-ink); font-weight: 600; }
 }
