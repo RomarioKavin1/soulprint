@@ -2,7 +2,7 @@
 
 ## Web — Vercel
 - Project `manmade` (scope romario-kavins-projects), root directory `apps/web`, Node 22.
-- Live: https://manmade-seven.vercel.app (domain manmade.works not attached yet).
+- Live: https://manmade.works (domain manmade.works not attached yet).
 - Every push to `main` deploys (Vercel git integration). Manual: `vercel deploy --prod --scope romario-kavins-projects` from the repo root.
 - Env (production + preview): `SOULPRINT_NETWORK=testnet`, `SOULPRINT_CONFIG_JSON` (the `testnet` entry of config/networks.json — no secrets), `EVIDENCE_URL=<tunnel>/ev`, `INDEXER_URL=<tunnel>/ix`, `GALLERY_TEST_ARTISTS=soulprint-v1-artist.soulprint-owner-12f173.testnet` (marks the deploy's test pieces: the gallery's **Hide test pieces** option, ticked by default, hides them; the landing and artist pages leave them out; their pages still open by link).
 

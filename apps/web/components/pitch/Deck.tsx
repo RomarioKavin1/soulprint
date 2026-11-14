@@ -278,7 +278,7 @@ function Flow() {
         </ol>
       </figure>
       <p className="deck-final">Every piece keeps its making — and pays its artist again.</p>
-      <p className="deck-close">Live on NEAR testnet · <a href="https://manmade-seven.vercel.app">manmade-seven.vercel.app</a></p>
+      <p className="deck-close">Live on NEAR testnet · <a href="https://manmade.works">manmade.works</a></p>
     </div>
   );
 }

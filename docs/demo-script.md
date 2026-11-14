@@ -1,7 +1,7 @@
 # Demo script (3 minutes)
 
 Two places, both ready:
-- **Live (testnet):** https://manmade-seven.vercel.app — real pieces on NEAR testnet, links out to NearBlocks. Signing in needs a NEAR testnet wallet, so show the live site as a **visitor** (no signing).
+- **Live (testnet):** https://manmade.works — real pieces on NEAR testnet, links out to NearBlocks. Signing in needs a NEAR testnet wallet, so show the live site as a **visitor** (no signing).
 - **Local (sandbox):** `make demo`, then http://127.0.0.1:3000 — switch people with the **Signed in as** menu (artist, client, buyer, shop…). Every account starts with 1000 test USDC. Use it for the **making and selling** part.
 
 Prepare: run `make demo` (a fresh local chain) right before recording. Two windows side by side: left **Artist** (open http://127.0.0.1:3000/studio?as=artist.test.near), right **Visitor** (http://127.0.0.1:3000/gallery?as=shop.test.near). Each window keeps its own person. A sheet of paper and a pencil in front of the webcam (or a drawing app with **Record my screen**). Have the live site open in a third tab, on a piece with public frames.
@@ -12,7 +12,7 @@ Prepare: run `make demo` (a fresh local chain) right before recording. Two windo
 |---|---|---|
 | 1 | Live site, landing: let the Van Gogh brushwork sit for a beat, scroll once. | "AI is useful, but the soul of real art should be protected. Manmade hangs every work with the record of how it was made." |
 | 2 | **Enter the gallery**. **Sort** → *Title, A–Z*; toggle **Show examples**; untick **Hide test pieces** to show the pieces made while building, then tick it again. Your own published pieces always show. | "Each label says only what the record shows: declared, recorded while made, or with live checks passed. Never 'proven not AI'." |
-| 3 | Open a piece: your own if you published one on testnet, otherwise the test piece by direct link https://manmade-seven.vercel.app/p/p159.soulprint-v1.soulprint-owner-12f173.testnet (hidden from the walls, still on-chain, listed at 5 USDC). In **The making**, click a frame: it hangs on the wall. **Back to the finished work**. | "Every piece carries its own making." |
+| 3 | Open a piece: your own if you published one on testnet, otherwise the test piece by direct link https://manmade.works/p/p159.soulprint-v1.soulprint-owner-12f173.testnet (hidden from the walls, still on-chain, listed at 5 USDC). In **The making**, click a frame: it hangs on the wall. **Back to the finished work**. | "Every piece carries its own making." |
 | 4 | Point at **Token #N of the Manmade collection, on NEAR's NEP-171 token standard** → **See it on NearBlocks** (NearBlocks names the contract by its code name, "Soulprint"). | "Every artwork is its own NEAR account and a token in the collection — an NFT that carries its making, rights and income." |
 | 5 | Back: **The record** tab → the ✓ **Recomputed in your browser** line → open **On-chain details** (accounts and token link out). **Provenance** tab. | "Anyone can recompute the report's fingerprint here and check it on-chain." |
 

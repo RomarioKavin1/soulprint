@@ -1,6 +1,6 @@
 # Manmade
 
-**Live on NEAR testnet: https://manmade-seven.vercel.app** · *manmade.works* — code name Soulprint: the repository, packages, contracts and on-chain accounts (`soulprint-v1…`) keep that name.
+**Live on NEAR testnet: https://manmade.works** · pitch: https://manmade.works/pitch — code name Soulprint: the repository, packages, contracts and on-chain accounts (`soulprint-v1…`) keep that name.
 
 **Real art, with the making on record.** Artists record how a piece is made — signed frame by
 frame on their own device and anchored on NEAR as they work — then publish it with its making and
